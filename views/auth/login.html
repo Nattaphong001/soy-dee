@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>เข้าสู่ระบบ - soy dee</title>
+    <link rel="stylesheet" href="/assets/css/shared/style.css">
+    <link rel="stylesheet" href="/assets/css/shared/profile.css">
+    <link rel="stylesheet" href="/assets/css/pages/auth.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Theme init: เหมือนหน้าอื่นๆ เป๊ะ ป้องกันหน้าจอกระพริบตอนโหลด -->
+    <script>
+        (function () {
+            try {
+                var saved = localStorage.getItem('theme');
+                if (saved === 'dark') {
+                    document.documentElement.classList.add('dark-theme');
+                }
+            } catch (e) {}
+        })();
+    </script>
+    <script src="/assets/js/shared/api.js"></script>
+    <script>
+        // มี session ค้างอยู่แล้ว ไม่ต้องให้กรอกฟอร์ม login ซ้ำ
+        SoyDeeAPI.redirectIfLoggedIn();
+    </script>
+</head>
+<body class="mobile-body">
+    <div class="bg-blob-a" aria-hidden="true"></div>
+    <div class="bg-blob-b" aria-hidden="true"></div>
+    <div class="bg-dot-grid" aria-hidden="true"></div>
+
+    <!--
+        UI - Login / Auth
+        ----------------------------------------------------------------------
+        มาถึงหน้านี้อัตโนมัติหลังจบ UI - Welcome (ดู welcome.js)
+        แท็บ "ผู้ใช้งานทั่วไป" / "ผู้ดูแลระบบ" สลับ role การเข้าสู่ระบบ
+        (สอดคล้องกับ member_profile / system_data ใน Data Dictionary)
+        ดู logic การสลับแท็บ, toggle รหัสผ่าน, และ validate ที่ assets/js/login.js
+    -->
+    <div class="mobile-app auth-app">
+
+        <main class="app-content auth-content">
+
+            <div class="auth-header">
+                <div class="auth-logo-badge" aria-hidden="true">
+                    <div class="gecko male pose-cool facing-left auth-logo-gecko">
+                        <div class="gecko-inner">
+                            <div class="g-tail"></div>
+                            <div class="g-body">
+                                <div class="g-top"></div>
+                                <div class="g-skirt"></div>
+                            </div>
+                            <div class="g-leg g-leg-back"></div>
+                            <div class="g-leg g-leg-front"></div>
+                            <div class="g-arm g-arm-back"></div>
+                            <div class="g-arm g-arm-front"></div>
+                            <div class="g-head">
+                                <div class="g-eye g-eye-back"><span class="g-pupil"></span><span class="g-lash"></span></div>
+                                <div class="g-eye g-eye-front"><span class="g-pupil"></span><span class="g-lash"></span></div>
+                                <div class="g-nostril"></div>
+                                <div class="g-smile"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <h1 class="auth-welcome-title" data-i18n="welcome-title">ยินดีต้อนรับกลับ</h1>
+                <p class="auth-welcome-sub" data-i18n="welcome-sub">เข้าสู่ระบบเพื่อดูแลสุขภาพของคุณต่อ</p>
+            </div>
+
+            <!-- แท็บ: ผู้ใช้งานทั่วไป / ผู้ดูแลระบบ -->
+            <div class="profile-tabs auth-role-tabs" role="tablist">
+                <button class="profile-tab active" type="button" data-role="member" role="tab" aria-selected="true" data-i18n="tab-member">ผู้ใช้งานทั่วไป</button>
+                <button class="profile-tab" type="button" data-role="admin" role="tab" aria-selected="false" data-i18n="tab-admin">ผู้ดูแลระบบ</button>
+            </div>
+
+            <form class="form-card auth-form" id="loginForm" novalidate>
+
+                <label class="form-field">
+                    <span class="form-label" id="loginIdLabel" data-i18n="label-login-id">ชื่อผู้ใช้ หรือ อีเมล</span>
+                    <input type="text" class="form-input" id="loginId" name="loginId" autocomplete="username" placeholder="กรอกชื่อผู้ใช้ของคุณ" data-i18n-placeholder="placeholder-login-id" required>
+                </label>
+
+                <label class="form-field">
+                    <span class="form-label" data-i18n="label-password">รหัสผ่าน</span>
+                    <div class="password-field-wrap">
+                        <input type="password" class="form-input" id="loginPassword" name="loginPassword" autocomplete="current-password" placeholder="กรอกรหัสผ่านของคุณ" data-i18n-placeholder="placeholder-password" required minlength="6">
+                        <button type="button" class="password-toggle-btn" id="passwordToggleBtn" aria-label="แสดงรหัสผ่าน" aria-pressed="false">
+                            <span class="icon-emoji">👁️</span>
+                        </button>
+                    </div>
+                </label>
+
+                <div class="auth-form-row">
+                    <label class="auth-checkbox">
+                        <input type="checkbox" id="rememberMe" name="rememberMe">
+                        <span class="auth-checkbox-box" aria-hidden="true"></span>
+                        <span class="auth-checkbox-label" data-i18n="remember-me">จดจำฉันไว้</span>
+                    </label>
+                    <button type="button" class="form-link-btn" id="forgotPasswordBtn" data-i18n="forgot-password">ลืมรหัสผ่าน?</button>
+                </div>
+
+                <p class="auth-error" id="authError" role="alert" hidden data-i18n="auth-error-default">กรุณากรอกชื่อผู้ใช้และรหัสผ่านให้ถูกต้อง</p>
+
+                <button type="submit" class="save-btn auth-submit-btn" id="loginSubmitBtn">
+                    <span class="auth-submit-label" data-i18n="submit-label">เข้าสู่ระบบ</span>
+                </button>
+            </form>
+
+            <div class="auth-divider" role="separator">
+                <span data-i18n="divider-or">หรือ</span>
+            </div>
+
+            <p class="auth-footer-text">
+                <span data-i18n="footer-no-account">ยังไม่มีบัญชี?</span>
+                <a href="register.html" class="auth-footer-link" data-i18n="footer-register-link">ลงทะเบียนเลย</a>
+            </p>
+
+        </main>
+    </div>
+
+    <script src="/assets/js/shared/i18n.js"></script>
+    <script src="/assets/js/pages/login.js"></script>
+</body>
+</html>

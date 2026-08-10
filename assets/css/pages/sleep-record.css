@@ -1,0 +1,252 @@
+/* ==============================================================================
+   SLEEP RECORD PAGE — ใช้ token สี/รัศมี/เงาจาก style.css (โหลดคู่กันเสมอ)
+   และ component กลาง back-btn / form-card / form-field / form-input / save-btn
+   จาก profile.css — ไฟล์นี้มีเฉพาะ component ใหม่เฉพาะหน้านี้
+   ============================================================================== */
+
+/* ---------- 1. Hero Card: สรุปชั่วโมงการนอน ---------- */
+.sleep-hero-card {
+    background: var(--accent-grad);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-soft);
+    padding: 26px 20px 22px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 4px;
+    color: #FFFFFF;
+    position: relative;
+    overflow: hidden;
+}
+
+/* จุดตกแต่งจางๆ ให้การ์ดมีมิติ ไม่แบนจนเกินไป (เหมือนแนว bg-blob ของทั้งเว็บ) */
+.sleep-hero-card::before {
+    content: '';
+    position: absolute;
+    top: -60px;
+    right: -50px;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.14);
+    pointer-events: none;
+}
+
+.sleep-hero-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 6px;
+}
+
+.sleep-hero-value {
+    font-size: 34px;
+    font-weight: 700;
+    line-height: 1.1;
+}
+.sleep-hero-value small {
+    font-size: 15px;
+    font-weight: 600;
+    opacity: 0.85;
+}
+
+.sleep-hero-label {
+    font-size: 12.5px;
+    font-weight: 500;
+    opacity: 0.9;
+    margin-bottom: 12px;
+}
+
+.sleep-eval-badge {
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: var(--radius-pill);
+    padding: 7px 16px;
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    transition: background-color 0.25s ease;
+}
+
+/* สถานะประเมิน — คุมด้วย data-eval="low|ok|high" จาก JS */
+.sleep-eval-badge[data-eval="low"]   { background: rgba(239, 68, 68, 0.28); }
+.sleep-eval-badge[data-eval="ok"]    { background: rgba(16, 185, 129, 0.30); }
+.sleep-eval-badge[data-eval="high"]  { background: rgba(245, 158, 11, 0.30); }
+
+/* ---------- 2. แถวเวลาเริ่มนอน / ตื่นนอน (สองคอลัมน์) ---------- */
+.sleep-time-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+@media (max-width: 340px) {
+    .sleep-time-row { grid-template-columns: 1fr; }
+}
+
+.sleep-error {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-red);
+    background: rgba(239, 68, 68, 0.1);
+    border-radius: var(--radius-md);
+    padding: 8px 10px;
+}
+
+/* ---------- 3. Quality pills (แนวนอน 3 ช่อง เท่ากัน) ---------- */
+.quality-pill-group {
+    display: flex;
+    gap: 8px;
+}
+
+.quality-pill {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 12px 4px 10px 4px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-hairline);
+    background: var(--surface-alt);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.quality-pill:active {
+    transform: scale(0.96);
+}
+
+.quality-pill .qp-emoji {
+    font-size: 22px;
+    line-height: 1;
+}
+
+.quality-pill.active {
+    background: var(--accent-grad);
+    color: #FFFFFF;
+    border-color: transparent;
+    box-shadow: var(--shadow-card);
+}
+
+/* ---------- 4. ส่วนประวัติการนอนล่าสุด ---------- */
+.history-section {
+    margin-top: 4px;
+}
+
+.history-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 2px 4px 10px 4px;
+}
+
+.history-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.history-subtitle {
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.history-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: 12px 14px;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.history-item:hover {
+    box-shadow: var(--shadow-soft);
+    transform: translateY(-1px);
+}
+
+.history-item-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: rgba(79, 99, 232, 0.12);
+    color: var(--accent-1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.history-item-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.history-item-date {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.history-item-time {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    margin-top: 1px;
+}
+
+.history-item-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.history-item-hours {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.history-item-tag {
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: var(--radius-pill);
+    white-space: nowrap;
+}
+
+.history-item-tag.tag-low  { background: rgba(239, 68, 68, 0.14); color: var(--color-red); }
+.history-item-tag.tag-ok   { background: rgba(16, 185, 129, 0.14); color: var(--color-green); }
+.history-item-tag.tag-high { background: rgba(245, 158, 11, 0.14); color: var(--color-yellow); }
+
+.history-empty {
+    text-align: center;
+    font-size: 12.5px;
+    color: var(--text-muted);
+    background: var(--card-bg);
+    border: 1px dashed var(--border-hairline);
+    border-radius: var(--radius-lg);
+    padding: 22px 14px;
+}

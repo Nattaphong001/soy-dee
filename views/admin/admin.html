@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>จัดการข้อมูลพื้นฐาน - soy dee (Admin)</title>
+    <link rel="stylesheet" href="/assets/css/shared/style.css">
+    <link rel="stylesheet" href="/assets/css/shared/profile.css">
+    <link rel="stylesheet" href="/assets/css/pages/admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Theme init: เหมือนหน้าอื่นๆ เป๊ะ ป้องกันหน้าจอกระพริบตอนโหลด -->
+    <script>
+        (function () {
+            try {
+                var saved = localStorage.getItem('theme');
+                if (saved === 'dark') {
+                    document.documentElement.classList.add('dark-theme');
+                }
+            } catch (e) {}
+        })();
+    </script>
+    <script src="/assets/js/shared/api.js"></script>
+    <script>
+        SoyDeeAPI.guardAdmin();
+    </script>
+</head>
+<body class="mobile-body admin-page">
+    <div class="bg-blob-a" aria-hidden="true"></div>
+    <div class="bg-blob-b" aria-hidden="true"></div>
+    <div class="bg-dot-grid" aria-hidden="true"></div>
+
+    <div class="mobile-app admin-app">
+
+        <div class="top-section">
+            <header class="app-header">
+                <button class="back-btn" type="button" onclick="if (history.length > 1) history.back();" aria-label="ย้อนกลับ">🔙</button>
+                <div class="admin-title-block">
+                    <h1 class="page-title" data-i18n="page-title">จัดการข้อมูลพื้นฐาน</h1>
+                    <span class="admin-role-badge" data-i18n="role-badge">ผู้ดูแลระบบ</span>
+                </div>
+                <button class="back-btn" type="button" id="adminLogoutBtn" aria-label="ออกจากระบบ">🚪</button>
+            </header>
+
+            <!-- แท็บ: ประเภทอาหาร / ประเภทกิจกรรม -->
+            <div class="profile-tabs" role="tablist">
+                <button class="profile-tab active" data-tab="food" role="tab" aria-selected="true" data-i18n="tab-food">🍽️ ประเภทอาหาร</button>
+                <button class="profile-tab" data-tab="activity" role="tab" aria-selected="false" data-i18n="tab-activity">⚡ ประเภทกิจกรรม</button>
+            </div>
+
+            <!-- แถบค้นหา + ปุ่มเพิ่ม -->
+            <div class="admin-toolbar">
+                <div class="search-box">
+                    <span class="search-icon" aria-hidden="true">🔍</span>
+                    <input type="text" class="search-input" id="searchInput" placeholder="ค้นหาชื่อ..." data-i18n-placeholder="placeholder-search">
+                </div>
+                <button class="add-item-btn" type="button" id="addItemBtn">
+                    <span aria-hidden="true">＋</span> <span data-i18n="btn-add">เพิ่ม</span>
+                </button>
+            </div>
+
+            <!-- ข้อผิดพลาดจากการลบ (เช่น 409 CONFLICT ยังมีข้อมูลอ้างอิงอยู่) -->
+            <div class="sheet-error" id="listActionError" style="padding: 0 20px 8px 20px;" hidden></div>
+        </div>
+
+        <main class="app-content">
+
+            <!-- ============== แท็บ 1: ประเภทอาหาร ============== -->
+            <section class="tab-panel" id="tab-food" data-tab-panel="food">
+                <div class="list-summary" id="foodSummary">ทั้งหมด 0 รายการ</div>
+                <div class="item-list" id="foodList"></div>
+                <div class="empty-state" id="foodEmpty" hidden>
+                    <div class="empty-icon">🍽️</div>
+                    <p class="empty-title">ยังไม่มีประเภทอาหารในระบบ</p>
+                    <p class="empty-desc">กดปุ่ม “+ เพิ่ม” ด้านบนเพื่อเริ่มเพิ่มประเภทอาหาร</p>
+                </div>
+            </section>
+
+            <!-- ============== แท็บ 2: ประเภทกิจกรรม ============== -->
+            <section class="tab-panel" id="tab-activity" data-tab-panel="activity" hidden>
+                <div class="list-summary" id="activitySummary">ทั้งหมด 0 รายการ</div>
+                <div class="item-list" id="activityList"></div>
+                <div class="empty-state" id="activityEmpty" hidden>
+                    <div class="empty-icon">⚡</div>
+                    <p class="empty-title">ยังไม่มีประเภทกิจกรรมในระบบ</p>
+                    <p class="empty-desc">กดปุ่ม “+ เพิ่ม” ด้านบนเพื่อเริ่มเพิ่มประเภทกิจกรรม</p>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ============== Modal: เพิ่ม/แก้ไขประเภทอาหาร หรือ กิจกรรม (ใช้ร่วมกัน) ============== -->
+    <div class="modal-overlay" id="itemModalOverlay">
+        <div class="admin-sheet-card">
+            <h2 class="sheet-title" id="itemSheetTitle">เพิ่มประเภทอาหาร</h2>
+
+            <div class="image-upload-row">
+                <div class="image-upload-box" id="itemImagePreview">
+                    <span class="upload-placeholder-icon" id="itemImagePlaceholder">🖼️</span>
+                    <img id="itemImagePreviewImg" alt="" hidden>
+                </div>
+                <div class="image-upload-actions">
+                    <button class="avatar-edit-btn" type="button" id="itemImageBtn" data-i18n="btn-select-image">เลือกรูปภาพ</button>
+                    <button class="form-link-btn" type="button" id="itemImageRemoveBtn" hidden data-i18n="btn-remove-image">ลบรูปภาพ</button>
+                </div>
+                <input type="file" id="itemImageInput" accept="image/*" hidden>
+            </div>
+
+            <label class="form-field">
+                <span class="form-label" id="itemNameLabel">ชื่อประเภทอาหาร</span>
+                <input type="text" class="form-input" id="itemNameInput" placeholder="เช่น ผัก / สลัด" maxlength="100">
+            </label>
+
+            <div class="form-field" id="trafficLightField">
+                <span class="form-label" data-i18n="label-traffic-light">เกณฑ์สีโภชนาการ</span>
+                <div class="traffic-pill-group">
+                    <button type="button" class="traffic-pill traffic-pill-green" data-value="1" data-i18n="traffic-green">🟢 เขียว</button>
+                    <button type="button" class="traffic-pill traffic-pill-yellow" data-value="2" data-i18n="traffic-yellow">🟡 เหลือง</button>
+                    <button type="button" class="traffic-pill traffic-pill-red" data-value="3" data-i18n="traffic-red">🔴 แดง</button>
+                </div>
+                <p class="field-hint" data-i18n="traffic-hint">เขียว = กินได้บ่อย · เหลือง = กินได้แต่พอดี · แดง = ควรจำกัด</p>
+            </div>
+
+            <div class="sheet-error" id="itemSheetError" hidden></div>
+
+            <div class="sheet-actions">
+                <button type="button" class="save-btn" id="itemSaveBtn" data-i18n="btn-save">บันทึก</button>
+                <button type="button" class="form-link-btn" id="itemCancelBtn" data-i18n="btn-cancel">ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/assets/js/shared/i18n.js"></script>
+    <script src="/assets/js/shared/app.js"></script>
+    <script src="/assets/js/pages/admin.js"></script>
+</body>
+</html>

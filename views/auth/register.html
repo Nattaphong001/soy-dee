@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>ลงทะเบียน - soy dee</title>
+    <link rel="stylesheet" href="/assets/css/shared/style.css">
+    <link rel="stylesheet" href="/assets/css/shared/profile.css">
+    <link rel="stylesheet" href="/assets/css/pages/auth.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Theme init: เหมือนหน้าอื่นๆ เป๊ะ ป้องกันหน้าจอกระพริบตอนโหลด -->
+    <script>
+        (function () {
+            try {
+                var saved = localStorage.getItem('theme');
+                if (saved === 'dark') {
+                    document.documentElement.classList.add('dark-theme');
+                }
+            } catch (e) {}
+        })();
+    </script>
+    <script src="/assets/js/shared/api.js"></script>
+    <script>
+        SoyDeeAPI.redirectIfLoggedIn();
+    </script>
+</head>
+<body class="mobile-body">
+    <div class="bg-blob-a" aria-hidden="true"></div>
+    <div class="bg-blob-b" aria-hidden="true"></div>
+    <div class="bg-dot-grid" aria-hidden="true"></div>
+
+    <div class="mobile-app auth-app">
+
+        <main class="app-content auth-content">
+
+            <div class="auth-header">
+                <div class="auth-logo-badge" aria-hidden="true">
+                    <div class="gecko male pose-cool facing-left auth-logo-gecko">
+                        <div class="gecko-inner">
+                            <div class="g-tail"></div>
+                            <div class="g-body">
+                                <div class="g-top"></div>
+                                <div class="g-skirt"></div>
+                            </div>
+                            <div class="g-leg g-leg-back"></div>
+                            <div class="g-leg g-leg-front"></div>
+                            <div class="g-arm g-arm-back"></div>
+                            <div class="g-arm g-arm-front"></div>
+                            <div class="g-head">
+                                <div class="g-eye g-eye-back"><span class="g-pupil"></span><span class="g-lash"></span></div>
+                                <div class="g-eye g-eye-front"><span class="g-pupil"></span><span class="g-lash"></span></div>
+                                <div class="g-nostril"></div>
+                                <div class="g-smile"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <h1 class="auth-welcome-title">สร้างบัญชีใหม่</h1>
+                <p class="auth-welcome-sub">กรอกข้อมูลเพื่อเริ่มดูแลสุขภาพของคุณ</p>
+            </div>
+
+            <form class="form-card auth-form" id="registerForm" novalidate>
+
+                <label class="form-field">
+                    <span class="form-label">ชื่อที่แสดง</span>
+                    <input type="text" class="form-input" id="regFullName" name="fullName" autocomplete="name" placeholder="ชื่อ-นามสกุลของคุณ" required maxlength="100">
+                </label>
+
+                <label class="form-field">
+                    <span class="form-label">ชื่อผู้ใช้ (Username)</span>
+                    <input type="text" class="form-input" id="regUsername" name="username" autocomplete="username" placeholder="อย่างน้อย 4 ตัวอักษร" required minlength="4" maxlength="100">
+                </label>
+
+                <label class="form-field">
+                    <span class="form-label">รหัสผ่าน</span>
+                    <div class="password-field-wrap">
+                        <input type="password" class="form-input" id="regPassword" name="password" autocomplete="new-password" placeholder="อย่างน้อย 8 ตัวอักษร" required minlength="8">
+                        <button type="button" class="password-toggle-btn" id="regPasswordToggleBtn" aria-label="แสดงรหัสผ่าน" aria-pressed="false">
+                            <span class="icon-emoji">👁️</span>
+                        </button>
+                    </div>
+                </label>
+
+                <label class="form-field">
+                    <span class="form-label">ยืนยันรหัสผ่าน</span>
+                    <input type="password" class="form-input" id="regPasswordConfirm" name="passwordConfirm" autocomplete="new-password" placeholder="กรอกรหัสผ่านอีกครั้ง" required minlength="8">
+                </label>
+
+                <div class="form-field">
+                    <span class="form-label">เพศ</span>
+                    <div class="gender-pill-group">
+                        <button class="gender-pill active" data-gender="1" type="button">ชาย</button>
+                        <button class="gender-pill" data-gender="2" type="button">หญิง</button>
+                    </div>
+                </div>
+
+                <label class="form-field">
+                    <span class="form-label">วันเกิด</span>
+                    <input type="date" class="form-input" id="regBirthDate" required>
+                </label>
+
+                <label class="form-field">
+                    <span class="form-label">ส่วนสูง (ซม.)</span>
+                    <input type="number" class="form-input" id="regHeight" min="50" max="250" step="0.1" placeholder="เช่น 170" required>
+                </label>
+
+                <label class="form-field">
+                    <span class="form-label">น้ำหนัก (กก.)</span>
+                    <input type="number" class="form-input" id="regWeight" min="20" max="300" step="0.1" placeholder="เช่น 65" required>
+                </label>
+
+                <label class="form-field">
+                    <span class="form-label">ระดับกิจกรรม</span>
+                    <select class="form-input" id="regActivitySelect">
+                        <option value="low">น้อย (นั่งทำงาน แทบไม่ออกกำลังกาย)</option>
+                        <option value="mid" selected>ปานกลาง (ออกกำลังกาย 3–4 วัน/สัปดาห์)</option>
+                        <option value="high">มาก (ออกกำลังกายหนักเกือบทุกวัน)</option>
+                    </select>
+                </label>
+
+                <div class="form-field">
+                    <span class="form-label">เป้าหมาย</span>
+                    <div class="goal-pill-group">
+                        <button class="goal-pill active" data-goal="1" type="button">🔻 ลดน้ำหนัก</button>
+                        <button class="goal-pill" data-goal="2" type="button">💪 เพิ่มกล้ามเนื้อ</button>
+                        <button class="goal-pill" data-goal="3" type="button">⚖️ รักษาน้ำหนัก</button>
+                    </div>
+                </div>
+
+                <p class="auth-error" id="registerError" role="alert" hidden></p>
+
+                <button type="submit" class="save-btn auth-submit-btn" id="registerSubmitBtn">
+                    <span class="auth-submit-label">ลงทะเบียน</span>
+                </button>
+            </form>
+
+            <p class="auth-footer-text">
+                <span>มีบัญชีอยู่แล้ว?</span>
+                <a href="login.html" class="auth-footer-link">เข้าสู่ระบบ</a>
+            </p>
+
+        </main>
+    </div>
+
+    <script src="/assets/js/pages/register.js"></script>
+</body>
+</html>

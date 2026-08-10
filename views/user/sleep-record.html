@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>บันทึกการนอนหลับ - soy dee</title>
+    <link rel="stylesheet" href="/assets/css/shared/style.css">
+    <link rel="stylesheet" href="/assets/css/shared/nav.css">
+    <link rel="stylesheet" href="/assets/css/shared/profile.css">
+    <!-- ใช้ profile.css ร่วมด้วยเพราะเก็บ component กลางที่ใช้ซ้ำได้ทุกหน้า
+         (back-btn, page-title, form-card, form-field, form-input, save-btn ฯลฯ)
+         ไม่ได้ผูกกับหน้าโปรไฟล์โดยเฉพาะ — ถ้าจะจัดระเบียบภายหลังแนะนำแยกเป็น
+         assets/css/forms.css ใช้ร่วมกันทุกหน้าแทน -->
+    <link rel="stylesheet" href="/assets/css/pages/sleep-record.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Theme init: เหมือนทุกหน้าอื่นเป๊ะ ป้องกันหน้าจอกระพริบตอนโหลด -->
+    <script>
+        (function () {
+            try {
+                var saved = localStorage.getItem('theme');
+                if (saved === 'dark') {
+                    document.documentElement.classList.add('dark-theme');
+                }
+            } catch (e) {}
+        })();
+    </script>
+    <script src="/assets/js/shared/api.js"></script>
+    <script>
+        SoyDeeAPI.guardMember();
+    </script>
+</head>
+<body class="mobile-body">
+    <div class="bg-blob-a" aria-hidden="true"></div>
+    <div class="bg-blob-b" aria-hidden="true"></div>
+    <div class="bg-dot-grid" aria-hidden="true"></div>
+
+    <div class="mobile-app">
+
+        <div class="top-section">
+            <header class="app-header">
+                <button class="back-btn" type="button" onclick="history.length > 1 ? history.back() : (window.location.href = 'index.html')" aria-label="ย้อนกลับ">🔙</button>
+                <h1 class="page-title" data-i18n="page-title">บันทึกการนอนหลับ</h1>
+                <span class="header-spacer" aria-hidden="true"></span>
+            </header>
+        </div>
+
+        <main class="app-content">
+
+            <!-- ==========================================================
+                 1. Hero Card — สรุปผลการนอนล่าสุด/ที่กำลังกรอก
+                 dslp_total_hours (คำนวณสด) + dslp_eval_result (auto)
+                 ========================================================== -->
+            <section class="sleep-hero-card">
+                <div class="sleep-hero-icon" aria-hidden="true">
+                    <span class="icon-emoji">💤</span>
+                </div>
+                <div class="sleep-hero-value numeric" id="sleepDurationValue">–.– <small>ชม.</small></div>
+                <div class="sleep-hero-label" data-i18n="hero-label">ระยะเวลาการนอนหลับรวม</div>
+                <div class="sleep-eval-badge" id="sleepEvalBadge" data-eval="">
+                    <span id="sleepEvalText" data-i18n="eval-pending">กรอกเวลาเพื่อประเมิน</span>
+                </div>
+            </section>
+
+            <!-- ==========================================================
+                 2. ฟอร์มบันทึก — dslp_date, dslp_start_time, dslp_end_time
+                 ========================================================== -->
+            <section class="form-card">
+                <label class="form-field">
+                    <span class="form-label" data-i18n="label-date">วันที่บันทึกการนอน</span>
+                    <input type="date" class="form-input" id="sleepDate">
+                </label>
+
+                <div class="sleep-time-row">
+                    <label class="form-field">
+                        <span class="form-label" data-i18n="label-start">🌙 เวลาที่เริ่มนอน</span>
+                        <input type="time" class="form-input" id="sleepStart">
+                    </label>
+                    <label class="form-field">
+                        <span class="form-label" data-i18n="label-end">☀️ เวลาที่ตื่นนอน</span>
+                        <input type="time" class="form-input" id="sleepEnd">
+                    </label>
+                </div>
+
+                <div class="sleep-error" id="sleepTimeError" hidden data-i18n="err-time-order">เวลาตื่นนอนต้องอยู่หลังเวลาที่เริ่มนอน</div>
+            </section>
+
+            <!-- ==========================================================
+                 3. ประเมินคุณภาพการนอนด้วยตัวเอง — dslp_quality_score
+                 ========================================================== -->
+            <section class="form-card">
+                <div class="form-field">
+                    <span class="form-label" data-i18n="label-quality">คุณภาพการนอน (ประเมินด้วยตัวเอง)</span>
+                    <div class="quality-pill-group" role="radiogroup" aria-label="คุณภาพการนอน">
+                        <button class="quality-pill" type="button" data-quality="1" role="radio" aria-checked="false">
+                            <span class="qp-emoji">😖</span>
+                            <span data-i18n="quality-bad">แย่</span>
+                        </button>
+                        <button class="quality-pill" type="button" data-quality="2" role="radio" aria-checked="false">
+                            <span class="qp-emoji">😐</span>
+                            <span data-i18n="quality-mid">ปานกลาง</span>
+                        </button>
+                        <button class="quality-pill active" type="button" data-quality="3" role="radio" aria-checked="true">
+                            <span class="qp-emoji">😴</span>
+                            <span data-i18n="quality-good">ดี</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <button class="save-btn" type="button" id="saveSleepBtn" data-i18n="save-btn">บันทึกการนอนหลับ</button>
+
+            <!-- ==========================================================
+                 4. ประวัติการนอนล่าสุด — ใช้ข้อมูลชุดเดียวกับที่ป้อน Dashboard
+                 ========================================================== -->
+            <section class="history-section">
+                <div class="history-header">
+                    <h2 class="history-title" data-i18n="history-title">ประวัติการนอนล่าสุด</h2>
+                    <span class="history-subtitle" data-i18n="history-subtitle">7 วันล่าสุด</span>
+                </div>
+                <div class="history-list" id="sleepHistoryList" aria-live="polite">
+                    <!-- รายการถูกสร้างโดย sleep-record.js -->
+                </div>
+                <div class="history-empty" id="sleepHistoryEmpty" hidden data-i18n="history-empty">ยังไม่มีประวัติการนอนหลับ เริ่มบันทึกคืนนี้ได้เลย</div>
+            </section>
+
+        </main>
+
+        <nav id="app-nav-bar" class="nav-pill-wrapper">
+            <ul class="nav-pill-container" id="horizontalNav">
+                <div class="nav-indicator" id="navIndicator"></div>
+                <li><a href="index.html" class="nav-icon-item" data-target="home"><span>🏠</span></a></li>
+                <li><a href="food-record.html" class="nav-icon-item" data-target="food"><span>🥗</span></a></li>
+                <li><a href="activity-record.html" class="nav-icon-item" data-target="activity"><span>⚡</span></a></li>
+                <li><a href="sleep-record.html" class="nav-icon-item active" data-target="sleep"><span>💤</span></a></li>
+                <li><a class="nav-icon-item is-disabled" data-target="report" aria-disabled="true" aria-label="รายงาน (เร็วๆ นี้)"><span>📊</span></a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <script src="/assets/js/shared/nav.js"></script>
+    <script src="/assets/js/shared/app.js"></script>
+    <script src="/assets/js/pages/sleep-record.js"></script>
+</body>
+</html>

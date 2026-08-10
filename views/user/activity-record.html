@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>บันทึกกิจกรรม - soy dee</title>
+    <link rel="stylesheet" href="/assets/css/shared/style.css">
+    <link rel="stylesheet" href="/assets/css/shared/nav.css">
+    <!-- profile.css มีคอมโพเนนต์กลางที่ใช้ร่วมกัน (form-card, form-input, save-btn, back-btn ฯลฯ)
+         หน้านี้ดึงมาใช้ซ้ำแทนการก็อปโค้ดซ้ำ -->
+    <link rel="stylesheet" href="/assets/css/shared/profile.css">
+    <link rel="stylesheet" href="/assets/css/shared/datepicker.css">
+    <link rel="stylesheet" href="/assets/css/pages/activity-record.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Theme init: เหมือนหน้าอื่นๆ เป๊ะ ป้องกันหน้าจอกระพริบตอนโหลด -->
+    <script>
+        (function () {
+            try {
+                var saved = localStorage.getItem('theme');
+                if (saved === 'dark') {
+                    document.documentElement.classList.add('dark-theme');
+                }
+            } catch (e) {}
+        })();
+    </script>
+    <script src="/assets/js/shared/api.js"></script>
+    <script>
+        SoyDeeAPI.guardMember();
+    </script>
+</head>
+<body class="mobile-body">
+    <div class="bg-blob-a" aria-hidden="true"></div>
+    <div class="bg-blob-b" aria-hidden="true"></div>
+    <div class="bg-dot-grid" aria-hidden="true"></div>
+
+    <div class="mobile-app">
+
+        <!-- ============== ส่วนหัว: ปุ่มย้อนกลับ + ชื่อหน้า + ตัวเลือกวันที่ ============== -->
+        <div class="top-section">
+            <header class="app-header">
+                <button class="back-btn" type="button" onclick="history.length > 1 ? history.back() : (window.location.href = 'index.html')" aria-label="ย้อนกลับ">🔙</button>
+                <h1 class="page-title" data-i18n="page-title">บันทึกกิจกรรม</h1>
+                <span class="header-spacer" aria-hidden="true"></span>
+            </header>
+
+            <div class="date-picker-wrapper">
+                <button class="edit-profile-btn today-btn" type="button" id="todayBtn" aria-label="กลับไปวันนี้">
+                    <span class="icon-inline"><span class="icon-emoji">📍</span></span>
+                    <span data-i18n="today-btn">วันนี้</span>
+                </button>
+
+                <div class="date-picker-pill" id="datePickerPill" role="button" tabindex="0" aria-label="เลือกวันที่">
+                    <span class="icon-calendar">📅</span>
+                    <span class="date-text" id="dateText">24 พ.ค. 2567</span>
+                    <span class="icon-chevron">⌄</span>
+                </div>
+            </div>
+        </div>
+
+        <main class="app-content">
+
+            <!-- ==========================================================
+                 1. สรุปกิจกรรมของวันนี้ — จำนวนกิจกรรม / เวลารวม / พลังงานที่ใช้
+                 ========================================================== -->
+            <section class="activity-summary-grid">
+                <div class="stat-card">
+                    <div class="stat-card-row">
+                        <span class="stat-icon icon-blue">
+                            <img src="/assets/icons/activity-count.png" alt="" class="icon-img" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+                            <span class="icon-emoji" style="display:none">📋</span>
+                        </span>
+                        <span class="stat-label" data-i18n="stat-label-count">กิจกรรม</span>
+                    </div>
+                    <div class="stat-value-wrap">
+                        <span class="stat-value numeric" id="summaryCount">0</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-card-row">
+                        <span class="stat-icon icon-green">
+                            <img src="/assets/icons/duration.png" alt="" class="icon-img" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+                            <span class="icon-emoji" style="display:none">⏱️</span>
+                        </span>
+                        <span class="stat-label" data-i18n="stat-label-duration">เวลารวม</span>
+                    </div>
+                    <div class="stat-value-wrap">
+                        <span class="stat-value numeric" id="summaryDuration">0 นาที</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-card-row">
+                        <span class="stat-icon icon-orange">
+                            <img src="/assets/icons/energy-bolt.png" alt="" class="icon-img" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+                            <span class="icon-emoji" style="display:none">⚡</span>
+                        </span>
+                        <span class="stat-label" data-i18n="stat-label-energy">พลังงาน</span>
+                    </div>
+                    <div class="stat-value-wrap">
+                        <span class="stat-value numeric" id="summaryKcal">0 <small>kcal</small></span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================================
+                 2. เลือกประเภทกิจกรรม (จาก activity_master)
+                 ========================================================== -->
+            <section class="form-card">
+                <div class="form-field">
+                    <span class="form-label" data-i18n="label-choose-activity">เลือกกิจกรรม</span>
+                    <div class="activity-chip-scroll" id="activityChipList" role="listbox" aria-label="ประเภทกิจกรรม">
+                        <!-- JS สร้าง .activity-chip ที่นี่จาก GET /activities -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================================
+                 3. ระบุระยะเวลา + บันทึกลงรายการวันนี้
+                 ========================================================== -->
+            <section class="form-card" id="durationCard">
+
+                <!-- แสดงตอนยังไม่ได้เลือกกิจกรรม -->
+                <div class="duration-placeholder" id="durationPlaceholder">
+                    <span class="duration-placeholder-icon">👆</span>
+                    <p data-i18n="duration-placeholder-text">แตะเลือกกิจกรรมด้านบนก่อน เพื่อบันทึกระยะเวลาที่ทำ</p>
+                </div>
+
+                <!-- แสดงตอนเลือกกิจกรรมแล้ว -->
+                <div class="duration-form" id="durationForm" hidden>
+                    <div class="selected-activity-row">
+                        <span class="stat-icon icon-purple" id="selectedActivityIcon">
+                            <span class="icon-emoji">🏃</span>
+                        </span>
+                        <div class="selected-activity-info">
+                            <span class="selected-activity-label" data-i18n="label-selected-activity">กิจกรรมที่เลือก</span>
+                            <span class="selected-activity-name" id="selectedActivityName">-</span>
+                        </div>
+                        <button type="button" class="form-link-btn" id="clearActivityBtn" data-i18n="clear-activity-btn">เปลี่ยน</button>
+                    </div>
+
+                    <div class="duration-input-row">
+                        <label class="form-field">
+                            <span class="form-label" data-i18n="label-hours">ชั่วโมง</span>
+                            <input type="number" class="form-input" id="durationHours" value="0" min="0" max="12" inputmode="numeric">
+                        </label>
+                        <label class="form-field">
+                            <span class="form-label" data-i18n="label-minutes">นาที</span>
+                            <input type="number" class="form-input" id="durationMinutes" value="30" min="0" max="59" step="5" inputmode="numeric">
+                        </label>
+                    </div>
+
+                    <div class="duration-error" id="durationError" hidden data-i18n="duration-error-text">กรุณาระบุระยะเวลาที่ทำกิจกรรมอย่างน้อย 1 นาที</div>
+
+                    <button type="button" class="save-btn inline-save-btn" id="addEntryBtn" data-i18n="add-entry-btn">+ เพิ่มลงบันทึก</button>
+                    <button type="button" class="form-link-btn" id="cancelEditBtn" data-i18n="cancel-edit-btn" hidden>ยกเลิกการแก้ไข</button>
+                </div>
+            </section>
+
+            <!-- ==========================================================
+                 4. รายการกิจกรรมที่บันทึกแล้วของวันนี้
+                 ========================================================== -->
+            <section class="log-section">
+                <div class="section-heading-row">
+                    <h2 class="section-heading" data-i18n="section-heading-today-log">บันทึกของวันนี้</h2>
+                    <span class="count-badge" id="logCountBadge">0 รายการ</span>
+                </div>
+
+                <div class="log-list" id="logList">
+                    <!-- JS render รายการ .log-item หรือ .empty-state ที่นี่ -->
+                </div>
+            </section>
+
+        </main>
+
+        <nav id="app-nav-bar" class="nav-pill-wrapper">
+            <ul class="nav-pill-container" id="horizontalNav">
+                <div class="nav-indicator" id="navIndicator"></div>
+                <li><a href="index.html" class="nav-icon-item" data-target="home"><span>🏠</span></a></li>
+                <li><a href="food-record.html" class="nav-icon-item" data-target="food"><span>🥗</span></a></li>
+                <li><a href="activity-record.html" class="nav-icon-item active" data-target="activity"><span>⚡</span></a></li>
+                <li><a href="sleep-record.html" class="nav-icon-item" data-target="sleep"><span>💤</span></a></li>
+                <li><a class="nav-icon-item is-disabled" data-target="report" aria-disabled="true" aria-label="รายงาน (เร็วๆ นี้)"><span>📊</span></a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <script src="/assets/js/shared/i18n.js"></script>
+    <script src="/assets/js/shared/nav.js"></script>
+    <script src="/assets/js/shared/app.js"></script>
+    <script src="/assets/js/shared/datepicker.js"></script>
+    <script src="/assets/js/pages/activity-record.js"></script>
+</body>
+</html>

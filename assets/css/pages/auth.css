@@ -1,0 +1,404 @@
+/* ==============================================================================
+   AUTH FLOW — UI: Welcome (Splash) + UI: Login/Auth
+   ------------------------------------------------------------------------------
+   ใช้ token สี/รัศมี/เงา/ฟอนต์จาก style.css (โหลดคู่กันเสมอ) — ไฟล์นี้มีเฉพาะ
+   component ที่ไม่มีในหน้าอื่น: welcome stage, progress loader, auth header,
+   role tabs override, password field, checkbox, divider
+   ============================================================================== */
+
+
+/* ==============================================================================
+   1. UI - WELCOME (Splash)
+   ============================================================================== */
+.welcome-app {
+    min-height: 100vh;
+    padding: 0 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.38s ease, transform 0.38s ease;
+}
+
+.welcome-app.is-leaving {
+    opacity: 0;
+    transform: scale(0.97);
+}
+
+.welcome-stage {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+/* กรอบสำหรับมาสคอตกิ้งก่า — ขยายใหญ่จากขนาดต้นฉบับ (58x74) ด้วย transform:scale
+   แทนการแก้ width/height ตรงๆ เพื่อไม่ให้กระทบสัดส่วนโครงสร้างภายใน */
+.welcome-gecko-wrap {
+    position: relative;
+    width: 58px;
+    height: 74px;
+    margin-bottom: 34px;
+    animation: welcomeGeckoIn 0.6s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+}
+
+.welcome-gecko-wrap .gecko.welcome-gecko {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: scale(2.75);
+    transform-origin: bottom center;
+}
+
+.welcome-gecko-shadow {
+    position: absolute;
+    bottom: -14px;
+    left: 50%;
+    width: 76px;
+    height: 14px;
+    background: radial-gradient(ellipse, rgba(23, 27, 38, 0.16) 0%, transparent 72%);
+    transform: translateX(-50%);
+    border-radius: 50%;
+}
+
+.dark-theme .welcome-gecko-shadow {
+    background: radial-gradient(ellipse, rgba(0, 0, 0, 0.4) 0%, transparent 72%);
+}
+
+.welcome-title {
+    font-family: 'Manrope', 'Inter', sans-serif;
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    background: var(--accent-grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: welcomeFadeUp 0.55s ease both 0.18s;
+}
+
+.welcome-tagline {
+    margin-top: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.6;
+    color: var(--text-muted);
+    animation: welcomeFadeUp 0.55s ease both 0.32s;
+}
+
+.welcome-loader {
+    margin-top: 48px;
+    width: 100%;
+    max-width: 220px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    animation: welcomeFadeUp 0.55s ease both 0.46s;
+}
+
+.welcome-loader-track {
+    width: 100%;
+    height: 6px;
+    border-radius: var(--radius-full);
+    background: var(--surface-alt);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+}
+
+.welcome-loader-fill {
+    width: 0%;
+    height: 100%;
+    border-radius: var(--radius-full);
+    background: var(--accent-grad);
+    animation: welcomeLoaderFill 2.15s cubic-bezier(0.34, 0.82, 0.6, 1) 0.3s forwards;
+}
+
+.welcome-loader-text {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+@keyframes welcomeGeckoIn {
+    0% { opacity: 0; transform: translateY(14px) scale(0.85); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes welcomeFadeUp {
+    0% { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes welcomeLoaderFill {
+    0% { width: 0%; }
+    100% { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .welcome-gecko-wrap,
+    .welcome-title,
+    .welcome-tagline,
+    .welcome-loader,
+    .welcome-loader-fill {
+        animation: none !important;
+    }
+    .welcome-loader-fill { width: 100%; }
+    .welcome-app.is-leaving { transition: none; }
+}
+
+
+/* ==============================================================================
+   2. UI - LOGIN / AUTH
+   ============================================================================== */
+.auth-app {
+    justify-content: flex-start;
+}
+
+.auth-content {
+    padding: 36px 20px 28px 20px;
+    gap: 0;
+}
+
+.auth-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.auth-logo-badge {
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    background: var(--surface);
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--border-hairline);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-logo-badge::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--accent-grad);
+    opacity: 0.1;
+}
+
+.auth-logo-badge .gecko.auth-logo-gecko {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: scale(1.05) translateY(2px);
+}
+
+.auth-welcome-title {
+    font-size: 21px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.auth-welcome-sub {
+    margin-top: 5px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+/* แท็บบทบาท — ใช้ .profile-tabs/.profile-tab เดิมจาก profile.css ทุกอย่าง
+   ยกเว้นระยะห่างด้านล่างที่ต้องมากขึ้นเล็กน้อยสำหรับ layout หน้านี้ */
+.auth-role-tabs {
+    margin: 0 0 18px 0;
+}
+
+.auth-form {
+    margin-bottom: 18px;
+}
+
+/* ---------- ช่องรหัสผ่าน + ปุ่มแสดง/ซ่อน ---------- */
+.password-field-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-field-wrap .form-input {
+    padding-right: 44px;
+}
+
+.password-toggle-btn {
+    position: absolute;
+    right: 6px;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: var(--text-muted);
+    cursor: pointer;
+    opacity: 0.75;
+    transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+
+.password-toggle-btn:hover {
+    opacity: 1;
+    background: var(--surface);
+}
+
+.password-toggle-btn[aria-pressed="true"] {
+    color: var(--accent-1);
+    opacity: 1;
+}
+
+/* ---------- แถว: จดจำฉัน / ลืมรหัสผ่าน ---------- */
+.auth-form-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: -2px;
+}
+
+.auth-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.auth-checkbox input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+}
+
+.auth-checkbox-box {
+    width: 18px;
+    height: 18px;
+    border-radius: 6px;
+    border: 1.5px solid var(--border-hairline);
+    background: var(--surface-alt);
+    flex-shrink: 0;
+    position: relative;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.auth-checkbox-box::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 5px;
+    width: 5px;
+    height: 9px;
+    border: solid #FFFFFF;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.auth-checkbox input[type="checkbox"]:checked + .auth-checkbox-box {
+    background: var(--accent-grad);
+    border-color: transparent;
+}
+
+.auth-checkbox input[type="checkbox"]:checked + .auth-checkbox-box::after {
+    opacity: 1;
+}
+
+.auth-checkbox input[type="checkbox"]:focus-visible + .auth-checkbox-box {
+    box-shadow: 0 0 0 3px rgba(79, 99, 232, 0.25);
+}
+
+.auth-checkbox-label {
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+/* ---------- ข้อความ error ---------- */
+.auth-error {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-red);
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: var(--radius-md);
+    padding: 9px 12px;
+}
+
+/* ---------- ปุ่มเข้าสู่ระบบ ---------- */
+.auth-submit-btn {
+    width: 100%;
+    margin: 4px 0 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.auth-submit-btn.is-loading .auth-submit-label {
+    opacity: 0.85;
+}
+
+.auth-submit-btn.is-loading::before {
+    content: "";
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-top-color: #FFFFFF;
+    animation: authSpin 0.7s linear infinite;
+}
+
+@keyframes authSpin {
+    to { transform: rotate(360deg); }
+}
+
+/* ---------- ตัวคั่น "หรือ" ---------- */
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 4px 0 18px 0;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--border-hairline);
+}
+
+/* ---------- ท้ายฟอร์ม: ลิงก์ลงทะเบียน ---------- */
+.auth-footer-text {
+    text-align: center;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.auth-footer-link {
+    color: var(--accent-1);
+    font-weight: 700;
+    text-decoration: none;
+    margin-left: 4px;
+}
+
+.auth-footer-link:hover {
+    text-decoration: underline;
+}

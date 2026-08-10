@@ -1,0 +1,449 @@
+/* ==============================================================================
+   FOOD RECORD PAGE — ใช้ token สี/รัศมี/เงาจาก style.css (โหลดคู่กันเสมอ)
+   ไฟล์นี้มีเฉพาะ component ที่ยังไม่มีในหน้าอื่น: การ์ดสรุปสัดส่วนสี, การ์ดรายมื้อ,
+   รายการอาหาร, ปุ่ม FAB และแผ่นฟอร์มเพิ่ม/แก้ไขรายการ
+   ============================================================================== */
+
+/* ---------- 1. การ์ดสรุปสัดส่วนสีโภชนาการ ---------- */
+.food-summary-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-card);
+    padding: 16px;
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.header-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.icon-box {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+.green-box  { background-color: rgba(16, 185, 129, 0.15); }
+.yellow-box { background-color: rgba(245, 158, 11, 0.15); }
+.red-box    { background-color: rgba(239, 68, 68, 0.15); }
+.blue-box   { background-color: rgba(59, 130, 246, 0.15); }
+.purple-box { background-color: rgba(168, 85, 247, 0.15); }
+
+.summary-total {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.summary-lights {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.light-chip {
+    flex: 1;
+    background: var(--card-inner);
+    border-radius: 14px;
+    padding: 12px 6px 10px 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    text-align: center;
+}
+
+.light-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+.light-green .light-dot  { background: var(--color-green); box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.14); }
+.light-yellow .light-dot { background: var(--color-yellow); box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.14); }
+.light-red .light-dot    { background: var(--color-red); box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.14); }
+
+.light-count {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--text-main);
+    line-height: 1;
+}
+.light-label {
+    font-size: 9.5px;
+    color: var(--text-muted);
+    font-weight: 500;
+    line-height: 1.3;
+}
+
+/* ---------- 2. การ์ดรายมื้ออาหาร ---------- */
+.meal-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.meal-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-card);
+    padding: 14px 16px;
+}
+
+.meal-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.meal-card-title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.meal-icon-box {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: var(--card-inner);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+}
+
+.meal-card-kcal-hint {
+    font-size: 10.5px;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.meal-add-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--surface-alt);
+    border: none;
+    border-radius: var(--radius-pill);
+    padding: 6px 12px 6px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent-1);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+.meal-add-btn:hover {
+    box-shadow: var(--shadow-card);
+    transform: translateY(-1px);
+}
+
+/* ---------- รายการอาหารแต่ละชิ้นในมื้อ ---------- */
+.food-item-list {
+    margin-top: 6px;
+}
+
+.food-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+}
+.food-item + .food-item {
+    border-top: 1px solid var(--border-hairline);
+}
+
+.food-thumb {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    background: var(--card-inner);
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+}
+.food-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.food-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.food-name {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.food-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 3px;
+}
+
+.food-time {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+.food-category-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10.5px;
+    color: var(--text-muted);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.badge-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.dot-green  { background: var(--color-green); }
+.dot-yellow { background: var(--color-yellow); }
+.dot-red    { background: var(--color-red); }
+
+.food-item-actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.icon-action-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: none;
+    background: var(--card-inner);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12.5px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+.icon-action-btn:hover {
+    background: var(--surface-alt);
+    transform: translateY(-1px);
+}
+.icon-action-btn.danger:hover {
+    color: var(--color-red);
+}
+
+/* ---------- Empty state ต่อมื้อ ---------- */
+.meal-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 16px 0 6px 0;
+    text-align: center;
+}
+.meal-empty-icon {
+    font-size: 20px;
+    opacity: 0.5;
+    margin-bottom: 2px;
+}
+.meal-empty-text {
+    font-size: 11.5px;
+    color: var(--text-muted);
+}
+
+/* ---------- ปุ่มลอย (FAB) เพิ่มรายการ ---------- */
+.fab-spacer {
+    height: 4px;
+}
+
+.fab-wrapper {
+    position: fixed;
+    bottom: 92px;
+    left: 50%;
+    width: 100%;
+    max-width: 414px;
+    transform: translateX(-50%);
+    pointer-events: none;
+    z-index: 90;
+}
+
+.fab-add-btn {
+    position: absolute;
+    right: 16px;
+    bottom: 0;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: var(--accent-grad);
+    color: #FFFFFF;
+    border: none;
+    font-size: 26px;
+    font-weight: 400;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-soft);
+    cursor: pointer;
+    pointer-events: auto;
+    transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+.fab-add-btn:hover {
+    box-shadow: 0 16px 34px rgba(79, 99, 232, 0.32);
+}
+.fab-add-btn:active {
+    transform: scale(0.94);
+}
+
+/* ---------- Modal sheet: เพิ่ม/แก้ไขรายการอาหาร (ใช้ .modal-overlay กลางจาก style.css) ---------- */
+.food-sheet-card {
+    width: 100%;
+    max-width: 360px;
+    max-height: 88vh;
+    overflow-y: auto;
+    background: var(--card-bg);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-soft);
+    padding: 22px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    transform: translateY(10px) scale(0.97);
+    transition: transform 0.2s ease;
+}
+.modal-overlay.is-open .food-sheet-card {
+    transform: translateY(0) scale(1);
+}
+
+/* ---------- เลือกมื้ออาหาร (grid 2x2) ---------- */
+.meal-pill-group {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.meal-pill {
+    padding: 10px 0;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-hairline);
+    background: var(--surface-alt);
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.meal-pill.active {
+    background: var(--accent-grad);
+    color: #FFFFFF;
+    border-color: transparent;
+    box-shadow: var(--shadow-card);
+}
+
+/* ---------- แถวรูปอาหาร ---------- */
+.food-photo-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.food-photo-preview {
+    width: 62px;
+    height: 62px;
+    border-radius: 16px;
+    background: var(--surface-alt);
+    border: 1.5px dashed var(--border-hairline);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: var(--text-muted);
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.food-photo-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.food-photo-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+}
+
+/* ---------- เลือกประเภทอาหาร (chip กดเลือกได้, แสดงจุดสีไฟจราจร) ---------- */
+.category-chip-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.category-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 13px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border-hairline);
+    background: var(--surface-alt);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.category-chip.active {
+    background: var(--accent-grad);
+    color: #FFFFFF;
+    border-color: transparent;
+    box-shadow: var(--shadow-card);
+}
+
+/* ---------- Responsive tweak เล็กน้อยสำหรับจอแคบมาก ---------- */
+@media (max-width: 340px) {
+    .summary-lights { gap: 6px; }
+    .light-chip { padding: 10px 4px 8px 4px; }
+}

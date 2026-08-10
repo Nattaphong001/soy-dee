@@ -1,0 +1,397 @@
+/* ==============================================================================
+   PROFILE PAGE — ใช้ token สี/รัศมี/เงาจาก style.css (โหลดคู่กันเสมอ)
+   ไฟล์นี้มีเฉพาะ component ที่ไม่มีในหน้า Home: back-btn, tabs, form, switch ฯลฯ
+   ============================================================================== */
+
+/* ---------- Back button + Page title ---------- */
+.back-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--surface-alt);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: var(--text-main);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+.back-btn:hover {
+    background: var(--surface);
+    box-shadow: var(--shadow-card);
+    transform: translateY(-1px);
+}
+
+.page-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.header-spacer {
+    width: 40px;
+    flex-shrink: 0;
+}
+
+/* ---------- Segmented Tabs (บัญชี / ข้อมูลร่างกาย) ---------- */
+.profile-tabs {
+    display: flex;
+    gap: 6px;
+    background: var(--surface-alt);
+    padding: 5px;
+    border-radius: var(--radius-pill);
+    margin: 0 20px 14px 20px;
+}
+
+.profile-tab {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 9px 0;
+    border-radius: var(--radius-pill);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.profile-tab.active {
+    background: var(--accent-grad);
+    color: #FFFFFF;
+    box-shadow: var(--shadow-card);
+}
+
+.tab-panel[hidden] {
+    display: none;
+}
+
+/* ---------- Avatar (แก้ไขรูปโปรไฟล์) ---------- */
+.profile-avatar-edit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 0 6px 0;
+}
+
+.profile-avatar-lg {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    background: var(--surface-alt);
+    border: 3px solid var(--surface);
+    box-shadow: var(--shadow-card);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.profile-avatar-lg svg {
+    width: 55%;
+    height: 55%;
+    color: var(--text-muted);
+}
+
+.profile-avatar-lg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-edit-btn {
+    background: var(--surface);
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--radius-pill);
+    padding: 7px 16px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--accent-1);
+    cursor: pointer;
+    box-shadow: var(--shadow-card);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.avatar-edit-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-soft);
+}
+
+/* ---------- Form Card (ใช้ร่วมกันทั้งสองแท็บ) ---------- */
+.form-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-card);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.form-input {
+    background: var(--surface-alt);
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    padding: 11px 12px;
+    font-size: 14px;
+    color: var(--text-main);
+    font-family: inherit;
+    width: 100%;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--accent-1);
+    background: var(--surface);
+}
+
+.form-input:disabled {
+    opacity: 0.6;
+}
+
+.form-link-btn {
+    align-self: flex-start;
+    background: none;
+    border: none;
+    color: var(--accent-1);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 2px 0;
+}
+
+/* ---------- Settings row (โหมดมืด / ภาษา) ---------- */
+.settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 4px 0;
+}
+
+.settings-row + .settings-row {
+    border-top: 1px solid var(--border-hairline);
+    padding-top: 14px;
+    margin-top: 0;
+}
+
+.settings-row-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.settings-row-desc {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+/* Toggle switch (โหมดมืด) */
+.switch {
+    width: 46px;
+    height: 26px;
+    border-radius: var(--radius-pill);
+    background: var(--surface-alt);
+    border: 1px solid var(--border-hairline);
+    position: relative;
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.switch-knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--surface);
+    box-shadow: var(--shadow-card);
+    transition: transform 0.25s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+.switch[aria-checked="true"] {
+    background: var(--accent-grad);
+    border-color: transparent;
+}
+.switch[aria-checked="true"] .switch-knob {
+    transform: translateX(20px);
+}
+
+.lang-select {
+    background: var(--surface-alt);
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--radius-pill);
+    padding: 7px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-main);
+    font-family: inherit;
+    cursor: pointer;
+}
+
+/* ---------- Danger button (ออกจากระบบ) ---------- */
+.danger-btn {
+    width: 100%;
+    background: none;
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    color: var(--color-red);
+    border-radius: var(--radius-lg);
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.danger-btn:hover {
+    background: rgba(239, 68, 68, 0.08);
+}
+
+/* ---------- Gender pills (แท็บข้อมูลร่างกาย) ---------- */
+.gender-pill-group {
+    display: flex;
+    gap: 8px;
+}
+
+.gender-pill {
+    flex: 1;
+    padding: 10px 0;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-hairline);
+    background: var(--surface-alt);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.gender-pill.active {
+    background: var(--accent-grad);
+    color: #FFFFFF;
+    border-color: transparent;
+    box-shadow: var(--shadow-card);
+}
+
+/* ---------- Save button (ลอยล่างสุดของฟอร์ม) ---------- */
+.save-btn {
+    width: calc(100% - 20px);
+    margin: 4px 10px 0 10px;
+    background: var(--accent-grad);
+    color: #FFFFFF;
+    border: none;
+    border-radius: var(--radius-lg);
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: var(--shadow-soft);
+    transition: transform 0.15s ease;
+}
+.save-btn:active {
+    transform: scale(0.98);
+}
+
+/* ---------- Age hint (คำนวณจากวันเกิด) ---------- */
+.age-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: -6px;
+    padding-left: 2px;
+}
+
+/* ---------- Goal pills (เป้าหมาย: ลดน้ำหนัก/เพิ่มกล้าม/รักษาน้ำหนัก) ---------- */
+.goal-pill-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.goal-pill {
+    width: 100%;
+    text-align: left;
+    padding: 12px 14px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-hairline);
+    background: var(--surface-alt);
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.goal-pill.active {
+    background: var(--accent-grad);
+    color: #FFFFFF;
+    border-color: transparent;
+    box-shadow: var(--shadow-card);
+}
+
+/* ---------- Password change sheet (ใช้ .modal-overlay กลางจาก style.css) ---------- */
+.password-sheet-card {
+    width: 100%;
+    max-width: 340px;
+    background: var(--card-bg);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-soft);
+    padding: 22px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    transform: translateY(10px) scale(0.97);
+    transition: transform 0.2s ease;
+}
+.modal-overlay.is-open .password-sheet-card {
+    transform: translateY(0) scale(1);
+}
+
+.sheet-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-main);
+    text-align: center;
+    margin-bottom: 2px;
+}
+
+.sheet-error {
+    font-size: 12px;
+    color: var(--color-red);
+    text-align: center;
+}
+
+.sheet-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 2px;
+}
+.sheet-actions .save-btn {
+    width: 100%;
+    margin: 0;
+}
+.sheet-actions .form-link-btn {
+    text-align: center;
+    align-self: center;
+}

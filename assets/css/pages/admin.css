@@ -1,0 +1,341 @@
+/* ==============================================================================
+   ADMIN PAGE — จัดการประเภทอาหาร / กิจกรรม
+   ใช้ token สี/รัศมี/เงาจาก style.css และ component ฟอร์ม/โมดัลจาก profile.css
+   ไฟล์นี้มีเฉพาะ component ใหม่ที่ยังไม่มีในหน้าอื่น: toolbar, item list, badge,
+   image upload box, traffic-light picker, empty state
+   ============================================================================== */
+
+/* หน้า Admin ไม่มี bottom pill nav (คนละสิทธิ์กับผู้ใช้ทั่วไป) จึงลด padding
+   ด้านล่างของ .mobile-app ที่เผื่อพื้นที่ไว้สำหรับ nav-pill-wrapper ในหน้าอื่น */
+.admin-app {
+    padding-bottom: 28px;
+}
+
+/* ---------- Header: ชื่อหน้า + badge บทบาท ---------- */
+.admin-title-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+}
+
+.admin-role-badge {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--accent-1);
+    background: rgba(79, 99, 232, 0.12);
+    padding: 2px 10px;
+    border-radius: var(--radius-pill);
+}
+
+.dark-theme .admin-role-badge,
+[data-theme="dark"] .admin-role-badge {
+    background: rgba(139, 124, 255, 0.16);
+}
+
+/* ---------- Toolbar: ค้นหา + ปุ่มเพิ่ม ---------- */
+.admin-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 20px 14px 20px;
+}
+
+.search-box {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface-alt);
+    border-radius: var(--radius-pill);
+    padding: 0 14px;
+    height: 42px;
+}
+
+.search-icon {
+    font-size: 13px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
+
+.search-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 13.5px;
+    color: var(--text-main);
+    font-family: inherit;
+    height: 100%;
+    min-width: 0;
+}
+.search-input:focus { outline: none; }
+.search-input::placeholder { color: var(--text-muted); }
+
+.add-item-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--accent-grad);
+    color: #FFFFFF;
+    border: none;
+    border-radius: var(--radius-pill);
+    padding: 0 16px;
+    height: 42px;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: var(--shadow-card);
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+.add-item-btn span { font-size: 16px; line-height: 1; }
+.add-item-btn:hover { box-shadow: var(--shadow-soft); transform: translateY(-1px); }
+.add-item-btn:active { transform: scale(0.97); }
+
+/* ---------- สรุปจำนวนรายการ ---------- */
+.list-summary {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    padding: 2px 4px 2px 4px;
+}
+
+/* ---------- รายการ (Item List) ---------- */
+.item-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.item-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: 10px 12px;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.item-row:hover {
+    box-shadow: var(--shadow-soft);
+    transform: translateY(-1px);
+}
+
+.item-thumb {
+    width: 46px;
+    height: 46px;
+    border-radius: 13px;
+    background: var(--surface-alt);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+    font-size: 20px;
+}
+.item-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.item-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.item-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ---------- Badge เกณฑ์สีโภชนาการ ---------- */
+.traffic-badge {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 2px 9px;
+    border-radius: var(--radius-pill);
+}
+.traffic-green  { color: var(--color-green);  background: rgba(16, 185, 129, 0.12); }
+.traffic-yellow { color: var(--color-yellow); background: rgba(245, 158, 11, 0.14); }
+.traffic-red    { color: var(--color-red);    background: rgba(239, 68, 68, 0.12); }
+
+.item-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.icon-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    border: none;
+    background: var(--surface-alt);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.15s ease;
+}
+.icon-btn:hover { transform: translateY(-1px); }
+.icon-btn:active { transform: scale(0.94); }
+.icon-btn-danger:hover { background: rgba(239, 68, 68, 0.14); }
+
+/* ---------- Empty state ---------- */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 46px 24px;
+    gap: 6px;
+}
+.empty-icon {
+    font-size: 38px;
+    margin-bottom: 6px;
+    opacity: 0.85;
+}
+.empty-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+.empty-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    max-width: 240px;
+}
+
+/* ---------- Modal: เพิ่ม/แก้ไข (ต่อยอดจาก .password-sheet-card) ---------- */
+.admin-sheet-card {
+    width: 100%;
+    max-width: 340px;
+    max-height: 88vh;
+    overflow-y: auto;
+    background: var(--card-bg);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-soft);
+    padding: 22px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    transform: translateY(10px) scale(0.97);
+    transition: transform 0.2s ease;
+}
+.modal-overlay.is-open .admin-sheet-card {
+    transform: translateY(0) scale(1);
+}
+
+/* ---------- อัปโหลดรูปภาพ ---------- */
+.image-upload-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 2px;
+}
+
+.image-upload-box {
+    width: 76px;
+    height: 76px;
+    border-radius: 20px;
+    background: var(--surface-alt);
+    border: 1.5px dashed var(--border-hairline);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.upload-placeholder-icon {
+    font-size: 26px;
+    color: var(--text-muted);
+    opacity: 0.7;
+}
+.image-upload-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.image-upload-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* ---------- ตัวเลือกเกณฑ์สีโภชนาการ (ในฟอร์ม) ---------- */
+.traffic-pill-group {
+    display: flex;
+    gap: 8px;
+}
+
+.traffic-pill {
+    flex: 1;
+    padding: 10px 0;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-hairline);
+    background: var(--surface-alt);
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+.traffic-pill:active { transform: scale(0.97); }
+
+.traffic-pill-green.active {
+    background: rgba(16, 185, 129, 0.14);
+    color: var(--color-green);
+    border-color: var(--color-green);
+    box-shadow: var(--shadow-card);
+}
+.traffic-pill-yellow.active {
+    background: rgba(245, 158, 11, 0.16);
+    color: var(--color-yellow);
+    border-color: var(--color-yellow);
+    box-shadow: var(--shadow-card);
+}
+.traffic-pill-red.active {
+    background: rgba(239, 68, 68, 0.14);
+    color: var(--color-red);
+    border-color: var(--color-red);
+    box-shadow: var(--shadow-card);
+}
+
+.field-hint {
+    font-size: 10.5px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-top: 2px;
+}
+
+/* field ของเกณฑ์สี ซ่อนได้ตอนแก้ไข "กิจกรรม" (ใช้ inline style.display จาก JS) */
+#trafficLightField {
+    gap: 8px;
+}
+
+/* ---------- Responsive: จอกว้างขึ้นเล็กน้อย (tablet) ---------- */
+@media (min-width: 480px) {
+    .mobile-app.admin-app { max-width: 414px; }
+}

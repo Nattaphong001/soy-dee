@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>soy dee - Health Dashboard</title>
+    <link rel="stylesheet" href="/assets/css/shared/style.css">
+    <link rel="stylesheet" href="/assets/css/shared/nav.css">
+    <link rel="stylesheet" href="/assets/css/shared/datepicker.css">
+    <!-- ลบลิงก์ Noto Sans Thai เดิมออก แล้วใส่ Prompt เข้าไปแทน -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!--
+      Theme init: ทำงานก่อน render เพื่อป้องกันหน้าจอกระพริบ (Flash of wrong theme)
+      อ่านค่าที่บันทึกไว้จาก localStorage โดย default คือ Light Mode
+      ปุ่ม Toggle จริงจะถูกเพิ่มในหน้า Edit Profile ภายหลัง โดยเรียก toggleTheme()
+      ที่เตรียมไว้ใน app.js
+    -->
+    <script>
+        (function () {
+            try {
+                var saved = localStorage.getItem('theme');
+                if (saved === 'dark') {
+                    document.documentElement.classList.add('dark-theme');
+                }
+            } catch (e) {
+                // localStorage ใช้ไม่ได้ (เช่น เปิดไฟล์ตรงๆ ผ่าน file://) — ใช้ Light Mode ต่อไปตามปกติ
+            }
+        })();
+    </script>
+    <script src="/assets/js/shared/api.js"></script>
+    <script>
+        SoyDeeAPI.guardMember();
+    </script>
+</head>
+<body class="mobile-body">
+    <!-- ชั้นตกแต่งพื้นหลัง (อยู่หลัง .mobile-app เสมอ ดู z-index ใน style.css) -->
+    <div class="bg-blob-a" aria-hidden="true"></div>
+    <div class="bg-blob-b" aria-hidden="true"></div>
+    <div class="bg-dot-grid" aria-hidden="true"></div>
+
+    <div class="mobile-app">
+
+        <!-- ==========================================================
+             TOP SECTION — โซนหัวหน้าจอ (ทักทาย + โปรไฟล์ + วันที่)
+             แยกจากส่วน body ด้วยพื้นผิว/เงาของตัวเอง ให้ดูเป็นคนละชั้น
+             ========================================================== -->
+        <div class="top-section">
+            <!-- คำทักทายอบอุ่น (อยู่บนสุดกลางจอ)
+            <div class="top-greeting">
+                สวัสดี! ดูแลสุขภาพกันนะ 💪
+            </div> -->
+
+            <!-- Header: รูปโปรไฟล์ + ชื่อผู้ใช้ (ซ้าย) | กระดิ่ง (ขวา) -->
+            <header class="app-header">
+                <div class="user-profile-section">
+                    <a href="profile.html?tab=account" class="profile-avatar" aria-label="ไปยังหน้าโปรไฟล์ของฉัน">
+                        <!--
+                            Placeholder เริ่มต้น: ไอคอน User แบบ SVG (ไม่พึ่งพา API ภายนอก)
+                            เมื่อผู้ใช้ตั้งรูปโปรไฟล์จริง ให้แทนที่ <svg> นี้ด้วย
+                            <img src="..." alt="Profile"> ได้ทันที โดยไม่กระทบ layout/สไตล์
+                            เพราะ .profile-avatar img ถูกเตรียม object-fit: cover ไว้แล้ว
+                        -->
+                        <svg class="avatar-icon-placeholder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="8" r="4"></circle>
+                            <path d="M4 20c0-3.9 3.6-7 8-7s8 3.1 8 7"></path>
+                        </svg>
+                    </a>
+                    <div class="user-info">
+                        <h1 class="user-name">ผู้ใช้ใหม่</h1>
+                    </div>
+                </div>
+                <button class="notification-btn" aria-label="Notifications">
+                    <img src="/assets/icons/bell.png" alt="" class="icon-img" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+                    <span class="icon-emoji" style="display:none">🔔</span>
+                </button>
+            </header>
+
+            <!-- Date Picker แบบ Dropdown (Pill Shape) ชิดขวา + ปุ่มแก้ไขข้อมูลร่างกายชิดซ้าย -->
+            <div class="date-picker-wrapper">
+                <a href="profile.html?tab=body" class="edit-profile-btn" aria-label="แก้ไขข้อมูลร่างกาย">
+                    <span class="icon-inline">
+                        <img src="/assets/icons/edit.png" alt="" class="icon-img" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+                        <span class="icon-emoji" style="display:none">✏️</span>
+                    </span>
+                    <span data-i18n="edit-profile-btn">แก้ไขข้อมูล</span>
+                </a>
+                <div class="date-picker-pill" id="datePickerPill" role="button" tabindex="0" aria-label="เลือกวันที่">
+                    <span class="icon-calendar">📅</span>
+                    <span class="date-text" id="dateText">24 พ.ค. 2567</span>
+                    <span class="icon-chevron">⌄</span>
+                </div>
+            </div>
+        </div>
+
+        <main class="app-content">
+
+            <!-- ==========================================================
+                 1. การ์ดข้อมูลร่างกาย 2x2 + เวทีของมาสคอต "กิ้งก่า"
+                 ----------------------------------------------------------
+                 .mascot-stage = กรอบอ้างอิงตำแหน่ง (position: relative)
+                 กิ้งก่าเป็น absolute ลอยอยู่เหนือ grid และเดินในช่องว่าง
+                 ระหว่างการ์ด — ดู logic การเดินได้ที่ app.js (GeckoWalker)
+
+                 ลำดับการ์ดใน grid (2x2):
+                   บนซ้าย = เพศ | บนขวา = อายุ
+                   ล่างซ้าย = ส่วนสูง | ล่างขวา = น้ำหนัก
+                 ========================================================== -->
+            <section class="mascot-stage" id="mascotStage">
+
+                <!-- ชั้นวาดรอยเท้า (JS สร้าง .footprint ใส่ที่นี่) -->
+                <div class="footprint-layer" id="footprintLayer" aria-hidden="true"></div>
+
+                <div class="stat-grid">
+                    <!-- บนซ้าย: เพศ -->
+                    <div class="stat-card" data-card="gender">
+                        <div class="stat-card-row">
+                            <span class="stat-icon icon-purple">
+                                <img src="/assets/icons/gender.png" alt="" class="icon-img" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+                                <span class="icon-emoji" style="display:none">⚧</span>
+                            </span>
+                            <span class="stat-label" data-i18n="stat-label-gender">เพศ</span>
+                        </div>
+                        <div class="stat-value-wrap">
+                            <span class="stat-value numeric" id="statGender">–</span>
+                        </div>
+                    </div>
+
+                    <!-- บนขวา: อายุ -->
+                    <div class="stat-card" data-card="age">
+                        <div class="stat-card-row">
+                            <span class="stat-icon icon-blue">
+                                <img src="/assets/icons/age.png" alt="" class="icon-img" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+                                <span class="icon-emoji" style="display:none">🎂</span>
+                            </span>
+                            <span class="stat-label" data-i18n="stat-label-age">อายุ</span>
+                        </div>
+                        <div class="stat-value-wrap">
+                            <span class="stat-value numeric">– <small data-i18n="unit-years">ปี</small></span>
+                        </div>
+                    </div>
+
+                    <!-- ล่างซ้าย: ส่วนสูง -->
+                    <div class="stat-card" data-card="height">
+                        <div class="stat-card-row">
+                            <span class="stat-icon icon-green">
+                                <img src="/assets/icons/height.png" alt="" class="icon-img" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+                                <span class="icon-emoji" style="display:none">📏</span>
+                            </span>
+                            <span class="stat-label" data-i18n="stat-label-height">ส่วนสูง</span>
+                        </div>
+                        <div class="stat-value-wrap">
+                            <span class="stat-value numeric">– <small data-i18n="unit-cm">ซม.</small></span>
+                        </div>
+                    </div>
+
+                    <!-- ล่างขวา: น้ำหนัก -->
+                    <div class="stat-card" data-card="weight">
+                        <div class="stat-card-row">
+                            <span class="stat-icon icon-orange">
+                                <img src="/assets/icons/weight.png" alt="" class="icon-img" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+                                <span class="icon-emoji" style="display:none">⚖️</span>
+                            </span>
+                            <span class="stat-label" data-i18n="stat-label-weight">น้ำหนัก</span>
+                        </div>
+                        <div class="stat-value-wrap">
+                            <span class="stat-value numeric">– <small data-i18n="unit-kg">กก.</small></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==========================================================
+                     มาสคอตกิ้งก่า (CSS art ล้วน ไม่ใช้ไฟล์รูป)
+                     - คลาส .male / .female สลับตามเพศผู้ใช้ (JS: setGeckoGender)
+                     - คลาส .pose-* ควบคุมท่าทางตอนแวะการ์ด
+                     - ตำแหน่ง x,y ถูกสั่งด้วย transform จาก app.js
+                     ========================================================== -->
+                <div class="gecko male" id="gecko" aria-hidden="true">
+                    <div class="gecko-inner">
+                        <div class="g-tail"></div>
+                        <div class="g-body">
+                            <div class="g-top"></div>
+                            <div class="g-skirt"></div>
+                        </div>
+                        <div class="g-leg g-leg-back"></div>
+                        <div class="g-leg g-leg-front"></div>
+                        <div class="g-arm g-arm-back"></div>
+                        <div class="g-arm g-arm-front"></div>
+                        <div class="g-head">
+                            <div class="g-eye g-eye-back"><span class="g-pupil"></span><span class="g-lash"></span></div>
+                            <div class="g-eye g-eye-front"><span class="g-pupil"></span><span class="g-lash"></span></div>
+                            <div class="g-nostril"></div>
+                            <div class="g-smile"></div>
+                        </div>
+                        <!-- ฟองข้อความเล็กๆ ตอนทำท่าที่การ์ด -->
+                        <div class="g-bubble" id="geckoBubble"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. การ์ดภาพรวมสุขภาพ (รวม BMI และ พลังงาน แบบซ้าย-ขวา) -->
+            <section class="combined-dashboard-card">
+                
+                <!-- ด้านซ้าย: ดัชนีมวลกาย (BMI) -->
+                <div class="panel-left">
+                    <div class="panel-header">
+                        <div class="header-title">
+                            <span class="icon-box green-box">
+                                <img src="/assets/icons/bmi-shield.png" alt="" class="icon-img" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+                                <span class="icon-emoji" style="display:none">🛡️</span>
+                            </span> <span data-i18n="bmi-panel-title">ดัชนีมวลกาย (BMI)</span>
+                        </div>
+                        <div class="info-tooltip-wrap">
+                            <button type="button" class="info-icon" aria-expanded="false" aria-controls="bmiInfoPopover" aria-label="ข้อมูลเพิ่มเติมเกี่ยวกับ BMI">ℹ️</button>
+                            <div class="info-popover info-popover--right" id="bmiInfoPopover" role="tooltip">
+                                <strong data-i18n="bmi-tooltip-title">BMI (ดัชนีมวลกาย)</strong> <span data-i18n="bmi-tooltip-desc">คำนวณจากน้ำหนัก (กก.) หารด้วยส่วนสูง² (เมตร) ใช้ประเมินสัดส่วนร่างกายเบื้องต้นเท่านั้น ไม่สามารถใช้แทนคำวินิจฉัยทางการแพทย์ได้ ควรปรึกษาแพทย์หรือนักโภชนาการเพื่อการประเมินที่แม่นยำ</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bmi-center-text">
+                        <div class="bmi-label" data-i18n="bmi-your-value-label">ค่า BMI ของคุณ</div>
+                        <div class="bmi-number numeric" id="bmiValue">–</div>
+                        <div class="bmi-status" id="bmiStatusText">–</div>
+                    </div>
+
+                    <!-- Half-circle Gauge: พาธสีถูกวาดด้วย JS (ดู renderBMIGauge ใน app.js)
+                         เพื่อให้ตำแหน่งสีกับตำแหน่งเข็มคำนวณจากสมการเดียวกันเสมอ -->
+                    <div class="gauge-wrapper">
+                        <svg viewBox="0 0 200 110" class="gauge-svg" id="bmiGaugeSvg" aria-hidden="true"></svg>
+                        <div class="gauge-needle-container" id="gaugeNeedle">
+                            <div class="needle-line"></div>
+                            <div class="needle-center"></div>
+                        </div>
+                    </div>
+
+                    <div class="gauge-labels">
+                        <div class="g-col"><span>&lt; 18.5</span><span class="c-blue" data-i18n="gauge-underweight">ผอม</span></div>
+                        <div class="g-col"><span>18.5 - 22.9</span><span class="c-green" data-i18n="gauge-normal">ปกติ</span></div>
+                        <div class="g-col"><span>23.0 - 24.9</span><span class="c-yellow" data-i18n="gauge-overweight">ท้วม</span></div>
+                        <div class="g-col"><span>&ge; 25.0</span><span class="c-red" data-i18n="gauge-obese">อ้วน</span></div>
+                    </div>
+
+                    <div class="comparison-box" hidden>
+                        <span class="comp-icon">📉</span>
+                        <div>
+                            <div class="comp-label" data-i18n="comp-label">เปรียบเทียบกับครั้งล่าสุด</div>
+                            <div class="comp-value">–</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="vertical-divider"></div>
+
+                <!-- ด้านขวา: พลังงาน -->
+                <div class="panel-right">
+                    <div class="panel-header">
+                        <div class="header-title">
+                            <span class="icon-box purple-box">
+                                <img src="/assets/icons/energy-bolt.png" alt="" class="icon-img" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+                                <span class="icon-emoji" style="display:none">⚡</span>
+                            </span> <span data-i18n="energy-panel-title">พลังงาน</span>
+                        </div>
+                        <div class="info-tooltip-wrap">
+                            <button type="button" class="info-icon" aria-expanded="false" aria-controls="energyInfoPopover" aria-label="ข้อมูลเพิ่มเติมเกี่ยวกับพลังงาน">ℹ️</button>
+                            <div class="info-popover info-popover--left" id="energyInfoPopover" role="tooltip">
+                                <strong>BMR</strong> <span data-i18n="energy-tooltip-mid">คือพลังงานขั้นต่ำที่ร่างกายใช้ขณะพักนิ่ง ส่วน</span> <strong>TDEE</strong> <span data-i18n="energy-tooltip-end">คือพลังงานรวมที่ใช้ทั้งวันเมื่อรวมกิจกรรมต่างๆ เข้าไปด้วย ตัวเลขเหล่านี้เป็นการประมาณจากสูตรมาตรฐาน อาจคลาดเคลื่อนจากการเผาผลาญจริงของแต่ละบุคคลได้</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="energy-block">
+                        <div class="e-title">BMR</div>
+                        <div class="e-desc" data-i18n="bmr-desc">พลังงานพื้นฐานที่ร่างกายใช้ต่อวัน</div>
+                        <div class="e-value c-purple numeric">– <small>kcal</small></div>
+                    </div>
+
+                    <!-- TDEE + เป้าหมาย: แสดงเป็นค่านิ่งสองแถวในการ์ดเดียว
+                         (ไม่มีหลอด/เปอร์เซ็นต์ เพราะระบบไม่เก็บข้อมูลแคลอรีที่กินจริงรายวัน) -->
+                    <div class="tdee-target-card">
+                        <div class="tt-row">
+                            <div class="tt-icon tt-icon-blue">
+                                <img src="/assets/icons/tdee-flame.png" alt="" class="icon-img" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+                                <span class="icon-emoji" style="display:none">⚡</span>
+                            </div>
+                            <div class="tt-info">
+                                <div class="tt-label">TDEE</div>
+                                <div class="tt-value numeric">– <small>kcal</small></div>
+                            </div>
+                        </div>
+                        <div class="tt-divider"></div>
+                        <div class="tt-row">
+                            <div class="tt-icon tt-icon-orange">
+                                <img src="/assets/icons/target.png" alt="" class="icon-img" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+                                <span class="icon-emoji" style="display:none">🎯</span>
+                            </div>
+                            <div class="tt-info">
+                                <div class="tt-label" data-i18n="target-energy-label">เป้าหมายพลังงาน/วัน</div>
+                                <div class="tt-value tt-value-target numeric">– <small>kcal</small></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+        <!-- Bottom nav: markup static ในทุกหน้า (ต้องมีจริงตั้งแต่ raw HTML เพื่อให้
+             Cross-Document View Transition จับคู่ element ข้ามหน้าได้ถูกต้อง —
+             ดูคอมเมนต์ใน assets/js/shared/nav.js) -->
+        <nav id="app-nav-bar" class="nav-pill-wrapper">
+            <ul class="nav-pill-container" id="horizontalNav">
+                <div class="nav-indicator" id="navIndicator"></div>
+                <li><a href="index.html" class="nav-icon-item active" data-target="home"><span>🏠</span></a></li>
+                <li><a href="food-record.html" class="nav-icon-item" data-target="food"><span>🥗</span></a></li>
+                <li><a href="activity-record.html" class="nav-icon-item" data-target="activity"><span>⚡</span></a></li>
+                <li><a href="sleep-record.html" class="nav-icon-item" data-target="sleep"><span>💤</span></a></li>
+                <li><a class="nav-icon-item is-disabled" data-target="report" aria-disabled="true" aria-label="รายงาน (เร็วๆ นี้)"><span>📊</span></a></li>
+            </ul>
+        </nav>
+    </div>
+    
+    <script src="/assets/js/shared/i18n.js"></script>
+    <script src="/assets/js/shared/nav.js"></script>
+    <script src="/assets/js/shared/app.js"></script> <!-- ไฟล์ JS ใหม่ของหน้าแรก -->
+    <script src="/assets/js/shared/datepicker.js"></script>
+    <script src="/assets/js/pages/index.js"></script>
+</body>
+</html>

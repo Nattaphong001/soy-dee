@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>บันทึกอาหาร - soy dee</title>
+    <link rel="stylesheet" href="/assets/css/shared/style.css">
+    <link rel="stylesheet" href="/assets/css/shared/nav.css">
+    <!-- profile.css มีคอมโพเนนต์กลางที่ใช้ร่วมกัน (back-btn, page-title, header-spacer ฯลฯ)
+         หน้านี้ดึงมาใช้ซ้ำแทนการก็อปโค้ดซ้ำ เหมือนหน้า activity-record / sleep-record -->
+    <link rel="stylesheet" href="/assets/css/shared/profile.css">
+    <link rel="stylesheet" href="/assets/css/shared/datepicker.css">
+    <link rel="stylesheet" href="/assets/css/pages/food-record.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Theme init: เหมือนหน้าอื่นทุกประการ ป้องกันหน้าจอกระพริบตอนโหลด -->
+    <script>
+        (function () {
+            try {
+                var saved = localStorage.getItem('theme');
+                if (saved === 'dark') {
+                    document.documentElement.classList.add('dark-theme');
+                }
+            } catch (e) {}
+        })();
+    </script>
+    <script src="/assets/js/shared/api.js"></script>
+    <script>
+        SoyDeeAPI.guardMember();
+    </script>
+</head>
+<body class="mobile-body">
+    <div class="bg-blob-a" aria-hidden="true"></div>
+    <div class="bg-blob-b" aria-hidden="true"></div>
+    <div class="bg-dot-grid" aria-hidden="true"></div>
+
+    <div class="mobile-app">
+
+        <div class="top-section">
+            <header class="app-header">
+                <button class="back-btn" type="button" onclick="history.length > 1 ? history.back() : (window.location.href = 'index.html')" aria-label="ย้อนกลับ">🔙</button>
+                <h1 class="page-title" data-i18n="page-title">บันทึกอาหาร</h1>
+                <span class="header-spacer" aria-hidden="true"></span>
+            </header>
+
+            <!-- แถวเลือกวันที่: ปุ่ม "วันนี้" ชิดซ้าย + วันที่ปัจจุบันชิดขวา (รูปแบบเดียวกับหน้า Home) -->
+            <div class="date-picker-wrapper">
+                <button class="edit-profile-btn today-btn" id="todayBtn" type="button" aria-label="กลับไปวันนี้">
+                    <span class="icon-inline"><span class="icon-emoji">📍</span></span>
+                    <span data-i18n="today-btn">วันนี้</span>
+                </button>
+                <div class="date-picker-pill" id="datePickerPill" role="button" tabindex="0" aria-label="เลือกวันที่บันทึก">
+                    <span class="icon-calendar">📅</span>
+                    <span class="date-text" id="dateText">—</span>
+                    <span class="icon-chevron">⌄</span>
+                </div>
+            </div>
+        </div>
+
+        <main class="app-content">
+
+            <!-- 1. การ์ดสรุปสัดส่วนสีโภชนาการของวันนั้น -->
+            <section class="food-summary-card">
+                <div class="panel-header">
+                    <div class="header-title">
+                        <span class="icon-box green-box"><span class="icon-emoji">🍽️</span></span>
+                        <span id="summaryTitleText">สรุปโภชนาการวันนี้</span>
+                    </div>
+                    <div class="summary-total" id="summaryTotal">ทั้งหมด 0 รายการ</div>
+                </div>
+                <div class="summary-lights" id="summaryLights">
+                    <div class="light-chip light-green">
+                        <span class="light-dot"></span>
+                        <span class="light-count numeric" id="countGreen">0</span>
+                        <span class="light-label" data-i18n="light-green">ควรกิน</span>
+                    </div>
+                    <div class="light-chip light-yellow">
+                        <span class="light-dot"></span>
+                        <span class="light-count numeric" id="countYellow">0</span>
+                        <span class="light-label" data-i18n="light-yellow">พอดี</span>
+                    </div>
+                    <div class="light-chip light-red">
+                        <span class="light-dot"></span>
+                        <span class="light-count numeric" id="countRed">0</span>
+                        <span class="light-label" data-i18n="light-red">ควรลด</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. รายการอาหารแยกตามมื้อ (สร้างด้วย JS จาก food-record.js) -->
+            <div class="meal-sections" id="mealSections"></div>
+
+            <!-- เว้นระยะให้พ้นปุ่ม FAB ก่อนถึง bottom nav -->
+            <div class="fab-spacer" aria-hidden="true"></div>
+        </main>
+
+        <!-- ปุ่มลอยเพิ่มรายการอาหาร (ใช้เทคนิคจัดกึ่งกลางแบบเดียวกับ nav-pill-wrapper) -->
+        <div class="fab-wrapper" aria-hidden="false">
+            <button class="fab-add-btn" id="fabAddBtn" type="button" aria-label="เพิ่มรายการอาหาร">+</button>
+        </div>
+
+        <nav id="app-nav-bar" class="nav-pill-wrapper">
+            <ul class="nav-pill-container" id="horizontalNav">
+                <div class="nav-indicator" id="navIndicator"></div>
+                <li><a href="index.html" class="nav-icon-item" data-target="home"><span>🏠</span></a></li>
+                <li><a href="food-record.html" class="nav-icon-item active" data-target="food"><span>🥗</span></a></li>
+                <li><a href="activity-record.html" class="nav-icon-item" data-target="activity"><span>⚡</span></a></li>
+                <li><a href="sleep-record.html" class="nav-icon-item" data-target="sleep"><span>💤</span></a></li>
+                <li><a class="nav-icon-item is-disabled" data-target="report" aria-disabled="true" aria-label="รายงาน (เร็วๆ นี้)"><span>📊</span></a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- ============== Modal: เพิ่ม/แก้ไขรายการอาหาร ============== -->
+    <div class="modal-overlay" id="foodModalOverlay">
+        <div class="food-sheet-card">
+            <h2 class="sheet-title" id="foodModalTitle" data-i18n="modal-title-add">เพิ่มรายการอาหาร</h2>
+
+            <div class="form-field">
+                <span class="form-label" data-i18n="label-meal">มื้ออาหาร</span>
+                <div class="meal-pill-group" id="mealPillGroup">
+                    <button type="button" class="meal-pill" data-meal="1" data-i18n="meal-pill-1">🌅 เช้า</button>
+                    <button type="button" class="meal-pill" data-meal="2" data-i18n="meal-pill-2">☀️ กลางวัน</button>
+                    <button type="button" class="meal-pill" data-meal="3" data-i18n="meal-pill-3">🌙 เย็น</button>
+                    <button type="button" class="meal-pill" data-meal="4" data-i18n="meal-pill-4">🍪 ว่าง</button>
+                </div>
+            </div>
+
+            <div class="food-photo-row">
+                <div class="food-photo-preview" id="foodPhotoPreview"><span class="icon-emoji">📷</span></div>
+                <div class="food-photo-actions">
+                    <button type="button" class="avatar-edit-btn" id="foodPhotoBtn" data-i18n="btn-add-photo">เพิ่มรูปภาพ</button>
+                    <button type="button" class="form-link-btn" id="foodPhotoRemoveBtn" hidden data-i18n="btn-remove-photo">ลบรูป</button>
+                </div>
+                <input type="file" id="foodPhotoInput" accept="image/*" hidden>
+            </div>
+
+            <label class="form-field">
+                <span class="form-label" data-i18n="label-food-name">ชื่ออาหาร</span>
+                <input type="text" class="form-input" id="foodNameInput" placeholder="เช่น ข้าวผัดกะเพราไก่ไข่ดาว" data-i18n-placeholder="placeholder-food-name">
+            </label>
+
+            <div class="form-field">
+                <span class="form-label" data-i18n="label-category">ประเภทอาหาร</span>
+                <div class="category-chip-group" id="categoryChipGroup"></div>
+            </div>
+
+            <label class="form-field">
+                <span class="form-label" data-i18n="label-time">เวลาที่กิน</span>
+                <input type="time" class="form-input" id="foodTimeInput">
+            </label>
+
+            <div class="sheet-error" id="foodFormError" hidden></div>
+
+            <div class="sheet-actions">
+                <button type="button" class="save-btn" id="foodSaveBtn" data-i18n="save-btn">บันทึกรายการ</button>
+                <button type="button" class="form-link-btn" id="foodCancelBtn" data-i18n="btn-cancel">ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/assets/js/shared/i18n.js"></script>
+    <script src="/assets/js/shared/nav.js"></script>
+    <script src="/assets/js/shared/app.js"></script>
+    <script src="/assets/js/shared/datepicker.js"></script>
+    <script src="/assets/js/pages/food-record.js"></script>
+</body>
+</html>

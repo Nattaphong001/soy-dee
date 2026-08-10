@@ -1,0 +1,123 @@
+/* =========================================
+   Reusable Bottom Pill Navigation
+   ========================================= */
+
+/* เปิดใช้งาน Cross-Document View Transitions (Chrome/Edge 126+)
+   เบราว์เซอร์ที่รองรับจะ "มอร์ฟ" หน้าเก่า → หน้าใหม่ให้เองตอนคลิกลิงก์จริง
+   เบราว์เซอร์ที่ยังไม่รองรับ (Safari/Firefox ปัจจุบัน) จะข้าม rule นี้ไปเฉยๆ
+   แล้วเปลี่ยนหน้าแบบปกติ — ไม่กระทบการทำงานเดิม */
+@view-transition {
+    navigation: auto;
+}
+
+.nav-pill-wrapper {
+    position: fixed;
+    bottom: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 40px);
+    max-width: 374px;
+    z-index: 100;
+    /* ให้เบราว์เซอร์จับคู่แถบนี้ระหว่างหน้าเก่ากับหน้าใหม่ แล้ว morph
+       ตำแหน่ง/ขนาดต่อเนื่องกัน แทนที่จะ fade หายไปแล้วโผล่ใหม่ */
+    view-transition-name: app-nav-bar;
+}
+ 
+.nav-pill-container {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    list-style: none;
+    background-color: color-mix(in srgb, var(--surface) 88%, transparent);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--radius-full);
+    padding: 6px;
+    width: 100%;
+    box-shadow: 0 10px 30px rgba(20, 24, 33, 0.12);
+    transition: background-color 0.3s ease;
+}
+/* แก้ไข: ของเดิมผูกกับ [data-theme="dark"] ซึ่งเป็นระบบธีมรุ่นเก่า
+   ธีมปัจจุบันของโปรเจกต์สลับด้วยคลาส .dark-theme ที่ <html> เป็นหลัก
+   (ดู style.css) จึงเพิ่ม .dark-theme ให้เงาเข้มขึ้นตอนอยู่ในโหมดมืดทำงานจริง
+   ยังคง [data-theme="dark"] ไว้เผื่อโค้ดส่วนอื่นยังอ้างอิงอยู่ */
+.dark-theme .nav-pill-container,
+[data-theme="dark"] .nav-pill-container {
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.5);
+}
+ 
+.nav-indicator {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    width: calc(20% - 4.8px);
+    height: calc(100% - 12px);
+    border-radius: var(--radius-full);
+    background: var(--accent-grad);
+    /* left (ไม่ใช่ transform) เพราะ % ของ left คำนวณเทียบกับ container จริง
+       ทำให้ CSS เดา "ตำแหน่งพัก" ของแท็บที่ active ได้ถูกตั้งแต่ paint แรก
+       (ดู :has() ด้านล่าง) โดยไม่ต้องรอ JS มาคำนวณ offsetLeft ก่อน */
+    transition: left 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+                width 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+    z-index: 0;
+    box-shadow: 0 6px 16px rgba(108, 92, 231, 0.35);
+    view-transition-name: app-nav-indicator;
+}
+
+/* ตำแหน่งพักของ indicator ต่อแท็บ ล้วนๆ ด้วย CSS ไม่พึ่ง JS เลย
+   li:nth-child(2) = home (li:nth-child(1) คือ .nav-indicator เอง) */
+.nav-pill-container:has(li:nth-child(3) .active) .nav-indicator {
+    left: calc(6px + (100% - 12px) / 5);
+}
+.nav-pill-container:has(li:nth-child(4) .active) .nav-indicator {
+    left: calc(6px + (100% - 12px) / 5 * 2);
+}
+.nav-pill-container:has(li:nth-child(5) .active) .nav-indicator {
+    left: calc(6px + (100% - 12px) / 5 * 3);
+}
+.nav-pill-container:has(li:nth-child(6) .active) .nav-indicator {
+    left: calc(6px + (100% - 12px) / 5 * 4);
+}
+
+.nav-pill-container li {
+    list-style: none;
+    display: flex;
+    flex: 1;
+}
+
+/* ไม่มีแท็บไหน active (เช่นหน้า Profile ที่ไม่ใช่ 1 ใน 5 แท็บ) — ซ่อน indicator
+   ไว้ตั้งแต่ CSS ตรงๆ แทนที่จะรอ JS มาสั่งซ่อนทีหลัง เพื่อไม่ให้กระพริบให้เห็นก่อน */
+.nav-pill-container:not(:has(.nav-icon-item.active)) .nav-indicator {
+    opacity: 0;
+}
+
+.nav-icon-item {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    height: 46px;
+    border-radius: var(--radius-full);
+    font-size: 20px;
+    color: var(--text-muted);
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+ 
+.nav-icon-item:hover:not(.active) { color: var(--accent-1); }
+.nav-icon-item:active { transform: scale(0.9); }
+.nav-icon-item.active { color: #FFFFFF; }
+
+/* แท็บที่ยังไม่มีหน้าจริงรองรับ (เช่น รายงาน) — ปิดการใช้งานไว้ก่อน */
+.nav-icon-item.is-disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+.nav-icon-item.is-disabled:hover { color: var(--text-muted); }
+.nav-icon-item.is-disabled:active { transform: none; }

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>โปรไฟล์ - soy dee</title>
+    <link rel="stylesheet" href="/assets/css/shared/style.css">
+    <link rel="stylesheet" href="/assets/css/shared/nav.css">
+    <link rel="stylesheet" href="/assets/css/shared/profile.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Theme init: เหมือน index.html เป๊ะ ป้องกันหน้าจอกระพริบตอนโหลด -->
+    <script>
+        (function () {
+            try {
+                var saved = localStorage.getItem('theme');
+                if (saved === 'dark') {
+                    document.documentElement.classList.add('dark-theme');
+                }
+            } catch (e) {}
+        })();
+    </script>
+    <script src="/assets/js/shared/api.js"></script>
+    <script>
+        SoyDeeAPI.guardMember();
+    </script>
+</head>
+<body class="mobile-body">
+    <div class="bg-blob-a" aria-hidden="true"></div>
+    <div class="bg-blob-b" aria-hidden="true"></div>
+    <div class="bg-dot-grid" aria-hidden="true"></div>
+
+    <div class="mobile-app">
+
+        <div class="top-section">
+            <header class="app-header">
+                <button class="back-btn" type="button" onclick="history.length > 1 ? history.back() : (window.location.href = 'index.html')" aria-label="ย้อนกลับ">🔙</button>
+                <h1 class="page-title" data-i18n="page-title">โปรไฟล์</h1>
+                <span class="header-spacer" aria-hidden="true"></span>
+            </header>
+
+            <!-- แท็บ: บัญชี / ข้อมูลร่างกาย — สลับได้ทั้งคลิกและผ่าน query param ?tab=body -->
+            <div class="profile-tabs" role="tablist">
+                <button class="profile-tab active" data-tab="account" role="tab" aria-selected="true" data-i18n="tab-account">บัญชี</button>
+                <button class="profile-tab" data-tab="body" role="tab" aria-selected="false" data-i18n="tab-body">ข้อมูลร่างกาย</button>
+            </div>
+        </div>
+
+        <main class="app-content">
+
+            <!-- ============== แท็บ 1: บัญชี ============== -->
+            <section class="tab-panel" id="tab-account" data-tab-panel="account">
+
+                <div class="profile-avatar-edit">
+                    <div class="profile-avatar-lg">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="8" r="4"></circle>
+                            <path d="M4 20c0-3.9 3.6-7 8-7s8 3.1 8 7"></path>
+                        </svg>
+                    </div>
+                    <button class="avatar-edit-btn" type="button" data-i18n="avatar-edit-btn">เปลี่ยนรูปโปรไฟล์</button>
+                    <input type="file" id="avatarFileInput" accept="image/jpeg,image/jpg,image/png,image/webp" hidden>
+                </div>
+
+                <div class="form-card">
+                    <label class="form-field">
+                        <span class="form-label" data-i18n="label-display-name">ชื่อที่แสดง</span>
+                        <input type="text" class="form-input" id="displayName" value="" placeholder="ชื่อของคุณ" data-i18n-placeholder="placeholder-display-name">
+                    </label>
+                    <label class="form-field">
+                        <span class="form-label" data-i18n="label-username">ชื่อผู้ใช้ (Username)</span>
+                        <input type="text" class="form-input" id="username" value="" placeholder="username" data-i18n-placeholder="placeholder-username">
+                    </label>
+                    <button class="form-link-btn" type="button" id="changePasswordBtn" data-i18n="link-change-password">เปลี่ยนรหัสผ่าน</button>
+                </div>
+
+                <div class="sheet-error" id="accountError" hidden></div>
+
+                <div class="form-card">
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-row-title" data-i18n="settings-dark-title">โหมดมืด</div> <!-- เเก้ให้ กดเเล้วรีเฟรชหน้าจอทันที -->
+                            <div class="settings-row-desc" data-i18n="settings-dark-desc">ปรับหน้าจอให้สบายตาในที่มืด</div>
+                        </div>
+                        <button class="switch" id="themeSwitch" type="button" role="switch" aria-checked="false" aria-label="สลับโหมดมืด">
+                            <span class="switch-knob"></span>
+                        </button>
+                    </div>
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-row-title" data-i18n="settings-lang-title">ภาษา</div> <!-- เเก้ให้ กดเเล้วรีเฟรชหน้าจอทันที เเละไม่ต้องเลือกภาษา -->
+                            <div class="settings-row-desc" data-i18n="settings-lang-desc">เลือกภาษาที่ใช้ในแอป</div>
+                        </div>
+                        <button class="lang-select" id="langToggle" type="button" aria-label="สลับภาษา">TH</button>
+                    </div>
+                </div>
+
+                <button class="danger-btn" type="button" id="logoutBtn" data-i18n="btn-logout">ออกจากระบบ</button>
+            </section>
+
+            <!-- ============== แท็บ 2: ข้อมูลร่างกาย ============== -->
+            <section class="tab-panel" id="tab-body" data-tab-panel="body" hidden>
+
+                <div class="form-card">
+                    <div class="form-field">
+                        <span class="form-label" data-i18n="label-gender">เพศ</span>
+                        <div class="gender-pill-group">
+                            <button class="gender-pill" data-gender="male" type="button" data-i18n="gender-male">ชาย</button>
+                            <button class="gender-pill" data-gender="female" type="button" data-i18n="gender-female">หญิง</button>
+                        </div>
+                    </div>
+
+                    <label class="form-field">
+                        <span class="form-label" data-i18n="label-birthdate">วันเกิด</span>
+                        <input type="date" class="form-input" id="birthDateInput" value="">
+                    </label>
+                    <div class="age-hint" id="ageHint"></div>
+
+                    <label class="form-field">
+                        <span class="form-label" data-i18n="label-height">ส่วนสูง (ซม.)</span>
+                        <input type="number" class="form-input" id="heightInput" value="" placeholder="เช่น 170" min="50" max="250">
+                    </label>
+
+                    <label class="form-field">
+                        <span class="form-label" data-i18n="label-weight">น้ำหนัก (กก.)</span>
+                        <input type="number" class="form-input" id="weightInput" value="" placeholder="เช่น 65" min="20" max="300">
+                    </label>
+
+                    <label class="form-field">
+                        <span class="form-label" data-i18n="label-activity">ระดับกิจกรรม</span>
+                        <select class="form-input" id="activitySelect">
+                            <option value="low" data-i18n="activity-low">น้อย (นั่งทำงาน แทบไม่ออกกำลังกาย)</option>
+                            <option value="mid" selected data-i18n="activity-mid">ปานกลาง (ออกกำลังกาย 3–4 วัน/สัปดาห์)</option>
+                            <option value="high" data-i18n="activity-high">มาก (ออกกำลังกายหนักเกือบทุกวัน)</option>
+                        </select>
+                    </label>
+                </div>
+
+                <!-- เป้าหมาย: 1=ลดน้ำหนัก, 2=เพิ่มกล้ามเนื้อ, 3=รักษาน้ำหนัก -->
+                <div class="form-card">
+                    <div class="form-field">
+                        <span class="form-label" data-i18n="label-goal">เป้าหมาย</span>
+                        <div class="goal-pill-group">
+                            <button class="goal-pill active" data-goal="1" type="button" data-i18n="goal-lose">🔻 ลดน้ำหนัก</button>
+                            <button class="goal-pill" data-goal="2" type="button" data-i18n="goal-gain">💪 เพิ่มกล้ามเนื้อ</button>
+                            <button class="goal-pill" data-goal="3" type="button" data-i18n="goal-maintain">⚖️ รักษาน้ำหนัก</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sheet-error" id="bodyError" hidden></div>
+            </section>
+
+            <button class="save-btn" type="button" id="saveProfileBtn" data-i18n="save-btn">บันทึกการเปลี่ยนแปลง</button>
+
+        </main>
+
+        <nav id="app-nav-bar" class="nav-pill-wrapper">
+            <ul class="nav-pill-container" id="horizontalNav">
+                <div class="nav-indicator" id="navIndicator"></div>
+                <li><a href="index.html" class="nav-icon-item" data-target="home"><span>🏠</span></a></li>
+                <li><a href="food-record.html" class="nav-icon-item" data-target="food"><span>🥗</span></a></li>
+                <li><a href="activity-record.html" class="nav-icon-item" data-target="activity"><span>⚡</span></a></li>
+                <li><a href="sleep-record.html" class="nav-icon-item" data-target="sleep"><span>💤</span></a></li>
+                <li><a class="nav-icon-item is-disabled" data-target="report" aria-disabled="true" aria-label="รายงาน (เร็วๆ นี้)"><span>📊</span></a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- ============== Modal: เปลี่ยนรหัสผ่าน (เปิด/ปิดด้วย .is-open) ============== -->
+    <div class="modal-overlay" id="passwordModalOverlay">
+        <div class="password-sheet-card">
+            <h2 class="sheet-title" data-i18n="pwd-title">เปลี่ยนรหัสผ่าน</h2>
+
+            <label class="form-field">
+                <span class="form-label" data-i18n="pwd-current">รหัสผ่านปัจจุบัน</span>
+                <input type="password" class="form-input" id="pwdCurrent" autocomplete="current-password">
+            </label>
+            <label class="form-field">
+                <span class="form-label" data-i18n="pwd-new">รหัสผ่านใหม่</span>
+                <input type="password" class="form-input" id="pwdNew" autocomplete="new-password">
+            </label>
+            <label class="form-field">
+                <span class="form-label" data-i18n="pwd-confirm">ยืนยันรหัสผ่านใหม่</span>
+                <input type="password" class="form-input" id="pwdConfirmNew" autocomplete="new-password">
+            </label>
+
+            <div class="sheet-error" id="pwdError" hidden></div>
+
+            <div class="sheet-actions">
+                <button type="button" class="save-btn" id="pwdSaveBtn" data-i18n="pwd-save">บันทึกรหัสผ่านใหม่</button>
+                <button type="button" class="form-link-btn" id="pwdCancelBtn" data-i18n="pwd-cancel">ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/assets/js/shared/nav.js"></script>
+    <script src="/assets/js/shared/app.js"></script>
+    <script src="/assets/js/pages/profile.js"></script>
+</body>
+</html>

@@ -1,0 +1,1146 @@
+/* ==============================================================================
+   ฟอนต์หลัก: ใช้ 'Prompt' (โหลดจาก Google Fonts ใน index.html) เป็นฟอนต์หลัก
+   เนื่องจากอ่านง่ายกว่าและรองรับภาษาไทยได้ดีกว่า KBank (local font) จึงย้ายมาไว้เป็น
+   ตัวเลือกแรก แต่ยังคง @font-face ของ KBank ไว้เผื่อมีไฟล์ฟอนต์ในโปรเจกต์จริง
+   ============================================================================== */
+@font-face {
+    font-family: 'KBank';
+    src: url('/assets/fonts/KBank.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ==============================================================================
+   THEME SYSTEM (CSS Custom Properties)
+   ------------------------------------------------------------------------------
+   :root         = ค่าเริ่มต้น (Light Mode) — ใช้เป็น Default เสมอ
+   .dark-theme   = ชุดสีสำหรับ Dark Mode (สลับคลาสนี้ที่ <body> หรือ <html>)
+   [data-theme="dark"] คงไว้เพื่อความเข้ากันได้ย้อนหลัง (backward compatible)
+
+   วิธีสลับธีมในอนาคต (จะไปทำปุ่ม Toggle ในหน้า Edit Profile):
+     document.body.classList.toggle('dark-theme');
+     localStorage.setItem('theme', isDark ? 'dark' : 'light');
+   ดู helper functions: setTheme() / toggleTheme() / initTheme() ใน app.js
+   ============================================================================== */
+:root {
+    color-scheme: light;
+
+    /* --- พื้นผิว (Surfaces) --- */
+    --bg-page: #F5F7FB;
+    --surface: #FFFFFF;
+    --surface-alt: #EEF1F7;
+    --card-bg: #FFFFFF;
+    --card-inner: #F5F7FB;
+
+    /* --- ตัวอักษร (Text) --- */
+    --text-main: #171B26;
+    --text-muted: #6B7280;
+
+    /* --- สีเน้น (Accent) --- */
+    --accent-1: #4F63E8;
+    --accent-2: #14B8A6;
+    --accent-grad: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+
+    /* --- เงาและเส้นขอบ (Depth) --- */
+    --shadow-soft: 0 14px 32px rgba(23, 27, 38, 0.08);
+    --shadow-card: 0 4px 16px rgba(23, 27, 38, 0.05);
+    --border-hairline: rgba(23, 27, 38, 0.07);
+
+    /* --- ความโค้งมน (Radius) --- */
+    --radius-xl: 20px;
+    --radius-lg: 18px;
+    --radius-md: 13px;
+    --radius-full: 999px;
+    --radius-pill: 999px;
+
+    /* --- สีสถานะ/หมวดหมู่ (Status colors — ใช้ร่วมกันทั้ง Light/Dark) --- */
+    --color-blue: #3B82F6;
+    --color-green: #10B981;
+    --color-yellow: #F59E0B;
+    --color-red: #EF4444;
+    --color-purple: #A855F7;
+    --color-orange: #F97316;
+}
+
+/* Dark Mode — ผูกกับคลาส .dark-theme (พร้อมรองรับ data-theme="dark" แบบเดิม) */
+.dark-theme,
+[data-theme="dark"] {
+    color-scheme: dark;
+
+    --bg-page: #0E1015;
+    --surface: #161923;
+    --surface-alt: #1E2230;
+    --card-bg: #1C1C1E;
+    --card-inner: #252528;
+
+    --text-main: #F2F4F9;
+    --text-muted: #8A93A8;
+
+    --accent-1: #8B7CFF;
+    --accent-2: #21E6C7;
+
+    --shadow-soft: 0 16px 34px rgba(0, 0, 0, 0.38);
+    --shadow-card: 0 6px 18px rgba(0, 0, 0, 0.28);
+    --border-hairline: rgba(255, 255, 255, 0.08);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Prompt', 'KBank', 'Noto Sans Thai', 'Inter', sans-serif;
+}
+
+.numeric {
+    font-family: 'Manrope', 'Inter', sans-serif;
+    font-variant-numeric: tabular-nums;
+}
+
+body.mobile-body {
+    background-color: var(--bg-page);
+    display: flex;
+    justify-content: center;
+    color: var(--text-main);
+    transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* ==============================================================================
+   BACKGROUND DECORATION — เพิ่มมิติให้พื้นหลัง แทนสีเรียบทึบเดิม
+   ------------------------------------------------------------------------------
+   - .bg-blob-a / .bg-blob-b = วงกลมไล่สีเบลอขนาดใหญ่ ลอยอยู่มุมบน/ล่าง (fixed
+     กับ viewport เพื่อให้ยังเห็นได้แม้เลื่อนหน้าจอ)
+   - .bg-dot-grid = ลายจุดจางๆ ให้พื้นผิวมีเท็กซ์เจอร์ ไม่โล่งจนเกินไป
+   - ทั้งหมด pointer-events: none และ z-index ต่ำกว่า .mobile-app เพื่อไม่บัง
+     หรือกันคลิก content จริง
+   - ปรับสี/ตำแหน่ง/ความเบลอได้ที่ตัวแปรด้านล่างนี้
+   ============================================================================== */
+.bg-blob-a,
+.bg-blob-b {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(60px);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.bg-blob-a {
+    width: 320px;
+    height: 320px;
+    top: -120px;
+    left: -80px;
+    background: radial-gradient(circle, var(--accent-1) 0%, transparent 70%);
+    opacity: 0.16;
+}
+
+.bg-blob-b {
+    width: 380px;
+    height: 380px;
+    bottom: -140px;
+    right: -100px;
+    background: radial-gradient(circle, var(--accent-2) 0%, transparent 70%);
+    opacity: 0.14;
+}
+
+.dark-theme .bg-blob-a,
+.dark-theme .bg-blob-b {
+    opacity: 0.22;
+    filter: blur(70px);
+}
+
+.bg-dot-grid {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: radial-gradient(var(--text-muted) 1px, transparent 1px);
+    background-size: 22px 22px;
+    opacity: 0.06;
+}
+
+.mobile-app {
+    width: 100%;
+    max-width: 414px;
+    min-height: 100vh;
+    background-color: transparent;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 1;
+    padding: 0 0 110px 0;
+}
+
+/* =========================================
+   2. Header & Top Navigation
+   ========================================= */
+
+/* โซนหัว (ทักทาย + header + date picker) — ให้พื้นผิว/เงาของตัวเอง
+   เพื่อแยกจากส่วน body อย่างชัดเจน แทนที่จะลอยรวมกับพื้นหลังเดียวกันหมด */
+.top-section {
+    position: relative;
+    z-index: 1;
+    background: var(--surface);
+    border-radius: 0 0 28px 28px;
+    box-shadow: var(--shadow-card);
+    padding-bottom: 4px;
+    margin-bottom: 10px;
+}
+
+.top-greeting {
+    text-align: center;
+    padding: 18px 0 6px 0;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+    color: var(--text-muted);
+}
+
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+}
+
+.user-profile-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* -----------------------------------------------------------------------
+   Profile Avatar
+   -----------------------------------------------------------------------
+   - วงกลมสมบูรณ์ (border-radius: 50%) พร้อมกรอบบางและเงานุ่มเมื่อ hover
+   - ใช้ไอคอน User (SVG inline) เป็นค่าเริ่มต้น/placeholder แทนการพึ่งพา
+     บริการภายนอก (ui-avatars.com) — เมื่อผู้ใช้ตั้งรูปโปรไฟล์จริง สามารถ
+     แทนที่ด้วย <img> ที่มี object-fit: cover ได้โดยไม่กระทบ layout
+   - ครอบด้วย <a> เพื่อคลิกไปหน้าโปรไฟล์ พร้อม hover/focus effect
+   ----------------------------------------------------------------------- */
+.profile-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-alt);
+    border: 2px solid var(--surface);
+    box-shadow: 0 0 0 1px var(--border-hairline);
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.profile-avatar:hover,
+.profile-avatar:focus-visible {
+    transform: scale(1.06);
+    box-shadow: 0 0 0 2px var(--accent-1), var(--shadow-card);
+    outline: none;
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+}
+
+/* ไอคอน User แบบ SVG ที่ใช้เป็น Placeholder เริ่มต้น */
+.profile-avatar .avatar-icon-placeholder {
+    width: 60%;
+    height: 60%;
+    color: var(--text-muted);
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text-main);
+    line-height: 1.3;
+}
+
+.notification-btn {
+    width: 40px;
+    height: 40px;
+    background: var(--surface-alt);
+    border: none;
+    border-radius: 50%;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.notification-btn:hover {
+    background: var(--surface);
+    box-shadow: var(--shadow-card);
+    transform: translateY(-1px);
+}
+
+/* =========================================
+   3. Date Picker (Pill Shape)
+   ========================================= */
+.date-picker-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 20px 16px 20px;
+    gap: 10px;
+}
+
+/* ปุ่มแก้ไขข้อมูลร่างกาย — ชิดซ้าย ระดับเดียวกับ date picker ฝั่งขวา */
+.edit-profile-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background-color: var(--surface);
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--radius-pill);
+    padding: 9px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-main);
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.edit-profile-btn:hover {
+    box-shadow: var(--shadow-soft);
+    transform: translateY(-1px);
+}
+
+.edit-profile-btn .icon-inline {
+    width: 15px; height: 15px;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--accent-1);
+    flex-shrink: 0;
+}
+.edit-profile-btn .icon-inline .icon-img { width: 100%; height: 100%; }
+.edit-profile-btn .icon-inline .icon-emoji { font-size: 13px; }
+
+.date-picker-pill {
+    background-color: var(--surface);
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--radius-pill);
+    display: flex;
+    align-items: center;
+    padding: 9px 16px;
+    gap: 8px;
+    cursor: pointer;
+    color: var(--text-main);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.date-picker-pill:hover {
+    box-shadow: var(--shadow-soft);
+    transform: translateY(-1px);
+}
+
+.date-picker-pill .icon-calendar { font-size: 14px; }
+.date-picker-pill .date-text { font-size: 13px; font-weight: 500; }
+.date-picker-pill .icon-chevron { font-size: 12px; color: var(--text-muted); }
+
+/* =========================================
+   4. App Content, Mascot Stage & Stat Grid (2x2)
+   ========================================= */
+.app-content {
+    padding: 10px 10px; 
+    display: flex; flex-direction: column; gap: 10px; 
+}
+
+/* เวทีของมาสคอต — เป็นกรอบอ้างอิงตำแหน่ง (relative) ให้กิ้งก่าเดินอยู่ข้างใน
+   padding รอบๆ = "ทางเดิน" ที่กิ้งก่าใช้เดินวนรอบการ์ด ปรับค่านี้เพื่อขยาย/ลดทางเดิน */
+.mascot-stage {
+    position: relative;
+    padding: 8px 26px; /* ปรับทางเดินรอบๆ ให้กิ้งก่าเดินได้สะดวก */
+}
+
+/* Grid 2x2 — บนซ้าย=เพศ, บนขวา=อายุ, ล่างซ้าย=ส่วนสูง, ล่างขวา=น้ำหนัก
+   ช่องว่าง (gap) คือทางเดินกลางที่กิ้งก่าใช้ตัดผ่าน — ลดระยะห่างลงให้การ์ดดูเป็นกลุ่มก้อน */
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px 14px;
+}
+
+.stat-card {
+    position: relative;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-hairline);
+    border-radius: 18px;
+    padding: 14px 10px;
+    box-shadow: var(--shadow-card);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+    transition: box-shadow 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
+}
+
+.stat-card:hover {
+    box-shadow: var(--shadow-soft);
+    transform: translateY(-2px);
+}
+
+/* ไฮไลต์การ์ดที่กิ้งก่ากำลังแวะอยู่ (JS เพิ่ม/ถอดคลาสนี้) */
+.stat-card.is-visited {
+    border-color: var(--accent-1);
+    box-shadow: var(--shadow-soft), 0 0 0 2px rgba(79, 99, 232, 0.18);
+    transform: translateY(-3px);
+}
+
+/* แถวบนของการ์ด: ไอคอน (ซ้าย) + ชื่อช่อง (ขวา) อยู่ระดับเดียวกัน จัดกึ่งกลางทั้งแถว */
+.stat-card-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.stat-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+    flex-shrink: 0;
+}
+
+.icon-blue { background-color: rgba(59, 130, 246, 0.15); }
+.icon-green { background-color: rgba(16, 185, 129, 0.15); }
+.icon-purple { background-color: rgba(168, 85, 247, 0.15); }
+.icon-orange { background-color: rgba(249, 115, 22, 0.15); }
+
+/* ==============================================================================
+   ICON UPGRADE PATH — เตรียมไว้สำหรับไอคอน 3D/Isometric
+   ------------------------------------------------------------------------------
+   ทุกจุดไอคอนใช้โครงสร้างเดียวกัน:
+     <img src="assets/icons/xxx.png" class="icon-img" onerror="...">
+     <span class="icon-emoji" style="display:none">🔔</span>
+   ถ้าไฟล์รูปที่ assets/icons/ ยังไม่มี (404) → onerror จะซ่อน <img> แล้วโชว์
+   emoji เดิมแทนอัตโนมัติ ไม่มีวันพังแม้ยังไม่ได้เพิ่มไฟล์จริง
+   พอวางไฟล์ 3D icon ที่ path ถูกต้องแล้ว รูปจะขึ้นแทน emoji ทันทีโดยไม่ต้องแก้โค้ด
+   ============================================================================== */
+.icon-img {
+    width: 70%;
+    height: 70%;
+    object-fit: contain;
+    display: block;
+}
+.icon-emoji {
+    line-height: 1;
+}
+
+.stat-label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+
+.stat-value-wrap { width: 100%; }
+.stat-value { font-size: 22px; font-weight: 700; color: var(--text-main); }
+.stat-value small { font-size: 12px; font-weight: 500; color: var(--text-muted); }
+
+/* =========================================
+   5. Combined BMI & Energy Card (ซ้าย-ขวา)
+   ========================================= */
+.combined-dashboard-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-hairline);
+    border-radius: 20px;
+    display: flex;
+    padding: 20px 0;
+    box-shadow: var(--shadow-soft);
+}
+
+.panel-left, .panel-right {
+    flex: 1;
+    width: 50%;
+    padding: 0 14px;
+    display: flex;
+    flex-direction: column;
+}
+
+.vertical-divider {
+    width: 1px;
+    background-color: var(--border-hairline);
+}
+
+.panel-header {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;
+}
+
+.header-title {
+    display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600;
+    color: var(--text-main);
+}
+
+.icon-box {
+    width: 22px; height: 22px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center; font-size: 11px;
+}
+.green-box { background-color: rgba(16, 185, 129, 0.15); }
+.purple-box { background-color: rgba(168, 85, 247, 0.15); }
+
+/* ==============================================================================
+   INFO TOOLTIP / POPOVER — ปุ่ม info-icon ตอนนี้เป็นปุ่มจริง กดแล้วโชว์คำอธิบาย
+   ------------------------------------------------------------------------------
+   - .info-tooltip-wrap = ต้องมี position: relative เพื่อให้ popover ยึดตำแหน่งกับมัน
+   - .info-popover ซ่อนด้วย opacity/visibility (ไม่ใช้ display:none) เพื่อให้ทรานซิชันลื่น
+   - เปิด/ปิดด้วยคลาส .is-open ที่ควบคุมจาก JS (ดู initInfoPopovers ใน app.js)
+   - กดปุ่มอื่น, กดพื้นที่นอก popover, หรือกด Esc จะปิดของที่เปิดอยู่ทั้งหมด
+   ============================================================================== */
+.info-tooltip-wrap {
+    position: relative;
+}
+
+.info-icon {
+    font-size: 12px;
+    opacity: 0.6;
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    line-height: 1;
+    border-radius: 50%;
+    transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+
+.info-icon:hover,
+.info-icon[aria-expanded="true"] {
+    opacity: 1;
+    background-color: var(--surface-alt);
+}
+
+.info-popover {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 220px;
+    background-color: var(--surface);
+    border: 1px solid var(--border-hairline);
+    border-radius: 14px;
+    box-shadow: var(--shadow-soft);
+    padding: 12px 14px;
+    font-size: 11.5px;
+    line-height: 1.6;
+    color: var(--text-muted);
+    text-align: left;
+    z-index: 5;
+
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+}
+
+.info-popover strong {
+    color: var(--text-main);
+}
+
+.info-popover.is-open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* ==============================================================================
+   ตัวแปรทิศทาง: กางไปทางขวาแทนลงล่าง (ใช้กับ BMI ตามที่ขอ)
+   ------------------------------------------------------------------------------
+   วิธีสลับทิศอื่นๆ: ดูตารางเทียบ top/bottom, left/right, transform ที่คุยกันไว้ก่อนหน้า
+   ============================================================================== */
+.info-popover--right {
+    top: 50%;
+    left: calc(100% + 8px);
+    right: auto;
+    width: 190px;               /* แคบกว่าเวอร์ชันเดิมเล็กน้อย กันล้นขอบจอฝั่งขวา */
+    transform: translateY(-50%) translateX(-6px);
+}
+
+.info-popover--right.is-open {
+    transform: translateY(-50%) translateX(0);
+}
+
+/* ลูกศรของเวอร์ชันขวา: ย้ายไปขอบซ้ายของ popover กึ่งกลางแนวตั้ง แล้วหมุนให้ชี้ซ้ายแทนชี้ขึ้น */
+.info-popover--right::before {
+    top: 50%;
+    right: auto;
+    left: -5px;
+    transform: translateY(-50%) rotate(-45deg);
+}
+
+/* ==============================================================================
+   กระจกเงาของ --right: กางไปทางซ้ายแทน (ใช้กับพลังงาน)
+   ------------------------------------------------------------------------------
+   หลักการ: BMI อยู่ซ้าย เปิดไปทางขวา (โชว์คำอธิบายทับฝั่งพลังงาน)
+            พลังงานอยู่ขวา เปิดไปทางซ้าย (โชว์คำอธิบายทับฝั่ง BMI)
+   ผลคือตัวเลขของการ์ดตัวเอง (ฝั่งที่กำลังอ่านค่าอยู่) ไม่ถูก popover บังเลย
+   ============================================================================== */
+.info-popover--left {
+    top: 50%;
+    right: calc(100% + 8px);
+    left: auto;
+    width: 190px;
+    transform: translateY(-50%) translateX(6px);
+}
+
+.info-popover--left.is-open {
+    transform: translateY(-50%) translateX(0);
+}
+
+/* ลูกศรของเวอร์ชันซ้าย: ย้ายไปขอบขวาของ popover กึ่งกลางแนวตั้ง หมุนให้ชี้ขวากลับไปที่ปุ่ม */
+.info-popover--left::before {
+    top: 50%;
+    left: auto;
+    right: -5px;
+    transform: translateY(-50%) rotate(135deg);
+}
+
+/* ลูกศรเล็กๆ ชี้กลับไปที่ปุ่ม ให้รู้ว่า popover นี้ผูกกับไอคอนไหน */
+.info-popover::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    right: 10px;
+    width: 10px;
+    height: 10px;
+    background-color: var(--surface);
+    border-left: 1px solid var(--border-hairline);
+    border-top: 1px solid var(--border-hairline);
+    transform: rotate(45deg);
+}
+
+/* -- Left Panel: BMI -- */
+.bmi-center-text { text-align: center; margin-bottom: 16px; }
+.bmi-label { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; font-weight: 500; }
+.bmi-number { font-size: 34px; font-weight: 800; color: var(--color-green); line-height: 1; margin-bottom: 6px; }
+.bmi-status { font-size: 11px; color: var(--color-green); font-weight: 600; }
+
+.gauge-wrapper { position: relative; width: 100%; height: 75px; display: flex; justify-content: center; }
+.gauge-svg { width: 130px; height: 75px; }
+.gauge-needle-container {
+    position: absolute; bottom: 5px; left: 50%; width: 4px; height: 60px;
+    transform-origin: bottom center; transform: translateX(-50%) rotate(-45deg);
+    transition: transform 1.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.needle-line { width: 3px; height: 50px; background-color: var(--text-main); border-radius: 3px; box-shadow: 0 0 4px rgba(0, 0, 0, 0.25); }
+.needle-center {
+    position: absolute; bottom: -3px; left: 50%; transform: translateX(-50%);
+    width: 10px; height: 10px; background-color: var(--text-main); border-radius: 50%; border: 2px solid var(--card-bg);
+}
+
+.gauge-labels { display: flex; justify-content: space-between; text-align: center; margin: 10px 0; }
+.g-col { display: flex; flex-direction: column; font-size: 8px; color: var(--text-muted); gap: 2px; }
+.c-blue { color: var(--color-blue); font-weight: 600;}
+.c-green { color: var(--color-green); font-weight: 600;}
+.c-yellow { color: var(--color-yellow); font-weight: 600;}
+.c-red { color: var(--color-red); font-weight: 600;}
+
+.comparison-box {
+    display: flex; align-items: center; gap: 6px; background-color: var(--card-inner);
+    padding: 9px 10px; border-radius: 10px; margin-top: auto;
+}
+.comp-icon { font-size: 14px; color: var(--color-green); }
+.comp-label { font-size: 9px; color: var(--text-muted); }
+.comp-value { font-size: 10px; color: var(--color-green); font-weight: 600; margin-top: 2px;}
+
+/* -- Right Panel: Energy -- */
+.energy-block { margin-bottom: 14px; }
+.e-title { font-size: 12px; font-weight: 600; margin-bottom: 2px; color: var(--text-main); }
+.e-desc { font-size: 9px; color: var(--text-muted); margin-bottom: 4px; }
+.e-value { font-size: 20px; font-weight: 700; }
+.c-purple { color: var(--color-purple); }
+.c-purple small { color: rgba(168, 85, 247, 0.7); font-size: 11px;}
+
+/* TDEE + เป้าหมาย — การ์ดเดียว 2 แถว ไม่มีหลอด/เปอร์เซ็นต์การกินจริง
+   (ระบบนี้ไม่เก็บแคลอรีที่บริโภครายวัน จึงแสดงเป็นค่าคงที่ล้วนๆ) */
+.tdee-target-card {
+    background-color: var(--card-inner);
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.tt-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.tt-icon {
+    width: 32px; height: 32px;
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+}
+.tt-icon-blue { background-color: rgba(59, 130, 246, 0.15); }
+.tt-icon-orange { background-color: rgba(249, 115, 22, 0.15); }
+
+.tt-info { display: flex; flex-direction: column; gap: 1px; }
+.tt-label { font-size: 10px; color: var(--text-muted); font-weight: 500; }
+.tt-value { font-size: 17px; font-weight: 700; color: var(--color-blue); }
+.tt-value small { font-size: 10px; font-weight: 500; opacity: 0.75; }
+.tt-value-target { color: var(--color-orange); }
+
+.tt-divider {
+    height: 1px;
+    background-color: var(--border-hairline);
+}
+
+/* =========================================
+   6. Disclaimer
+   ========================================= */
+.disclaimer {
+    display: flex; align-items: flex-start; gap: 8px; padding: 12px;
+    background-color: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.18); border-radius: 12px;
+}
+.check-icon { font-size: 14px; color: var(--color-green); }
+.disclaimer p { font-size: 10px; color: var(--text-muted); line-height: 1.5; }
+
+/* ==============================================================================
+   7. GECKO MASCOT (CSS art ล้วน — ไม่ใช้ไฟล์รูป)
+   ------------------------------------------------------------------------------
+   โครงสร้าง:  .gecko > .gecko-inner > (หาง / ลำตัว / ขา / แขน / หัว / ฟองข้อความ)
+
+   การควบคุมจาก JS:
+     - ตำแหน่ง  : ตั้งค่า transform ที่ .gecko  → translate3d(x, y, 0)
+     - ทิศทาง   : คลาส .facing-left (พลิกตัวด้วย scaleX(-1))
+     - เดิน/หยุด : คลาส .is-walking
+     - ท่าทาง   : คลาส .pose-flex / .pose-cool / .pose-stretch / .pose-weigh
+     - เพศ      : คลาส .male / .female (ตัวเมียจะมีเสื้อ กระโปรง และขนตา)
+
+   ปรับความเร็ว: แก้ที่ตัวแปร --walk-cycle ด้านล่าง (ยิ่งน้อยยิ่งขยับเร็ว)
+   ความเร็วการ "เดินทาง" ระหว่างการ์ดตั้งค่าที่ GECKO_CONFIG.speed ใน app.js
+   ============================================================================== */
+.gecko {
+    --gecko-skin: #6FBF5B;
+    --gecko-skin-dark: #55A344;
+    --gecko-belly: #B7E0A4;
+    --gecko-outfit: #F0806A;
+    --walk-cycle: 0.5s;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 58px;
+    height: 74px;
+    z-index: 20;
+    pointer-events: none;
+    /* JS สั่ง transform (ตำแหน่ง) — ใส่ transition สั้นๆ ให้การเลี้ยวดูนุ่ม */
+    transition: opacity 0.18s linear;
+}
+
+.gecko-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-origin: bottom center;
+    transition: transform 0.45s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+/* พลิกตัวเมื่อเดินไปทางซ้าย */
+.gecko.facing-left .gecko-inner { transform: scaleX(-1); }
+
+/* ตัวกิ้งก่าตอนซ่อน (ใช้ตอน "ทะลุขอบจอ" เพื่อไปโผล่อีกฝั่ง) */
+.gecko.is-hidden { opacity: 0; }
+
+/* ---------- หาง: ใช้วงแหวนตัดครึ่งทำเป็นเส้นโค้ง ---------- */
+.g-tail {
+    position: absolute;
+    left: -16px;
+    bottom: 12px;
+    width: 34px;
+    height: 30px;
+    border: 8px solid var(--gecko-skin);
+    border-top-color: transparent;
+    border-right-color: transparent;
+    border-radius: 50%;
+    transform: rotate(-18deg);
+    transform-origin: right center;
+    z-index: 1;
+}
+.gecko.is-walking .g-tail { animation: tailSway var(--walk-cycle) ease-in-out infinite; }
+
+/* ---------- ลำตัว ---------- */
+.g-body {
+    position: absolute;
+    left: 16px;
+    bottom: 12px;
+    width: 27px;
+    height: 42px;
+    background: linear-gradient(105deg, var(--gecko-skin) 52%, var(--gecko-belly) 52%);
+    border-radius: 14px 14px 11px 11px;
+    z-index: 4;
+    overflow: hidden;
+}
+.gecko.is-walking .g-body { animation: bodyBob var(--walk-cycle) ease-in-out infinite; }
+
+/* เสื้อ + กระโปรง (แสดงเฉพาะตัวเมีย) */
+.g-top, .g-skirt { position: absolute; left: 0; width: 100%; background: var(--gecko-outfit); display: none; }
+.g-top { top: 9px; height: 10px; }
+.g-skirt { bottom: 0; height: 14px; border-radius: 0 0 4px 4px; }
+.gecko.female .g-top, .gecko.female .g-skirt { display: block; }
+
+/* ---------- ขาหลัง 2 ข้าง ---------- */
+.g-leg {
+    position: absolute;
+    bottom: 2px;
+    width: 7px;
+    height: 14px;
+    background: var(--gecko-skin-dark);
+    border-radius: 4px 4px 5px 5px;
+    transform-origin: top center;
+    z-index: 3;
+}
+.g-leg-back  { left: 19px; z-index: 2; background: var(--gecko-skin-dark); }
+.g-leg-front { left: 31px; z-index: 5; background: var(--gecko-skin); }
+.gecko.is-walking .g-leg-back  { animation: stepBack  var(--walk-cycle) ease-in-out infinite; }
+.gecko.is-walking .g-leg-front { animation: stepFront var(--walk-cycle) ease-in-out infinite; }
+
+/* ---------- แขนหน้า 2 ข้าง ---------- */
+.g-arm {
+    position: absolute;
+    top: 33px;
+    width: 6px;
+    height: 15px;
+    background: var(--gecko-skin);
+    border-radius: 3px 3px 4px 4px;
+    transform-origin: top center;
+    z-index: 6;
+    transition: transform 0.4s cubic-bezier(0.34, 1.4, 0.64, 1), top 0.4s ease;
+}
+.g-arm-back  { left: 15px; background: var(--gecko-skin-dark); z-index: 3; transform: rotate(14deg); }
+.g-arm-front { left: 36px; transform: rotate(-14deg); }
+.gecko.is-walking .g-arm-back  { animation: swingBack  var(--walk-cycle) ease-in-out infinite; }
+.gecko.is-walking .g-arm-front { animation: swingFront var(--walk-cycle) ease-in-out infinite; }
+
+/* ---------- หัว + ตาโต ---------- */
+.g-head {
+    position: absolute;
+    top: 6px;
+    left: 12px;
+    width: 35px;
+    height: 27px;
+    background: var(--gecko-skin);
+    border-radius: 52% 60% 44% 46%;
+    z-index: 7;
+}
+.gecko.is-walking .g-head { animation: headBob var(--walk-cycle) ease-in-out infinite; }
+
+.g-eye {
+    position: absolute;
+    top: -7px;
+    width: 16px;
+    height: 16px;
+    background: #FFFDF6;
+    border-radius: 50%;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.14);
+}
+.g-eye-back  { left: 6px;  z-index: 8; transform: scale(0.86); }
+.g-eye-front { left: 18px; z-index: 9; }
+
+.g-pupil {
+    position: absolute;
+    top: 4px; left: 5px;
+    width: 7px; height: 7px;
+    background: #16202B;
+    border-radius: 50%;
+    animation: blinkPupil 5.5s ease-in-out infinite;
+}
+
+/* ขนตา — ตัวเมียเท่านั้น */
+.g-lash {
+    display: none;
+    position: absolute;
+    top: -2px; left: 2px;
+    width: 11px; height: 6px;
+    border-top: 2px solid #16202B;
+    border-radius: 50% 50% 0 0;
+}
+.gecko.female .g-lash { display: block; }
+
+.g-nostril {
+    position: absolute;
+    top: 8px; right: 6px;
+    width: 3px; height: 3px;
+    background: var(--gecko-skin-dark);
+    border-radius: 50%;
+}
+.g-smile {
+    position: absolute;
+    top: 13px; right: 4px;
+    width: 13px; height: 7px;
+    border-bottom: 2px solid var(--gecko-skin-dark);
+    border-radius: 0 0 60% 60%;
+}
+
+/* ---------- ฟองข้อความตอนแวะการ์ด ---------- */
+.g-bubble {
+    position: absolute;
+    bottom: 78px;
+    left: 50%;
+    transform: translateX(-50%) scale(0.6);
+    padding: 5px 10px;
+    background: var(--surface);
+    border: 1px solid var(--border-hairline);
+    box-shadow: var(--shadow-card);
+    border-radius: var(--radius-pill);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-main);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.25s ease, transform 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+.g-bubble.is-visible { opacity: 1; transform: translateX(-50%) scale(1); }
+/* ข้อความในฟองไม่ต้องพลิกตามตัวกิ้งก่าเวลาหันซ้าย */
+.gecko.facing-left .g-bubble { transform: translateX(-50%) scaleX(-1) scale(0.6); }
+.gecko.facing-left .g-bubble.is-visible { transform: translateX(-50%) scaleX(-1) scale(1); }
+
+/* ==============================================================================
+   ท่าทางตอนแวะการ์ดแต่ละใบ (Poses)
+   ============================================================================== */
+
+/* การ์ดเพศ → เบ่งกล้าม: ยกแขนทั้งสองข้างงอขึ้น + ตัวสั่นเป็นจังหวะ */
+.gecko.pose-flex .g-arm-front { transform: rotate(-155deg) translateY(2px); }
+.gecko.pose-flex .g-arm-back  { transform: rotate(155deg) translateY(2px); }
+.gecko.pose-flex .gecko-inner { animation: flexPulse 0.55s ease-in-out infinite; }
+.gecko.pose-flex.facing-left .gecko-inner { animation: flexPulseFlipped 0.55s ease-in-out infinite; }
+
+/* การ์ดอายุ → โพสเท่: เอนตัวไปข้างหลัง เท้าสะเอวหนึ่งข้าง */
+.gecko.pose-cool .gecko-inner { transform: rotate(-9deg); }
+.gecko.pose-cool.facing-left .gecko-inner { transform: scaleX(-1) rotate(-9deg); }
+.gecko.pose-cool .g-arm-front { transform: rotate(-118deg) translateY(3px); }
+.gecko.pose-cool .g-arm-back  { transform: rotate(38deg); }
+.gecko.pose-cool .g-head { animation: coolNod 1.6s ease-in-out infinite; }
+
+/* การ์ดส่วนสูง → ยืดตัวสูงขึ้น: ยืดลำตัว ชูแขนตรงขึ้นฟ้า */
+.gecko.pose-stretch .gecko-inner { animation: stretchUp 1.5s ease-in-out infinite; }
+.gecko.pose-stretch.facing-left .gecko-inner { animation: stretchUpFlipped 1.5s ease-in-out infinite; }
+.gecko.pose-stretch .g-arm-front { transform: rotate(-172deg) translateY(3px); }
+.gecko.pose-stretch .g-arm-back  { transform: rotate(172deg) translateY(3px); }
+
+/* การ์ดน้ำหนัก → ตกใจน้ำหนัก: ตัวสั่นซ้ายขวา แขนกางออก */
+.gecko.pose-weigh .gecko-inner { animation: weighShake 0.35s ease-in-out infinite; }
+.gecko.pose-weigh.facing-left .gecko-inner { animation: weighShakeFlipped 0.35s ease-in-out infinite; }
+.gecko.pose-weigh .g-arm-front { transform: rotate(-58deg); }
+.gecko.pose-weigh .g-arm-back  { transform: rotate(58deg); }
+.gecko.pose-weigh .g-eye { animation: eyePop 0.35s ease-in-out infinite; }
+
+/* ==============================================================================
+   รอยเท้า (Footprints) — JS สร้าง element แล้วลบทิ้งอัตโนมัติ
+   ปรับอายุรอยเท้าได้ที่ GECKO_CONFIG.footprintLife ใน app.js
+   ============================================================================== */
+.footprint-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.footprint {
+    position: absolute;
+    width: 7px;
+    height: 9px;
+    border-radius: 50% 50% 45% 45%;
+    background: currentColor;
+    opacity: 0;
+    animation: footprintFade var(--footprint-life, 2.4s) ease-out forwards;
+}
+
+/* ==============================================================================
+   Keyframes
+   ============================================================================== */
+@keyframes bodyBob   { 0%, 100% { transform: translateY(0); }      50% { transform: translateY(-2.5px); } }
+@keyframes headBob   { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-2px) rotate(-3deg); } }
+@keyframes tailSway  { 0%, 100% { transform: rotate(-18deg); }     50% { transform: rotate(-31deg); } }
+@keyframes stepBack  { 0%, 100% { transform: rotate(24deg); }      50% { transform: rotate(-24deg); } }
+@keyframes stepFront { 0%, 100% { transform: rotate(-24deg); }     50% { transform: rotate(24deg); } }
+@keyframes swingBack { 0%, 100% { transform: rotate(-20deg); }     50% { transform: rotate(24deg); } }
+@keyframes swingFront{ 0%, 100% { transform: rotate(24deg); }      50% { transform: rotate(-20deg); } }
+
+@keyframes blinkPupil { 0%, 92%, 100% { transform: scaleY(1); } 96% { transform: scaleY(0.15); } }
+
+@keyframes flexPulse         { 0%, 100% { transform: scale(1); }            50% { transform: scale(1.09); } }
+@keyframes flexPulseFlipped  { 0%, 100% { transform: scaleX(-1) scale(1); } 50% { transform: scaleX(-1) scale(1.09); } }
+
+@keyframes coolNod { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-6deg); } }
+
+@keyframes stretchUp         { 0%, 100% { transform: scaleY(1) translateY(0); }            55% { transform: scaleY(1.2) translateY(-5px); } }
+@keyframes stretchUpFlipped  { 0%, 100% { transform: scaleX(-1) scaleY(1) translateY(0); } 55% { transform: scaleX(-1) scaleY(1.2) translateY(-5px); } }
+
+@keyframes weighShake        { 0%, 100% { transform: translateX(-2.5px) rotate(-3deg); } 50% { transform: translateX(2.5px) rotate(3deg); } }
+@keyframes weighShakeFlipped { 0%, 100% { transform: scaleX(-1) translateX(-2.5px) rotate(-3deg); } 50% { transform: scaleX(-1) translateX(2.5px) rotate(3deg); } }
+@keyframes eyePop            { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.16); } }
+
+@keyframes footprintFade {
+    0%   { opacity: 0.75; transform: scale(0.7); }
+    25%  { opacity: 0.6;  transform: scale(1); }
+    100% { opacity: 0;    transform: scale(1); }
+}
+
+/* เคารพการตั้งค่า Reduced Motion — หยุดแอนิเมชันทั้งหมดของมาสคอต
+   (JS จะตรวจค่านี้ด้วย แล้วให้กิ้งก่ายืนนิ่งอยู่มุมเดียว ไม่เดินวน) */
+@media (prefers-reduced-motion: reduce) {
+    .gecko *,
+    .gecko-inner,
+    .footprint {
+        animation: none !important;
+    }
+    .footprint { display: none; }
+}
+
+/* ==============================================================================
+   MODAL OVERLAY + CONFIRM DIALOG — component กลาง ใช้ร่วมกันทุกหน้าในแอพ
+   ------------------------------------------------------------------------------
+   .modal-overlay = พื้นหลังมืดคลุมทั้งจอ ใช้ได้กับทุก popup/sheet ในแอพ
+   .confirm-card  = การ์ดยืนยัน มาพร้อม JS helper showConfirm() ใน app.js
+   ปุ่มยืนยัน (สีแดง) อยู่ซ้ายเสมอ ปุ่มยกเลิกอยู่ขวาเสมอ — บังคับด้วย CSS order
+   เพื่อให้ตำแหน่งคงที่ไม่ว่าจะเรียงมาร์กอัปแบบไหนก็ตาม
+   ============================================================================== */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 12, 20, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+.modal-overlay.is-open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.app-toast {
+    position: fixed;
+    left: 50%;
+    top: calc(env(safe-area-inset-top, 0px) + 14px);
+    transform: translate(-50%, -140%);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: calc(100% - 48px);
+    background: rgba(28, 30, 38, 0.96);
+    color: #fff;
+    font-size: 13.5px;
+    font-weight: 600;
+    padding: 11px 20px;
+    border-radius: 999px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22), 0 1px 2px rgba(0, 0, 0, 0.1);
+    z-index: 2000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.28s cubic-bezier(0.34, 1.3, 0.64, 1), transform 0.28s cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+.app-toast.is-open {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+.app-toast-icon {
+    display: inline-flex;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+.app-toast.app-toast-success { background: rgba(16, 60, 40, 0.96); }
+.app-toast.app-toast-success .app-toast-icon { color: #34D399; }
+.app-toast.app-toast-error { background: rgba(66, 22, 22, 0.96); }
+.app-toast.app-toast-error .app-toast-icon { color: #F87171; }
+
+.confirm-card {
+    width: 100%;
+    max-width: 320px;
+    background: var(--card-bg);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-soft);
+    padding: 22px 20px 18px 20px;
+    text-align: center;
+    transform: translateY(10px) scale(0.97);
+    transition: transform 0.2s ease;
+}
+.modal-overlay.is-open .confirm-card {
+    transform: translateY(0) scale(1);
+}
+
+.confirm-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: rgba(239, 68, 68, 0.12);
+    color: var(--color-red);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    margin: 0 auto 12px auto;
+}
+
+.confirm-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 6px;
+}
+
+.confirm-message {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 18px;
+}
+
+.confirm-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.confirm-btn {
+    flex: 1;
+    border: none;
+    border-radius: var(--radius-lg);
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+.confirm-btn:active {
+    transform: scale(0.97);
+}
+
+/* order บังคับตำแหน่ง: ปุ่มยืนยัน(แดง)ซ้ายเสมอ / ยกเลิกขวาเสมอ ไม่ว่า DOM จะเรียงยังไง */
+.confirm-btn-danger {
+    background: var(--color-red);
+    color: #FFFFFF;
+    order: 1;
+}
+.confirm-btn-cancel {
+    background: var(--surface);
+    color: var(--text-main);
+    border: 1px solid var(--border-hairline);
+    order: 2;
+}

@@ -19,6 +19,7 @@
             } catch (e) {}
         })();
     </script>
+    <script src="/assets/js/shared/icons.js"></script>
     <script src="/assets/js/shared/api.js"></script>
     <script>
         SoyDeeAPI.guardMember();
@@ -33,7 +34,7 @@
 
         <div class="top-section">
             <header class="app-header">
-                <button class="back-btn" type="button" onclick="history.length > 1 ? history.back() : (window.location.href = 'index.html')" aria-label="ย้อนกลับ">🔙</button>
+                <button class="back-btn" type="button" onclick="history.length > 1 ? history.back() : (window.location.href = 'index.html')" aria-label="ย้อนกลับ"><i data-icon="back"></i></button>
                 <h1 class="page-title" data-i18n="page-title">โปรไฟล์</h1>
                 <span class="header-spacer" aria-hidden="true"></span>
             </header>
@@ -152,9 +153,9 @@
                     <div class="form-field">
                         <span class="form-label" data-i18n="label-goal">เป้าหมาย</span>
                         <div class="goal-pill-group">
-                            <button class="goal-pill active" data-goal="1" type="button" data-i18n="goal-lose">🔻 ลดน้ำหนัก</button>
-                            <button class="goal-pill" data-goal="2" type="button" data-i18n="goal-gain">💪 เพิ่มกล้ามเนื้อ</button>
-                            <button class="goal-pill" data-goal="3" type="button" data-i18n="goal-maintain">⚖️ รักษาน้ำหนัก</button>
+                            <button class="goal-pill active" data-goal="1" type="button"><i data-icon="trend-down"></i><span data-i18n="goal-lose">ลดน้ำหนัก</span></button>
+                            <button class="goal-pill" data-goal="2" type="button"><i data-icon="muscle"></i><span data-i18n="goal-gain">เพิ่มกล้ามเนื้อ</span></button>
+                            <button class="goal-pill" data-goal="3" type="button"><i data-icon="weight"></i><span data-i18n="goal-maintain">รักษาน้ำหนัก</span></button>
                         </div>
                     </div>
                 </div>
@@ -169,11 +170,11 @@
         <nav id="app-nav-bar" class="nav-pill-wrapper">
             <ul class="nav-pill-container" id="horizontalNav">
                 <div class="nav-indicator" id="navIndicator"></div>
-                <li><a href="index.html" class="nav-icon-item" data-target="home"><span>🏠</span></a></li>
-                <li><a href="food-record.html" class="nav-icon-item" data-target="food"><span>🥗</span></a></li>
-                <li><a href="activity-record.html" class="nav-icon-item" data-target="activity"><span>⚡</span></a></li>
-                <li><a href="sleep-record.html" class="nav-icon-item" data-target="sleep"><span>💤</span></a></li>
-                <li><a class="nav-icon-item is-disabled" data-target="report" aria-disabled="true" aria-label="รายงาน (เร็วๆ นี้)"><span>📊</span></a></li>
+                <li><a href="index.html" class="nav-icon-item" data-target="home"><i data-icon="home"></i></a></li>
+                <li><a href="food-record.html" class="nav-icon-item" data-target="food"><i data-icon="food"></i></a></li>
+                <li><a href="activity-record.html" class="nav-icon-item" data-target="activity"><i data-icon="activity"></i></a></li>
+                <li><a href="sleep-record.html" class="nav-icon-item" data-target="sleep"><i data-icon="sleep"></i></a></li>
+                <li><a class="nav-icon-item is-disabled" data-target="report" aria-disabled="true" aria-label="รายงาน (เร็วๆ นี้)"><i data-icon="report"></i></a></li>
             </ul>
         </nav>
     </div>

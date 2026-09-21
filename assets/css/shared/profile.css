@@ -13,7 +13,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
+    font-size: 20px;
     color: var(--text-main);
     cursor: pointer;
     flex-shrink: 0;
@@ -144,6 +144,15 @@
     font-weight: 600;
     color: var(--text-muted);
 }
+.form-label.has-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.form-label.has-icon .ph {
+    font-size: 15px;
+    color: var(--accent-1);
+}
 
 .form-input {
     background: var(--surface-alt);
@@ -168,6 +177,9 @@
 }
 
 .form-link-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     align-self: flex-start;
     background: none;
     border: none;
@@ -357,6 +369,9 @@
 }
 
 .goal-pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     width: 100%;
     text-align: left;
     padding: 12px 14px;
@@ -369,6 +384,8 @@
     cursor: pointer;
     transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
+
+.goal-pill .ph { font-size: 20px; }
 
 .goal-pill.active {
     background: var(--accent-grad);

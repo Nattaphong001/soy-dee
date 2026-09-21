@@ -1,0 +1,2104 @@
+[
+  {
+    "id": "TC001",
+    "title": "Splash screen sends visitors to login",
+    "description": "A visitor who opens the welcome screen is taken to the login experience automatically.",
+    "category": "Welcome/Splash Redirect",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/welcome.html"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the login page is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC002",
+    "title": "Register as a member and reach the dashboard",
+    "description": "This verifies a new member can complete registration, be signed in automatically, and land on the member dashboard.",
+    "category": "Member Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/register.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the member registration form with valid details"
+      },
+      {
+        "type": "action",
+        "description": "Submit the registration form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the member dashboard is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the member profile summary is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC003",
+    "title": "Log out from the profile page",
+    "description": "A member can log out from the profile page and return to the login screen.",
+    "category": "Member Profile & Body Stats",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the member username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the member password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /views/user/profile.html"
+      },
+      {
+        "type": "action",
+        "description": "Start the logout process"
+      },
+      {
+        "type": "action",
+        "description": "Confirm the logout"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the login page is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the session is cleared"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC004",
+    "title": "Member can sign in and reach the dashboard",
+    "description": "A member can submit valid credentials and arrive at the dashboard after signing in.",
+    "category": "Member/Admin Login",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Select the member role"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username or email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the member dashboard is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC005",
+    "title": "Admin can sign in and reach the admin panel",
+    "description": "An admin can submit valid credentials for the admin role and arrive at the admin panel.",
+    "category": "Member/Admin Login",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Select the admin role"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username or email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the admin panel is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC006",
+    "title": "Sign in and view dashboard health summary",
+    "description": "This verifies a signed-in member can access the dashboard and review the health summary and body statistics.",
+    "category": "Member Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the member credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the member dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify health summary cards are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the latest body stats are visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC007",
+    "title": "Sign in as admin and open the system overview",
+    "description": "This verifies an admin can sign in by role and reach the admin system overview.",
+    "category": "Admin System Overview",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the admin credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the admin panel"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the admin system overview is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC008",
+    "title": "Admin can sign out from the admin panel",
+    "description": "This verifies an authenticated admin can log out and is returned to the login page with the session ended.",
+    "category": "Logout",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Select the admin role"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /views/admin/admin.html"
+      },
+      {
+        "type": "action",
+        "description": "Click the logout control"
+      },
+      {
+        "type": "action",
+        "description": "Confirm the logout action"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the login page is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the session is cleared"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC009",
+    "title": "Member can sign out from the profile page",
+    "description": "This verifies an authenticated member can log out from a member page and return to the login screen.",
+    "category": "Logout",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Select the member role"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /views/user/profile.html"
+      },
+      {
+        "type": "action",
+        "description": "Click the logout control"
+      },
+      {
+        "type": "action",
+        "description": "Confirm the logout action"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the login page is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the session is cleared"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC010",
+    "title": "New member registration signs the user in automatically",
+    "description": "A new member can complete registration and is automatically taken to the dashboard after the account is created.",
+    "category": "Member Registration",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/register.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the registration form with valid account and body-stat details"
+      },
+      {
+        "type": "action",
+        "description": "Submit the registration form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the member dashboard is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC011",
+    "title": "Log out and return to the login page",
+    "description": "This verifies a member can log out and is returned to the login page with access cleared from the current session.",
+    "category": "Member Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the member credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the member profile page"
+      },
+      {
+        "type": "action",
+        "description": "Log out of the account"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the login page is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify member-only content is not visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC012",
+    "title": "Admin can log out after reviewing the overview",
+    "description": "This verifies the admin can end the session from the overview area and is returned to the login page.",
+    "category": "Logout",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Select the admin role"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /views/admin/admin.html"
+      },
+      {
+        "type": "action",
+        "description": "Click the logout control"
+      },
+      {
+        "type": "action",
+        "description": "Confirm the logout action"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the login page is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the session is cleared"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC013",
+    "title": "Add a food record for the selected date",
+    "description": "This verifies a member can choose a date, create a food record, and see it appear in the daily list.",
+    "category": "Food Record Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the member credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the food record page"
+      },
+      {
+        "type": "action",
+        "description": "Pick a date"
+      },
+      {
+        "type": "action",
+        "description": "Add a new food record with a category and amount"
+      },
+      {
+        "type": "action",
+        "description": "Save the food record"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new food record appears in the daily list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC014",
+    "title": "Change password and remain signed in",
+    "description": "A member can change their password and continue using the profile page with the updated credentials flow completed successfully.",
+    "category": "Member Profile & Body Stats",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the member username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the member password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /views/user/profile.html"
+      },
+      {
+        "type": "action",
+        "description": "Change the password using valid current and new values"
+      },
+      {
+        "type": "action",
+        "description": "Save the password change"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a success confirmation is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the member remains signed in"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC015",
+    "title": "Add an activity record for the selected date",
+    "description": "This verifies a member can choose a date, create an activity record, and see it appear in the daily list.",
+    "category": "Activity Record Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the member credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the activity record page"
+      },
+      {
+        "type": "action",
+        "description": "Pick a date"
+      },
+      {
+        "type": "action",
+        "description": "Add a new activity record with an activity type and duration"
+      },
+      {
+        "type": "action",
+        "description": "Save the activity record"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new activity record appears in the daily list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC016",
+    "title": "Update profile, body stats, avatar, and password",
+    "description": "This verifies a member can edit profile details and body stats, update the avatar, change the password, and keep the updated account state visible.",
+    "category": "Member Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the member credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the member profile page"
+      },
+      {
+        "type": "action",
+        "description": "Update the profile details and body stats with valid values"
+      },
+      {
+        "type": "action",
+        "description": "Upload a valid avatar image"
+      },
+      {
+        "type": "action",
+        "description": "Change the account password"
+      },
+      {
+        "type": "action",
+        "description": "Save the profile changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated profile information is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated body stats are visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC017",
+    "title": "Edit an existing food record",
+    "description": "This verifies a member can update an existing food record for a chosen date and see the saved changes in the list.",
+    "category": "Food Record Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the member credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the food record page"
+      },
+      {
+        "type": "action",
+        "description": "Pick a date"
+      },
+      {
+        "type": "action",
+        "description": "Select an existing food record"
+      },
+      {
+        "type": "action",
+        "description": "Change the food record details"
+      },
+      {
+        "type": "action",
+        "description": "Save the food record updates"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated food record is shown in the daily list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC018",
+    "title": "Review recent BMR history on the dashboard",
+    "description": "This verifies a member can view recent BMR history entries from the dashboard.",
+    "category": "Member Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the member credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the member dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify recent BMR history entries are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC019",
+    "title": "Edit an existing activity record",
+    "description": "This verifies a member can update an existing activity record for a chosen date and see the saved changes in the list.",
+    "category": "Activity Record Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the member credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the activity record page"
+      },
+      {
+        "type": "action",
+        "description": "Pick a date"
+      },
+      {
+        "type": "action",
+        "description": "Select an existing activity record"
+      },
+      {
+        "type": "action",
+        "description": "Change the activity record details"
+      },
+      {
+        "type": "action",
+        "description": "Save the activity record updates"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated activity record is shown in the daily list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC020",
+    "title": "Save a sleep record and see its evaluation",
+    "description": "A member can add a sleep record for a selected date and see the computed sleep evaluation appear afterward.",
+    "category": "Sleep Record & Evaluation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the member username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the member password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /views/user/sleep-record.html"
+      },
+      {
+        "type": "action",
+        "description": "Pick a date"
+      },
+      {
+        "type": "action",
+        "description": "Add a sleep record with a valid sleep time and a valid wake time"
+      },
+      {
+        "type": "action",
+        "description": "Save the sleep record"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the sleep record appears in the list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a sleep evaluation result is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC021",
+    "title": "Delete a food record",
+    "description": "This verifies a member can remove a food record from a selected date and see it disappear from the list.",
+    "category": "Food Record Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the member credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the food record page"
+      },
+      {
+        "type": "action",
+        "description": "Pick a date"
+      },
+      {
+        "type": "action",
+        "description": "Select an existing food record"
+      },
+      {
+        "type": "action",
+        "description": "Delete the food record"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the deleted food record is no longer shown in the daily list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC022",
+    "title": "Open record pages from the dashboard",
+    "description": "This verifies a member can use the dashboard to reach the food, activity, and sleep record pages.",
+    "category": "Member Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the member credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the food record page"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the activity record page"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the sleep record page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the record-entry navigation options are available"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC023",
+    "title": "Delete an activity record",
+    "description": "This verifies a member can remove an activity record from a selected date and see it disappear from the list.",
+    "category": "Activity Record Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the member credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the activity record page"
+      },
+      {
+        "type": "action",
+        "description": "Pick a date"
+      },
+      {
+        "type": "action",
+        "description": "Select an existing activity record"
+      },
+      {
+        "type": "action",
+        "description": "Delete the activity record"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the deleted activity record is no longer shown in the daily list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC024",
+    "title": "Update body stats and see BMR recalculated",
+    "description": "A member can change body stats and see the profile update along with a refreshed BMR value.",
+    "category": "Member Profile & Body Stats",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the member username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the member password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /views/user/profile.html"
+      },
+      {
+        "type": "action",
+        "description": "Edit the body stats with new valid values"
+      },
+      {
+        "type": "action",
+        "description": "Save the body stats changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated body stats are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the BMR value is updated"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC025",
+    "title": "Update an existing sleep record and see the new evaluation",
+    "description": "A member can edit an existing sleep record for a selected date and see the updated sleep evaluation afterward.",
+    "category": "Sleep Record & Evaluation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the member username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the member password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /views/user/sleep-record.html"
+      },
+      {
+        "type": "action",
+        "description": "Pick a date"
+      },
+      {
+        "type": "action",
+        "description": "Select an existing sleep record"
+      },
+      {
+        "type": "action",
+        "description": "Change the sleep time and wake time"
+      },
+      {
+        "type": "action",
+        "description": "Save the sleep record changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated sleep record appears in the list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the sleep evaluation result reflects the update"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC026",
+    "title": "Update sleep data and view sleep evaluation",
+    "description": "This verifies a member can save sleep records for a date and see the sleep-quality evaluation update in the page.",
+    "category": "Activity Record Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the member credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the sleep record page"
+      },
+      {
+        "type": "action",
+        "description": "Pick a date"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the sleep record details"
+      },
+      {
+        "type": "action",
+        "description": "Save the sleep record"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the sleep record is shown for the selected date"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a sleep-quality evaluation is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC027",
+    "title": "Edit profile details and see them saved",
+    "description": "A member can update profile information and see the changes reflected on the profile page afterward.",
+    "category": "Member Profile & Body Stats",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the member username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the member password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /views/user/profile.html"
+      },
+      {
+        "type": "action",
+        "description": "Edit the profile information with new valid values"
+      },
+      {
+        "type": "action",
+        "description": "Save the profile changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated profile information is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC028",
+    "title": "Manage food categories through search, create, edit, and delete",
+    "description": "This verifies an admin can search food categories, create a new category, update it, and delete it from the admin panel.",
+    "category": "Food Category Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the admin credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the food categories section"
+      },
+      {
+        "type": "action",
+        "description": "Search for a food category using a unique name"
+      },
+      {
+        "type": "action",
+        "description": "Create a new food category"
+      },
+      {
+        "type": "action",
+        "description": "Select the created food category"
+      },
+      {
+        "type": "action",
+        "description": "Update the food category details"
+      },
+      {
+        "type": "action",
+        "description": "Delete the food category"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the food category list is displayed with the expected search results"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC029",
+    "title": "Manage activity types through search, create, edit, and delete",
+    "description": "This verifies an admin can search activity types, create a new type, update it, and delete it from the admin panel.",
+    "category": "Activity Type Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the admin credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the activity types section"
+      },
+      {
+        "type": "action",
+        "description": "Search for an activity type using a unique name"
+      },
+      {
+        "type": "action",
+        "description": "Create a new activity type"
+      },
+      {
+        "type": "action",
+        "description": "Select the created activity type"
+      },
+      {
+        "type": "action",
+        "description": "Update the activity type details"
+      },
+      {
+        "type": "action",
+        "description": "Delete the activity type"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the activity type list is displayed with the expected search results"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC030",
+    "title": "Browse and add a new activity type",
+    "description": "An admin can search activity types, move through pages, create a new activity type, and see it appear in the list.",
+    "category": "Admin - Activity Type Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Select the admin role"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the activity types section"
+      },
+      {
+        "type": "action",
+        "description": "Search for an activity type by name"
+      },
+      {
+        "type": "action",
+        "description": "Browse to another page of activity types"
+      },
+      {
+        "type": "action",
+        "description": "Start adding a new activity type"
+      },
+      {
+        "type": "action",
+        "description": "Fill in a unique activity type name"
+      },
+      {
+        "type": "action",
+        "description": "Save the new activity type"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new activity type appears in the list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC031",
+    "title": "Admin sees the system overview on entry",
+    "description": "This verifies an admin can open the admin panel and view the default system overview with summary statistics.",
+    "category": "Admin - System Overview",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Select the admin role"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /views/admin/admin.html"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the system overview is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify system-wide statistic cards are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC032",
+    "title": "Delete a sleep record from the selected date",
+    "description": "A member can delete an existing sleep record for a selected date and see it removed from the list.",
+    "category": "Sleep Record & Evaluation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the member username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the member password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /views/user/sleep-record.html"
+      },
+      {
+        "type": "action",
+        "description": "Pick a date"
+      },
+      {
+        "type": "action",
+        "description": "Select an existing sleep record"
+      },
+      {
+        "type": "action",
+        "description": "Delete the sleep record"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the sleep record is removed from the list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC033",
+    "title": "Edit an existing activity type",
+    "description": "An admin can find an activity type, update its details, and see the updated value in the list.",
+    "category": "Admin - Activity Type Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Select the admin role"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the activity types section"
+      },
+      {
+        "type": "action",
+        "description": "Search for an activity type by name"
+      },
+      {
+        "type": "action",
+        "description": "Select an activity type from the results"
+      },
+      {
+        "type": "action",
+        "description": "Start editing the selected activity type"
+      },
+      {
+        "type": "action",
+        "description": "Update the activity type name"
+      },
+      {
+        "type": "action",
+        "description": "Save the changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated activity type appears in the list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC034",
+    "title": "Browse members and open a member detail view",
+    "description": "This verifies an admin can search and page through the member list, then open a member detail view from the list.",
+    "category": "Member Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the admin credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the members section"
+      },
+      {
+        "type": "action",
+        "description": "Search for a member using a unique name"
+      },
+      {
+        "type": "action",
+        "description": "Go to the next page of members"
+      },
+      {
+        "type": "action",
+        "description": "Open a member detail view"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the member detail view is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the member list search results are visible"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC035",
+    "title": "Filter reports and view results",
+    "description": "An admin can open reports, apply filters, and see the filtered report results update.",
+    "category": "Admin - Reports",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Select the admin role"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the reports section"
+      },
+      {
+        "type": "action",
+        "description": "Apply a report filter"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify filtered report results are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC036",
+    "title": "Admin can inspect the overview without losing access after reload-like revisits",
+    "description": "This verifies the admin overview remains accessible when the admin panel is revisited in the same authenticated session.",
+    "category": "Admin - System Overview",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Select the admin role"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /views/admin/admin.html"
+      },
+      {
+        "type": "action",
+        "description": "Click the system overview section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the system overview is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify system-wide statistic cards are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC037",
+    "title": "Manage food categories from the admin panel",
+    "description": "An admin can search, page through, create, edit, and delete food categories from the admin management area.",
+    "category": "Admin - Food Category Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the admin username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the admin password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /views/admin/admin.html"
+      },
+      {
+        "type": "action",
+        "description": "Switch to the food categories section"
+      },
+      {
+        "type": "action",
+        "description": "Search for a food category by name"
+      },
+      {
+        "type": "action",
+        "description": "Browse to another page of results"
+      },
+      {
+        "type": "action",
+        "description": "Add a new food category with valid values"
+      },
+      {
+        "type": "action",
+        "description": "Edit the newly created food category"
+      },
+      {
+        "type": "action",
+        "description": "Delete the food category"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the food category list is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the category changes are reflected in the list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC038",
+    "title": "Delete an activity type",
+    "description": "An admin can delete an activity type and confirm it no longer appears in the list.",
+    "category": "Admin - Activity Type Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Select the admin role"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the activity types section"
+      },
+      {
+        "type": "action",
+        "description": "Search for an activity type by name"
+      },
+      {
+        "type": "action",
+        "description": "Select an activity type from the results"
+      },
+      {
+        "type": "action",
+        "description": "Delete the selected activity type"
+      },
+      {
+        "type": "action",
+        "description": "Confirm the deletion"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the activity type no longer appears in the list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC039",
+    "title": "Handle a missing dashboard profile or summary",
+    "description": "This verifies the dashboard still shows an empty or fallback state when member profile or summary data is unavailable in the current view.",
+    "category": "Member Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the member credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the member dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an empty state or fallback dashboard content is visible"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC040",
+    "title": "Search and open a member detail view",
+    "description": "An admin can search the member list, paginate through results, and open a member detail view to review member information.",
+    "category": "Admin - Member List (read-only)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Select the admin role"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the member information section"
+      },
+      {
+        "type": "action",
+        "description": "Search for a member by name"
+      },
+      {
+        "type": "action",
+        "description": "Browse to another page of members"
+      },
+      {
+        "type": "action",
+        "description": "Open a member detail view"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the selected member's information is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC041",
+    "title": "Admin can return to the overview from other admin sections",
+    "description": "This verifies an admin can navigate away from the overview and return to see the system summary again.",
+    "category": "Admin - System Overview",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Select the admin role"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /views/admin/admin.html"
+      },
+      {
+        "type": "action",
+        "description": "Click the activity types section"
+      },
+      {
+        "type": "action",
+        "description": "Click the system overview section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the system overview is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify system-wide statistic cards are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC042",
+    "title": "Filter and review admin reports",
+    "description": "This verifies an admin can open reports, apply filters, and review the resulting report data in the panel.",
+    "category": "Reports",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the admin credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the reports section"
+      },
+      {
+        "type": "action",
+        "description": "Apply a report filter"
+      },
+      {
+        "type": "action",
+        "description": "Apply another report filter if available"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify filtered report results are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC043",
+    "title": "Short password is rejected during login",
+    "description": "A login attempt with a password that is too short shows validation feedback and does not sign the user in.",
+    "category": "Member/Admin Login",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Select the member role"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username or email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with a short password"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a password validation error is visible"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC044",
+    "title": "Upload a new avatar from the profile page",
+    "description": "A member can upload a new avatar image and see the profile picture update.",
+    "category": "Member Profile & Body Stats",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the member username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the member password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /views/user/profile.html"
+      },
+      {
+        "type": "action",
+        "description": "Upload a valid avatar image"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the profile avatar is updated"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC045",
+    "title": "Invalid credentials are rejected during login",
+    "description": "A login attempt with incorrect credentials shows an authentication error and keeps the user on the login page.",
+    "category": "Member/Admin Login",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Select the member role"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username or email field with an invalid username"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with an invalid password"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an authentication error is visible"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC046",
+    "title": "Browse activity type pages at the list boundary",
+    "description": "An admin can move through activity type pages and see pagination behave correctly at the list boundary.",
+    "category": "Admin - Activity Type Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Select the admin role"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the activity types section"
+      },
+      {
+        "type": "action",
+        "description": "Browse to the last available page of activity types"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the final page of activity types is displayed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC047",
+    "title": "Handle empty results in admin search and pagination",
+    "description": "This verifies an admin sees a no-results state for a search and can observe pagination boundary behavior in a list view.",
+    "category": "Food Category Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the admin credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the food categories section"
+      },
+      {
+        "type": "action",
+        "description": "Search for a category name that does not exist"
+      },
+      {
+        "type": "action",
+        "description": "Go to the last available page of the list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a no-results message is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify pagination boundary controls are shown"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC048",
+    "title": "Reject an incomplete sleep record",
+    "description": "A member sees required-field validation when trying to save a sleep record without complete sleep timing information.",
+    "category": "Sleep Record & Evaluation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the member username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the member password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /views/user/sleep-record.html"
+      },
+      {
+        "type": "action",
+        "description": "Pick a date"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a sleep record without filling all required time fields"
+      },
+      {
+        "type": "action",
+        "description": "Save the sleep record"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a validation error is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the sleep record is not added"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC049",
+    "title": "Prevent saving an empty activity type",
+    "description": "An admin sees validation when trying to save a new activity type without the required fields filled in.",
+    "category": "Admin - Activity Type Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Select the admin role"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the activity types section"
+      },
+      {
+        "type": "action",
+        "description": "Start adding a new activity type"
+      },
+      {
+        "type": "action",
+        "description": "Save the activity type without entering required details"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify required-field validation is displayed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC050",
+    "title": "Show no results for an unmatched activity search",
+    "description": "An admin can search for a non-matching activity type name and see an empty-state result list.",
+    "category": "Admin - Activity Type Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /views/auth/login.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Select the admin role"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the activity types section"
+      },
+      {
+        "type": "action",
+        "description": "Search for a unique unmatched activity type name"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an empty state is displayed for activity type search results"
+      }
+    ],
+    "priority": "Low"
+  }
+]

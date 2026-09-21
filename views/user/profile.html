@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="/assets/css/shared/style.css">
     <link rel="stylesheet" href="/assets/css/shared/nav.css">
     <link rel="stylesheet" href="/assets/css/shared/profile.css">
+    <!-- record-ui.css: hero กลางร่วมกับหน้าหลัก/อาหาร/กิจกรรม/การนอน -->
+    <link rel="stylesheet" href="/assets/css/shared/record-ui.css">
+    <link rel="stylesheet" href="/assets/css/pages/profile-page.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Theme init: เหมือน index.html เป๊ะ ป้องกันหน้าจอกระพริบตอนโหลด -->
     <script>
@@ -32,11 +35,9 @@
 
     <div class="mobile-app">
 
-        <div class="top-section">
+        <div class="top-section record-hero profile-hero">
             <header class="app-header">
-                <button class="back-btn" type="button" onclick="history.length > 1 ? history.back() : (window.location.href = 'index.html')" aria-label="ย้อนกลับ"><i data-icon="back"></i></button>
                 <h1 class="page-title" data-i18n="page-title">โปรไฟล์</h1>
-                <span class="header-spacer" aria-hidden="true"></span>
             </header>
 
             <!-- แท็บ: บัญชี / ข้อมูลร่างกาย — สลับได้ทั้งคลิกและผ่าน query param ?tab=body -->
@@ -95,7 +96,6 @@
                     </div>
                 </div>
 
-                <button class="danger-btn" type="button" id="logoutBtn" data-i18n="btn-logout">ออกจากระบบ</button>
             </section>
 
             <!-- ============== แท็บ 2: ข้อมูลร่างกาย ============== -->
@@ -140,18 +140,22 @@
 
                 <!-- BMR/TDEE ล่าสุด: อ่านอย่างเดียว ดึงจาก GET /members/{id}/bmr/history -->
                 <div class="form-card">
-                    <div class="form-field">
-                        <span class="form-label" data-i18n="label-bmr-history">BMR / TDEE ล่าสุด</span>
-                        <div class="bmr-history-list" id="bmrHistoryList">
-                            <div class="bmr-history-empty" data-i18n="bmr-history-empty">ยังไม่มีข้อมูล</div>
-                        </div>
+                    <div class="header-title">
+                        <span class="icon-box purple-box"><i data-icon="energy"></i></span>
+                        <span data-i18n="label-bmr-history">BMR / TDEE ล่าสุด</span>
+                    </div>
+                    <div class="bmr-history-list" id="bmrHistoryList">
+                        <div class="bmr-history-empty" data-i18n="bmr-history-empty">ยังไม่มีข้อมูล</div>
                     </div>
                 </div>
 
                 <!-- เป้าหมาย: 1=ลดน้ำหนัก, 2=เพิ่มกล้ามเนื้อ, 3=รักษาน้ำหนัก -->
                 <div class="form-card">
+                    <div class="header-title">
+                        <span class="icon-box blue-box"><i data-icon="target"></i></span>
+                        <span data-i18n="label-goal">เป้าหมาย</span>
+                    </div>
                     <div class="form-field">
-                        <span class="form-label" data-i18n="label-goal">เป้าหมาย</span>
                         <div class="goal-pill-group">
                             <button class="goal-pill active" data-goal="1" type="button"><i data-icon="trend-down"></i><span data-i18n="goal-lose">ลดน้ำหนัก</span></button>
                             <button class="goal-pill" data-goal="2" type="button"><i data-icon="muscle"></i><span data-i18n="goal-gain">เพิ่มกล้ามเนื้อ</span></button>
@@ -165,6 +169,9 @@
 
             <button class="save-btn" type="button" id="saveProfileBtn" data-i18n="save-btn">บันทึกการเปลี่ยนแปลง</button>
 
+            <!-- ออกจากระบบ: อยู่ใต้ปุ่มบันทึก แสดงเฉพาะแท็บบัญชี (ซ่อนด้วย CSS ใน profile-page.css) -->
+            <button class="danger-btn" type="button" id="logoutBtn" data-i18n="btn-logout">ออกจากระบบ</button>
+
         </main>
 
         <nav id="app-nav-bar" class="nav-pill-wrapper">
@@ -174,7 +181,7 @@
                 <li><a href="food-record.html" class="nav-icon-item" data-target="food"><i data-icon="food"></i></a></li>
                 <li><a href="activity-record.html" class="nav-icon-item" data-target="activity"><i data-icon="activity"></i></a></li>
                 <li><a href="sleep-record.html" class="nav-icon-item" data-target="sleep"><i data-icon="sleep"></i></a></li>
-                <li><a class="nav-icon-item is-disabled" data-target="report" aria-disabled="true" aria-label="รายงาน (เร็วๆ นี้)"><i data-icon="report"></i></a></li>
+                <li><a href="report.html" class="nav-icon-item" data-target="report"><i data-icon="report"></i></a></li>
             </ul>
         </nav>
     </div>

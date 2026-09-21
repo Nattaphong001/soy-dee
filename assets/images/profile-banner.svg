@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 340" preserveAspectRatio="xMidYMid slice">
+<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#2a2170"/>
+    <stop offset="0.5" stop-color="#7a3fae"/>
+    <stop offset="0.82" stop-color="#d9628a"/>
+    <stop offset="1" stop-color="#f7a26f"/>
+  </linearGradient>
+  <radialGradient id="aura" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0" stop-color="#fff1f6" stop-opacity="0.5"/>
+    <stop offset="1" stop-color="#f9a8d4" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="bust" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#fff7fb"/>
+    <stop offset="1" stop-color="#fbcfe8"/>
+  </linearGradient>
+  <clipPath id="avatarClip"><circle cx="630" cy="100" r="60"/></clipPath>
+</defs>
+<rect width="800" height="340" fill="url(#sky)"/>
+<circle cx="630" cy="100" r="200" fill="url(#aura)"/>
+<!-- ลูกกลมลอยเบลอ -->
+<g fill="#fff">
+  <circle cx="90" cy="60" r="22" opacity="0.07"/>
+  <circle cx="290" cy="46" r="14" opacity="0.08"/>
+  <circle cx="470" cy="130" r="10" opacity="0.09"/>
+  <circle cx="40" cy="150" r="9" opacity="0.08"/>
+</g>
+<!-- ประกาย -->
+<g fill="#fff">
+  <path d="M250 96L251.4 100.6L256 102L251.4 103.4L250 108L248.6 103.4L244 102L248.6 100.6Z" opacity="0.8"/>
+  <path d="M520 40L521.1 43.9L525 45L521.1 46.1L520 50L518.9 46.1L515 45L518.9 43.9Z" opacity="0.7"/>
+  <path d="M760 40L761 43L764 44L761 45L760 48L759 45L756 44L759 43Z" opacity="0.7"/>
+  <circle cx="380" cy="30" r="1.6" opacity="0.7"/>
+  <circle cx="200" cy="28" r="1.4" opacity="0.6"/>
+</g>
+
+<!-- เฟืองตั้งค่าบัญชี -->
+<g transform="translate(150 104)" fill="none" stroke="#fff" stroke-linecap="butt">
+  <circle r="26" stroke-width="9" stroke-dasharray="8.2 8.2" opacity="0.3"/>
+  <circle r="20" stroke-width="7" opacity="0.4"/>
+  <circle r="8" stroke-width="3" opacity="0.5"/>
+</g>
+
+<!-- ตัวตนผู้ใช้: กรอบรูปโปรไฟล์ + เครื่องหมายยืนยันบัญชี -->
+<circle cx="630" cy="100" r="66" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.22"/>
+<circle cx="630" cy="100" r="60" fill="#fff" fill-opacity="0.16" stroke="#fff" stroke-opacity="0.55" stroke-width="2"/>
+<g clip-path="url(#avatarClip)">
+  <ellipse cx="630" cy="166" rx="42" ry="50" fill="url(#bust)" opacity="0.95"/>
+  <circle cx="630" cy="88" r="21" fill="url(#bust)"/>
+</g>
+<circle cx="678" cy="146" r="18" fill="#34d399" stroke="#fff" stroke-width="3"/>
+<path d="M670 146 L676 152 L687 140" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+<!-- คลื่นเนินสามชั้น -->
+<path d="M0 250 C120 214 230 246 350 250 C470 254 560 214 680 228 C740 236 775 246 800 244 L800 340 L0 340Z" fill="#8b3d9c" opacity="0.6"/>
+<path d="M0 284 C130 258 250 288 380 278 C510 268 600 250 720 270 C765 278 785 282 800 280 L800 340 L0 340Z" fill="#5a2a8a" opacity="0.9"/>
+<path d="M0 318 C140 300 270 322 410 312 C550 302 660 306 800 318 L800 340 L0 340Z" fill="#2e1666"/>
+</svg>

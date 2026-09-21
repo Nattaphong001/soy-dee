@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 340" preserveAspectRatio="xMidYMid slice">
+<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#7a2a1a"/>
+    <stop offset="0.5" stop-color="#d9531c"/>
+    <stop offset="1" stop-color="#fbb34a"/>
+  </linearGradient>
+  <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0" stop-color="#fff3c4" stop-opacity="0.55"/>
+    <stop offset="1" stop-color="#fff3c4" stop-opacity="0"/>
+  </radialGradient>
+</defs>
+<rect width="800" height="340" fill="url(#sky)"/>
+<circle cx="640" cy="110" r="200" fill="url(#glow)"/>
+<!-- ลูกกลมลอยเบลอ -->
+<g fill="#fff">
+  <circle cx="60" cy="50" r="18" opacity="0.07"/>
+  <circle cx="300" cy="50" r="14" opacity="0.08"/>
+  <circle cx="480" cy="128" r="10" opacity="0.10"/>
+  <circle cx="30" cy="150" r="9" opacity="0.08"/>
+</g>
+<!-- ประกาย -->
+<g fill="#fff">
+  <path d="M260 100L261.4 104.6L266 106L261.4 107.4L260 112L258.6 107.4L254 106L258.6 104.6Z" opacity="0.8"/>
+  <path d="M540 44L541.1 47.9L545 49L541.1 50.1L540 54L538.9 50.1L535 49L538.9 47.9Z" opacity="0.7"/>
+  <circle cx="380" cy="30" r="1.6" opacity="0.7"/>
+</g>
+
+<!-- เครื่องชั่งน้ำหนัก (น้ำหนัก) -->
+<g transform="translate(160 104) scale(0.9)">
+  <rect x="-52" y="-52" width="104" height="104" rx="22" fill="#fff" fill-opacity="0.16" stroke="#fff" stroke-opacity="0.55" stroke-width="2"/>
+  <rect x="-32" y="-38" width="64" height="38" rx="12" fill="#fff" fill-opacity="0.92"/>
+  <path d="M-20 -8 A20 20 0 0 1 20 -8" fill="none" stroke="#f97316" stroke-width="4" stroke-linecap="round"/>
+  <line x1="0" y1="-8" x2="9" y2="-27" stroke="#b91c1c" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="0" cy="-8" r="3.5" fill="#b91c1c"/>
+  <rect x="-34" y="10" width="30" height="24" rx="10" fill="#fff" fill-opacity="0.28"/>
+  <rect x="4" y="10" width="30" height="24" rx="10" fill="#fff" fill-opacity="0.28"/>
+</g>
+
+<!-- ร่างคนยืน + ไม้บรรทัดวัดส่วนสูง (ส่วนสูง) -->
+<g transform="translate(655 40) scale(0.83) translate(-655 -30)">
+<g fill="#fff">
+  <circle cx="640" cy="44" r="14" opacity="0.95"/>
+  <rect x="622" y="64" width="36" height="52" rx="16" opacity="0.92"/>
+  <rect x="608" y="66" width="10" height="46" rx="5" opacity="0.85"/>
+  <rect x="662" y="66" width="10" height="46" rx="5" opacity="0.85"/>
+  <rect x="624" y="108" width="14" height="62" rx="6" opacity="0.92"/>
+  <rect x="642" y="108" width="14" height="62" rx="6" opacity="0.92"/>
+</g>
+<line x1="590" y1="172" x2="690" y2="172" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+<rect x="706" y="26" width="14" height="148" rx="5" fill="#fff" fill-opacity="0.16" stroke="#fff" stroke-opacity="0.5" stroke-width="1.5"/>
+<g stroke="#fff" stroke-linecap="round" opacity="0.75">
+  <line x1="706" y1="38" x2="714" y2="38" stroke-width="1.6"/>
+  <line x1="706" y1="50" x2="714" y2="50" stroke-width="1.6"/>
+  <line x1="706" y1="62" x2="720" y2="62" stroke-width="2.2"/>
+  <line x1="706" y1="74" x2="714" y2="74" stroke-width="1.6"/>
+  <line x1="706" y1="86" x2="714" y2="86" stroke-width="1.6"/>
+  <line x1="706" y1="98" x2="720" y2="98" stroke-width="2.2"/>
+  <line x1="706" y1="110" x2="714" y2="110" stroke-width="1.6"/>
+  <line x1="706" y1="122" x2="714" y2="122" stroke-width="1.6"/>
+  <line x1="706" y1="134" x2="720" y2="134" stroke-width="2.2"/>
+  <line x1="706" y1="146" x2="714" y2="146" stroke-width="1.6"/>
+  <line x1="706" y1="158" x2="714" y2="158" stroke-width="1.6"/>
+</g>
+<line x1="662" y1="30" x2="706" y2="30" stroke="#fff" stroke-width="2" stroke-dasharray="4 4" opacity="0.7"/>
+<path d="M700 24 L710 30 L700 36Z" fill="#fde047"/>
+</g>
+
+<!-- คลื่นเนินสามชั้น -->
+<path d="M0 250 C120 218 230 248 350 250 C470 252 560 220 680 232 C740 238 775 246 800 244 L800 340 L0 340Z" fill="#b8431a" opacity="0.6"/>
+<path d="M0 284 C130 260 250 288 380 278 C510 268 600 254 720 272 C765 278 785 282 800 280 L800 340 L0 340Z" fill="#8f3016" opacity="0.9"/>
+<path d="M0 318 C140 302 270 322 410 312 C550 302 660 306 800 318 L800 340 L0 340Z" fill="#4a1a12"/>
+</svg>

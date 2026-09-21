@@ -214,7 +214,7 @@ async function loadBmrHistory() {
 
     let items = [];
     try {
-        const history = await SoyDeeAPI.request(`/members/${id}/bmr/history`, { query: { limit: 4, page: 1 } });
+        const history = await SoyDeeAPI.request(`/members/${id}/bmr/history`, { query: { limit: 3, page: 1 } });
         items = (history && history.items) || [];
     } catch (e) { /* ยังไม่มีประวัติ — แสดงข้อความว่าง */ }
 

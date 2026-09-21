@@ -1,0 +1,65 @@
+/* ==============================================================================
+   PROFILE PAGE HERO — ใช้ token จาก style.css, คอมโพเนนต์ในฟอร์มจาก shared/profile.css
+   และ hero กลางจาก record-ui.css โหลดคู่กันเสมอ
+   ไฟล์นี้มีเฉพาะส่วน hero ของหน้าโปรไฟล์: ฉากพลบค่ำ, ปุ่มย้อนกลับ/แท็บแบบกระจกฝ้า
+   ============================================================================== */
+
+/* ---------- hero: assets/images/profile-banner.svg (วาดเอง เป็น vector คมทุกขนาดจอ) ---------- */
+.profile-hero {
+    background-color: #4a2a86;
+    background-image: url('../../images/profile-banner.svg');
+    background-position: center;
+}
+/* แท็บ "ข้อมูลร่างกาย": ภาพหน้าปัด+ไม้บรรทัดโทนส้ม เฟดซ้อนทับภาพบัญชี
+   (ตามแท็บที่ .active — CSS ล้วน ไม่ต้องพึ่ง JS) วางไว้ใต้ ::before (เงาทับ) ด้วย z-index -1 */
+.profile-hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: #7a2a1a url('../../images/profile-body-banner.svg') center / cover no-repeat;
+    opacity: 0;
+    transition: opacity 0.45s ease;
+}
+.profile-hero:has(.profile-tab[data-tab="body"].active)::after { opacity: 1; }
+
+/* ภาพโทนม่วง-ชมพูอยู่แล้ว — เงาทับบางๆ ให้ชื่อสีขาวยังอ่านชัด (โหมดมืดหนักขึ้น) */
+.profile-hero::before {
+    background: linear-gradient(180deg, rgba(18, 8, 48, 0.32) 0%, rgba(18, 8, 48, 0.14) 55%, rgba(18, 8, 48, 0.30) 100%);
+}
+.dark-theme .profile-hero::before {
+    background: linear-gradient(180deg, rgba(8, 4, 24, 0.52) 0%, rgba(8, 4, 24, 0.38) 55%, rgba(8, 4, 24, 0.52) 100%);
+}
+
+/* ไม่มีปุ่มย้อนกลับ (กลับผ่านแถบเมนูล่าง) — ชื่อหน้าอยู่กลาง */
+.profile-hero .app-header { padding-bottom: 16px; justify-content: center; }
+.profile-hero .page-title { font-size: 18px; }
+
+
+/* แท็บบัญชี/ข้อมูลร่างกาย: รางกระจกเข้ม แท็บที่เลือกยังเป็นไล่สี accent เหมือนเดิม */
+.profile-hero .profile-tabs {
+    margin-bottom: 20px;
+    background: rgba(16, 8, 42, 0.34);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+}
+.profile-hero .profile-tab:not(.active) { color: rgba(255, 255, 255, 0.88); }
+
+/* ---------- ตัวเนื้อหา: ความกว้างปุ่มเท่าการ์ด, ออกจากระบบอยู่ใต้ปุ่มบันทึก ---------- */
+.app-content > .save-btn { width: 100%; margin: 4px 0 0; }
+.app-content > .danger-btn {
+    margin-top: 12px;
+    border-color: transparent;
+    background: color-mix(in srgb, var(--color-red) 8%, transparent);
+}
+.app-content > .danger-btn:hover { background: color-mix(in srgb, var(--color-red) 15%, transparent); }
+/* แท็บข้อมูลร่างกายไม่มีปุ่มออกจากระบบ */
+.app-content:has(#tab-account[hidden]) > .danger-btn { display: none; }
+
+/* ---------- การ์ดในแท็บ: หัวการ์ดแบบเดียวกับการ์ดสรุปหน้าหลัก (ไอคอน + ชื่อ) ---------- */
+.form-card > .header-title { margin-bottom: -2px; }
+
+/* แถว BMR/TDEE: จอแคบให้ค่าตัดลงบรรทัดใหม่ทั้งก้อน แทนการตัดกลางคำ */
+.bmr-history-row { flex-wrap: wrap; gap: 2px 10px; }
+.bmr-history-row > * { white-space: nowrap; }

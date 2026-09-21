@@ -1,90 +1,246 @@
 /* ==============================================================================
-   DAILY ACTIVITY RECORD PAGE
-   ใช้ token สี/รัศมี/เงาจาก style.css (โหลดคู่กันเสมอ) และคอมโพเนนต์ร่วมจาก
-   profile.css (.form-card, .form-field, .form-input, .save-btn, .back-btn ฯลฯ)
-   ไฟล์นี้มีเฉพาะคอมโพเนนต์ที่ไม่มีในหน้าอื่น: date nav, activity chips,
-   duration form, log list, empty state
+   ACTIVITY RECORD PAGE — ใช้ token จาก style.css, คอมโพเนนต์ร่วมจาก profile.css
+   (.form-field, .form-input, .save-btn) และ record-ui.css (hero, การ์ดสรุป, .log-item,
+   FAB, .detail-card, .sheet-card) โหลดคู่กันเสมอ
+   ไฟล์นี้มีเฉพาะส่วนของหน้ากิจกรรม: ภาพ hero, สีกิจกรรม (--lc), ชิปสรุป/legend,
+   ตารางเลือกกิจกรรม และช่องระยะเวลา
    ============================================================================== */
 
-/* ---------- สีไอคอนเพิ่มเติม (ใช้คู่กับ .stat-icon จาก style.css) ---------- */
-.icon-yellow { background-color: rgba(245, 158, 11, 0.12); color: var(--color-yellow); }
-.icon-red { background-color: rgba(239, 68, 68, 0.12); color: var(--color-red); }
-
-/* =========================================
-   1. Summary Grid (3 คอลัมน์)
-   ========================================= */
-.activity-summary-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-}
-/* ตัวเลขในการ์ดสรุปยาวกว่าปกติ (เช่น "1 ชม 20 นาที") — ลดขนาดฟอนต์ลงเล็กน้อยกันล้น */
-.activity-summary-grid .stat-value {
-    font-size: 16px;
-    line-height: 1.3;
-}
-.activity-summary-grid .stat-value small {
-    font-size: 11px;
+/* ---------- ภาพ hero: assets/images/activity-banner.jpg (Unsplash, ใช้ได้ฟรีตาม Unsplash License) ---------- */
+.activity-hero {
+    background-image: url('../../images/activity-banner.jpg');
+    background-position: center 58%;
 }
 
-/* =========================================
-   2. Activity Chip Selector (เลื่อนแนวนอน)
-   ========================================= */
-.activity-chip-scroll {
+/* ---------- สีประจำกิจกรรม: วนซ้ำ 6 สีตามลำดับกิจกรรม (JS ใส่ class .ac-1 … .ac-6) ---------- */
+.ac-1 { --lc: var(--color-blue); }
+.ac-2 { --lc: var(--color-green); }
+.ac-3 { --lc: var(--color-purple); }
+.ac-4 { --lc: var(--color-orange); }
+.ac-5 { --lc: var(--color-yellow); }
+.ac-6 { --lc: var(--color-red); }
+
+/* ---------- 1. การ์ดสรุป ---------- */
+.summary-bar.is-empty .bar-seg { display: none; }
+
+.summary-legend {
     display: flex;
-    gap: 10px;
-    overflow-x: auto;
-    padding: 4px 2px 8px 2px;
-    margin: 0 -2px;
-    scrollbar-width: none;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    margin-top: 10px;
+    font-size: 11.5px;
+    color: var(--text-muted);
 }
-.activity-chip-scroll::-webkit-scrollbar { display: none; }
+.summary-legend:empty { display: none; }
+.legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+    max-width: 100%;
+}
+.legend-item .legend-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.legend-item .numeric {
+    font-weight: 700;
+    color: var(--text-main);
+}
 
-.activity-chip {
-    flex: 0 0 auto;
-    width: 76px;
+/* ---------- 2. รายการกิจกรรม: เรียงเดี่ยว ไม่จัดกลุ่ม ---------- */
+.log-list { gap: 8px; }
+
+/* ไอคอนกิจกรรม: ถ้ามีรูปจริง (act_images) แสดงแบบพอดีกรอบ ไม่ยืดเต็ม */
+.log-thumb .icon-img,
+.detail-photo-media .icon-img {
+    position: static;
+    inset: auto;
+    width: 60%;
+    height: 60%;
+    object-fit: contain;
+}
+.detail-photo-media .icon-img { width: 84px; height: 84px; }
+
+/* เวลาที่บันทึกรายการ: คอลัมน์เล็กชิดขวา ก่อนลูกศร */
+.log-item-time {
+    flex-shrink: 0;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+/* pill รายละเอียดที่ผู้ใช้กรอก (ใช้ .cat-pill กลาง แต่ไม่มีจุดสีนำหน้า) */
+.log-item .cat-pill { font-weight: 500; }
+
+/* ---------- bottom sheet: ค้นหา + กรองประเภท + รายการเลือกกิจกรรม ---------- */
+.activity-picked {
+    margin-left: 8px;
+    color: var(--accent-1);
+    font-weight: 700;
+}
+.activity-picked[hidden] { display: none; }
+
+/* กรอบเลือกกิจกรรม: ค้นหา + ปุ่มกรองติดด้านบน รายการเลื่อนภายในกรอบ */
+.activity-picker {
     display: flex;
     flex-direction: column;
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    overflow: hidden;
+    transition: border-color 0.2s ease;
+}
+.activity-picker:focus-within { border-color: var(--accent-1); }
+
+.activity-search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 12px;
+    background: var(--surface-alt);
+    color: var(--text-muted);
+    font-size: 15px;
+}
+.activity-search [data-icon] { display: inline-flex; flex-shrink: 0; }
+.activity-search input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--text-main);
+    -webkit-appearance: none;
+    appearance: none;
+}
+.activity-search input::-webkit-search-cancel-button { -webkit-appearance: none; }
+
+/* ปุ่มกรองประเภท: แถวเลื่อนแนวนอนได้ ไม่ตัดบรรทัด */
+.activity-filter {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-hairline);
+    scrollbar-width: none;
+}
+.activity-filter::-webkit-scrollbar { display: none; }
+.activity-filter[hidden] { display: none; }
+.filter-chip {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border-hairline);
+    background: var(--surface-alt);
+    color: var(--text-muted);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.filter-chip-count {
+    font-size: 10.5px;
+    font-weight: 700;
+    opacity: 0.75;
+}
+.filter-chip.active {
+    background: var(--accent-1);
+    color: #FFFFFF;
+    border-color: transparent;
+}
+.filter-chip.is-dim { opacity: 0.45; }
+
+.activity-empty {
+    padding: 14px 8px;
+    text-align: center;
+    font-size: 12.5px;
+    color: var(--text-muted);
+}
+
+.activity-grid {
+    position: relative;                 /* ให้ JS เลื่อนไปหาชิปที่เลือกอยู่ด้วย offsetTop */
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 10px 12px;
+    max-height: 196px;                  /* สูงคงที่ ~3 แถว: เลื่อนดูส่วนที่เหลือในกรอบ */
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+}
+.activity-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+.activity-group-head {
+    display: flex;
     align-items: center;
     gap: 6px;
-    padding: 10px 6px;
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border-hairline);
-    background: var(--card-inner);
+    font-size: 11.5px;
+    font-weight: 700;
     color: var(--text-muted);
-    cursor: pointer;
+}
+.activity-group-count {
+    min-width: 18px;
+    padding: 0 6px;
+    border-radius: var(--radius-pill);
+    background: var(--surface-alt);
+    font-size: 10.5px;
+    font-weight: 700;
+    line-height: 18px;
     text-align: center;
-    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
 }
-.activity-chip:hover {
-    box-shadow: var(--shadow-card);
-    transform: translateY(-1px);
+/* ชิปกิจกรรมแบบแคปซูล (ไอคอน + ชื่อ) เรียงต่อบรรทัดในกลุ่ม — ฟอร์มสั้น เห็นช่องระยะเวลาโดยไม่ต้องเลื่อนไกล */
+.activity-group-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
 }
-.activity-chip:active { transform: scale(0.96); }
-
+.activity-chip {
+    max-width: 100%;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px 6px 8px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border-hairline);
+    background: var(--surface-alt);
+    color: var(--text-muted);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
 .activity-chip-icon {
-    width: 38px;
-    height: 38px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
-    background: var(--surface);
+    background: color-mix(in srgb, var(--lc) 16%, transparent);
+    color: var(--lc);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
+    font-size: 14px;
     flex-shrink: 0;
 }
-.activity-chip-icon .icon-img { width: 60%; height: 60%; object-fit: contain; }
-
+.activity-chip-icon [data-icon] { display: inline-flex; }
+.activity-chip-icon .icon-img { width: 70%; height: 70%; object-fit: contain; }
 .activity-chip-name {
-    font-size: 11.5px;
-    font-weight: 600;
-    line-height: 1.3;
-    white-space: nowrap;
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 100%;
+    white-space: nowrap;
 }
-
 .activity-chip.active {
     background: var(--accent-grad);
     color: #FFFFFF;
@@ -93,301 +249,37 @@
 }
 .activity-chip.active .activity-chip-icon {
     background: rgba(255, 255, 255, 0.25);
+    color: #FFFFFF;
 }
 
-/* =========================================
-   3. Duration Form
-   ========================================= */
-.duration-placeholder {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    gap: 6px;
-    padding: 18px 10px;
-    color: var(--text-muted);
-}
-.duration-placeholder-icon {
-    font-size: 28px;
-    color: var(--accent-1);
-    opacity: 0.7;
-    display: inline-flex;
-}
-.duration-placeholder p {
-    font-size: 12.5px;
-    line-height: 1.6;
-    max-width: 220px;
-}
-
-.duration-form {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-}
-
-.selected-activity-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.selected-activity-info {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-    flex: 1;
-    min-width: 0;
-}
-.selected-activity-label {
-    font-size: 10.5px;
-    color: var(--text-muted);
-    font-weight: 500;
-}
-.selected-activity-name {
-    font-size: 14.5px;
-    font-weight: 700;
-    color: var(--text-main);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
+/* ---------- ระยะเวลา / ระยะทาง: ช่องป้อนตัวเลข ---------- */
 .duration-input-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
 }
-
-.duration-error {
-    font-size: 12px;
-    color: var(--color-red);
-    text-align: center;
-    margin-top: -6px;
-}
-
-/* ปุ่มบันทึกแบบอยู่ในการ์ด (ไม่ fixed เต็มจอเหมือน .save-btn ปกติ) */
-.inline-save-btn {
-    width: 100%;
-    margin: 0;
-}
-
-/* =========================================
-   4. Log List (รายการที่บันทึกแล้ว)
-   ========================================= */
-.log-section {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.section-heading-row {
+.duration-unit {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 0 4px;
-}
-
-.section-heading {
-    font-size: 14.5px;
-    font-weight: 700;
-    color: var(--text-main);
-}
-
-.count-badge {
-    font-size: 11.5px;
-    font-weight: 600;
-    color: var(--accent-1);
-    background: var(--surface-alt);
-    padding: 4px 10px;
-    border-radius: var(--radius-pill);
-}
-
-.log-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.log-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: var(--card-bg);
-    border: 1px solid var(--border-hairline);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-card);
-    padding: 12px 14px;
-    transition: box-shadow 0.2s ease, transform 0.2s ease;
-}
-.log-item:hover {
-    box-shadow: var(--shadow-soft);
-    transform: translateY(-1px);
-}
-.log-item {
-    cursor: pointer;
-}
-.log-item.is-editing {
-    cursor: default;
-}
-.log-item.is-editing:hover {
-    transform: none;
-}
-.log-item.is-expanded .log-item-name,
-.log-item.is-expanded .log-item-detail {
-    white-space: normal;
-    overflow: visible;
-    text-overflow: unset;
-}
-.log-item.is-expanded {
-    box-shadow: var(--shadow-soft);
-}
-
-.log-item-icon {
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 19px;
-    flex-shrink: 0;
-}
-.log-item-icon .icon-img { width: 60%; height: 60%; object-fit: contain; }
-
-.log-item-info {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-.log-item-name {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--text-main);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.log-item-meta {
-    font-size: 11.5px;
-    color: var(--text-muted);
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    flex-wrap: wrap;
-}
-.log-item-meta .dot { opacity: 0.5; }
-
-.log-item-detail {
-    font-size: 12px;
-    color: var(--text-muted);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.log-item-actions {
-    display: flex;
-    gap: 4px;
-    flex-shrink: 0;
-}
-.log-item-edit,
-.log-item-delete {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: var(--surface-alt);
-    border: none;
-    color: var(--text-muted);
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
-}
-.log-item-edit:hover {
-    background: rgba(34, 197, 94, 0.12);
-    color: var(--color-green);
-}
-.log-item-delete:hover {
-    background: rgba(239, 68, 68, 0.12);
-    color: var(--color-red);
-}
-.log-item-edit:active,
-.log-item-delete:active { transform: scale(0.9); }
-
-/* ---------- Inline card edit (แก้ไขข้อมูลในการ์ดโดยตรง) ---------- */
-.log-item-edit-form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    flex: 1;
-    min-width: 0;
-}
-.log-item-edit-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.log-item-edit-name {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--text-main);
-}
-.log-item-edit-row {
-    display: flex;
-    gap: 10px;
-}
-.log-item-edit-field {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    font-size: 11.5px;
-    color: var(--text-muted);
-}
-.log-item-edit-actions {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin-top: 2px;
-}
-.log-item-edit-actions .log-item-save-btn {
-    width: auto;
-    flex: 1;
-    margin: 0;
-    padding: 10px;
-    font-size: 13.5px;
-}
-.log-item-edit-actions .log-item-cancel-btn {
-    align-self: center;
-}
-
-/* ---------- Empty state ---------- */
-.empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
     gap: 8px;
-    padding: 34px 20px;
-    border: 1.5px dashed var(--border-hairline);
-    border-radius: var(--radius-xl);
+    min-width: 0;
+    font-size: 13px;
+    font-weight: 600;
     color: var(--text-muted);
 }
-.empty-state-icon {
-    font-size: 30px;
-}
-.empty-state-title {
-    font-size: 14px;
+.duration-unit .form-input {
+    flex: 1;
+    min-width: 0;
+    text-align: center;
     font-weight: 700;
-    color: var(--text-main);
+    -moz-appearance: textfield;
 }
-.empty-state-desc {
-    font-size: 12px;
-    line-height: 1.6;
-    max-width: 220px;
+/* ช่องป้อนล้วน: ไม่แสดงลูกศรขึ้น/ลงของ input number */
+.duration-unit .form-input::-webkit-outer-spin-button,
+.duration-unit .form-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
+
+.form-field[hidden] { display: none; }
+

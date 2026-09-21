@@ -6,10 +6,11 @@
     <title>บันทึกกิจกรรม - soy dee</title>
     <link rel="stylesheet" href="/assets/css/shared/style.css">
     <link rel="stylesheet" href="/assets/css/shared/nav.css">
-    <!-- profile.css มีคอมโพเนนต์กลางที่ใช้ร่วมกัน (form-card, form-input, save-btn, back-btn ฯลฯ)
-         หน้านี้ดึงมาใช้ซ้ำแทนการก็อปโค้ดซ้ำ -->
+    <!-- profile.css: คอมโพเนนต์กลาง (form-field, form-input, save-btn ฯลฯ)
+         record-ui.css: hero / การ์ดสรุป / .log-item / FAB / modal รายละเอียด / bottom sheet ใช้ร่วมกับหน้าอาหาร -->
     <link rel="stylesheet" href="/assets/css/shared/profile.css">
     <link rel="stylesheet" href="/assets/css/shared/datepicker.css">
+    <link rel="stylesheet" href="/assets/css/shared/record-ui.css">
     <link rel="stylesheet" href="/assets/css/pages/activity-record.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Theme init: เหมือนหน้าอื่นๆ เป๊ะ ป้องกันหน้าจอกระพริบตอนโหลด -->
@@ -36,21 +37,24 @@
 
     <div class="mobile-app">
 
-        <!-- ============== ส่วนหัว: ปุ่มย้อนกลับ + ชื่อหน้า + ตัวเลือกวันที่ ============== -->
-        <div class="top-section">
+        <!-- หัวหน้า: ภาพกิจกรรมเป็นพื้นหลัง (assets/images/activity-banner.jpg) + แถวเลือกวันที่ -->
+        <div class="top-section record-hero activity-hero">
             <header class="app-header">
-                <h1 class="page-title" data-i18n="page-title">บันทึกกิจกรรม</h1>
+                <div class="hero-text">
+                    <h1 class="page-title" data-i18n="page-title">บันทึกกิจกรรม</h1>
+                    <p class="hero-sub" data-i18n="page-subtitle">จดกิจกรรมที่ทำ แล้วดูเวลารวมของวัน</p>
+                </div>
             </header>
 
+            <!-- แถวเลือกวันที่: ปุ่ม "วันนี้" แสดงเฉพาะตอนดูย้อนหลัง (JS สลับ hidden) + วันที่ชิดขวา -->
             <div class="date-picker-wrapper">
-                <button class="edit-profile-btn today-btn" type="button" id="todayBtn" aria-label="กลับไปวันนี้">
+                <button class="edit-profile-btn today-btn" id="todayBtn" type="button" aria-label="กลับไปวันนี้" hidden>
                     <span class="icon-inline"><i data-icon="today"></i></span>
                     <span data-i18n="today-btn">วันนี้</span>
                 </button>
-
-                <div class="date-picker-pill" id="datePickerPill" role="button" tabindex="0" aria-label="เลือกวันที่">
+                <div class="date-picker-pill" id="datePickerPill" role="button" tabindex="0" aria-label="เลือกวันที่บันทึก">
                     <span class="icon-calendar"><i data-icon="calendar"></i></span>
-                    <span class="date-text" id="dateText">24 พ.ค. 2567</span>
+                    <span class="date-text" id="dateText">—</span>
                     <span class="icon-chevron">⌄</span>
                 </div>
             </div>
@@ -58,97 +62,35 @@
 
         <main class="app-content">
 
-            <!-- ==========================================================
-                 1. สรุปกิจกรรมของวันนี้ — จำนวนกิจกรรม / เวลารวม / พลังงานที่ใช้
-                 ========================================================== -->
-            <section class="activity-summary-grid">
-                <div class="stat-card">
-                    <div class="stat-card-row">
-                        <span class="stat-icon icon-blue">
-                            <i data-icon="clipboard"></i>
-                        </span>
-                        <span class="stat-label" data-i18n="stat-label-count">กิจกรรม</span>
+            <!-- 1. การ์ดสรุปกิจกรรมของวันนั้น: แถบสัดส่วนเวลาแยกตามกิจกรรม + จำนวน/เวลารวม + เป้าหมายรายวัน -->
+            <section class="summary-card">
+                <div class="panel-header">
+                    <div class="header-title">
+                        <span class="icon-box blue-box"><i data-icon="activity"></i></span>
+                        <span id="summaryTitleText">สรุปกิจกรรมวันนี้</span>
                     </div>
-                    <div class="stat-value-wrap">
-                        <span class="stat-value numeric" id="summaryCount">0</span>
+                    <div class="summary-total" id="summaryTotal">ทั้งหมด 0 รายการ</div>
+                </div>
+                <div class="summary-bar is-empty" id="summaryBar" role="img" aria-label="สัดส่วนเวลาของแต่ละกิจกรรม"></div>
+                <div class="summary-legend" id="summaryLegend"></div>
+                <div class="summary-stats">
+                    <div class="stat-chip">
+                        <span class="stat-chip-value numeric" id="summaryCount">0</span>
+                        <span class="stat-chip-label" data-i18n="stat-label-count">กิจกรรม</span>
+                    </div>
+                    <div class="stat-chip">
+                        <span class="stat-chip-value numeric" id="summaryDuration">0 นาที</span>
+                        <span class="stat-chip-label" data-i18n="stat-label-duration">เวลารวม</span>
+                    </div>
+                    <div class="stat-chip" id="summaryDistanceChip" hidden>
+                        <span class="stat-chip-value numeric" id="summaryDistance">0 กม.</span>
+                        <span class="stat-chip-label" data-i18n="stat-label-distance">ระยะทางรวม</span>
                     </div>
                 </div>
-
-                <div class="stat-card">
-                    <div class="stat-card-row">
-                        <span class="stat-icon icon-green">
-                            <i data-icon="clock"></i>
-                        </span>
-                        <span class="stat-label" data-i18n="stat-label-duration">เวลารวม</span>
-                    </div>
-                    <div class="stat-value-wrap">
-                        <span class="stat-value numeric" id="summaryDuration">0 นาที</span>
-                    </div>
-                </div>
-
+                <p class="summary-insight" id="summaryInsight" hidden></p>
             </section>
 
-            <!-- ==========================================================
-                 2. เลือกประเภทกิจกรรม (จาก activity_master)
-                 ========================================================== -->
-            <section class="form-card">
-                <div class="form-field">
-                    <span class="form-label" data-i18n="label-choose-activity">เลือกกิจกรรม</span>
-                    <div class="activity-chip-scroll" id="activityChipList" role="listbox" aria-label="ประเภทกิจกรรม">
-                        <!-- JS สร้าง .activity-chip ที่นี่จาก GET /activities -->
-                    </div>
-                </div>
-            </section>
-
-            <!-- ==========================================================
-                 3. ระบุระยะเวลา + บันทึกลงรายการวันนี้
-                 ========================================================== -->
-            <section class="form-card" id="durationCard">
-
-                <!-- แสดงตอนยังไม่ได้เลือกกิจกรรม -->
-                <div class="duration-placeholder" id="durationPlaceholder">
-                    <span class="duration-placeholder-icon"><i data-icon="tap"></i></span>
-                    <p data-i18n="duration-placeholder-text">แตะเลือกกิจกรรมด้านบนก่อน เพื่อบันทึกระยะเวลาที่ทำ</p>
-                </div>
-
-                <!-- แสดงตอนเลือกกิจกรรมแล้ว -->
-                <div class="duration-form" id="durationForm" hidden>
-                    <div class="selected-activity-row">
-                        <span class="stat-icon icon-purple" id="selectedActivityIcon">
-                            <i data-icon="run"></i>
-                        </span>
-                        <div class="selected-activity-info">
-                            <span class="selected-activity-label" data-i18n="label-selected-activity">กิจกรรมที่เลือก</span>
-                            <span class="selected-activity-name" id="selectedActivityName">-</span>
-                        </div>
-                        <button type="button" class="form-link-btn" id="clearActivityBtn" data-i18n="clear-activity-btn">เปลี่ยน</button>
-                    </div>
-
-                    <div class="duration-input-row">
-                        <label class="form-field">
-                            <span class="form-label" data-i18n="label-hours">ชั่วโมง</span>
-                            <input type="number" class="form-input" id="durationHours" value="0" min="0" max="12" inputmode="numeric">
-                        </label>
-                        <label class="form-field">
-                            <span class="form-label" data-i18n="label-minutes">นาที</span>
-                            <input type="number" class="form-input" id="durationMinutes" value="30" min="0" max="59" step="5" inputmode="numeric">
-                        </label>
-                    </div>
-
-                    <label class="form-field">
-                        <span class="form-label" data-i18n="label-detail">รายละเอียด (ถ้ามี)</span>
-                        <input type="text" class="form-input" id="activityDetail" maxlength="255" data-i18n-placeholder="detail-placeholder" placeholder="เช่น วิ่ง 5 กม.">
-                    </label>
-
-                    <div class="duration-error" id="durationError" hidden data-i18n="duration-error-text">กรุณาระบุระยะเวลาที่ทำกิจกรรมอย่างน้อย 1 นาที</div>
-
-                    <button type="button" class="save-btn inline-save-btn" id="addEntryBtn" data-i18n="add-entry-btn">+ เพิ่มลงบันทึก</button>
-                </div>
-            </section>
-
-            <!-- ==========================================================
-                 4. รายการกิจกรรมที่บันทึกแล้วของวันนี้
-                 ========================================================== -->
+            <!-- 2. รายการกิจกรรมที่บันทึกแล้วของวันนี้ -->
             <section class="log-section">
                 <div class="section-heading-row">
                     <h2 class="section-heading" data-i18n="section-heading-today-log">บันทึกของวันนี้</h2>
@@ -160,7 +102,14 @@
                 </div>
             </section>
 
+            <!-- เว้นระยะให้พ้นปุ่ม FAB ก่อนถึง bottom nav -->
+            <div class="fab-spacer" aria-hidden="true"></div>
         </main>
+
+        <!-- ปุ่มลอยเพิ่มกิจกรรม: กึ่งกลางจอ เหนือ bottom nav -->
+        <div class="fab-wrapper">
+            <button class="fab-add-btn" id="fabAddBtn" type="button" aria-label="เพิ่มกิจกรรม"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+        </div>
 
         <nav id="app-nav-bar" class="nav-pill-wrapper">
             <ul class="nav-pill-container" id="horizontalNav">
@@ -174,7 +123,115 @@
         </nav>
     </div>
 
+    <!-- ============== Modal: ดูรายละเอียดกิจกรรม (แยกจากฟอร์มแก้ไข) ============== -->
+    <div class="modal-overlay" id="activityDetailOverlay">
+        <div class="detail-card" id="activityDetailCard" role="dialog" aria-modal="true" aria-labelledby="detailName">
+            <div class="detail-photo is-compact">
+                <span class="detail-photo-media" id="detailPhotoMedia"></span>
+                <button type="button" class="detail-close" id="detailCloseBtn" aria-label="ปิด"><i data-icon="x"></i></button>
+            </div>
+            <div class="detail-body">
+                <h2 class="detail-name" id="detailName"></h2>
+                <div class="detail-grid">
+                    <div class="detail-tile">
+                        <span class="detail-tile-label" data-i18n="detail-duration">ระยะเวลา</span>
+                        <span class="detail-tile-value numeric" id="detailDuration"></span>
+                    </div>
+                    <div class="detail-tile">
+                        <span class="detail-tile-label" data-i18n="detail-share">สัดส่วนของวัน</span>
+                        <span class="detail-tile-value numeric" id="detailShare"></span>
+                    </div>
+                    <div class="detail-tile" id="detailDistanceTile" hidden>
+                        <span class="detail-tile-label" data-i18n="detail-distance">ระยะทาง</span>
+                        <span class="detail-tile-value numeric" id="detailDistance"></span>
+                    </div>
+                    <div class="detail-tile" id="detailPaceTile" hidden>
+                        <span class="detail-tile-label" data-i18n="detail-pace">เพซเฉลี่ย</span>
+                        <span class="detail-tile-value numeric" id="detailPace"></span>
+                    </div>
+                    <div class="detail-tile">
+                        <span class="detail-tile-label" data-i18n="detail-date">วันที่</span>
+                        <span class="detail-tile-value" id="detailDate"></span>
+                    </div>
+                    <div class="detail-tile">
+                        <span class="detail-tile-label" data-i18n="detail-logged">บันทึกเมื่อ</span>
+                        <span class="detail-tile-value numeric" id="detailLogged"></span>
+                    </div>
+                    <div class="detail-tile is-wide" id="detailNoteTile" hidden>
+                        <span class="detail-tile-label" data-i18n="detail-note">รายละเอียด</span>
+                        <span class="detail-tile-value" id="detailNote"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="detail-actions">
+                <button type="button" class="detail-delete-btn" id="detailDeleteBtn"><i data-icon="trash"></i><span data-i18n="detail-delete">ลบ</span></button>
+                <button type="button" class="detail-edit-btn" id="detailEditBtn"><i data-icon="edit"></i><span data-i18n="detail-edit">แก้ไขรายการ</span></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============== Modal: เพิ่ม/แก้ไขกิจกรรม ============== -->
+    <div class="modal-overlay" id="activitySheetOverlay">
+        <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="activitySheetTitle">
+            <h2 class="sheet-title" id="activitySheetTitle" data-i18n="modal-title-add">เพิ่มกิจกรรม</h2>
+
+            <div class="sheet-body">
+                <div class="form-field">
+                    <span class="form-label"><span data-i18n="label-choose-activity">เลือกกิจกรรม</span><span class="activity-picked" id="activityPicked" hidden></span></span>
+                    <!-- กรอบเลือกกิจกรรม: ค้นหา + กรองประเภทอยู่คงที่ด้านบน รายการเลื่อนอยู่ในกรอบ (ไม่ยืดฟอร์ม) -->
+                    <div class="activity-picker">
+                        <div class="activity-search">
+                            <i data-icon="search" aria-hidden="true"></i>
+                            <input type="search" id="activitySearchInput" autocomplete="off" data-i18n-placeholder="placeholder-search-activity" placeholder="ค้นหากิจกรรม" aria-label="ค้นหากิจกรรม">
+                        </div>
+                        <!-- JS สร้างปุ่มกรองประเภท (ทั้งหมด + ประเภทที่มีกิจกรรม) -->
+                        <div class="activity-filter" id="activityFilterBar" role="group" aria-label="กรองตามประเภท"></div>
+                        <div class="activity-grid" id="activityChipList" role="listbox" aria-label="กิจกรรม">
+                            <!-- JS สร้าง .activity-chip ที่นี่จาก GET /activities -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-field">
+                    <span class="form-label" data-i18n="label-duration">ระยะเวลา</span>
+                    <div class="duration-input-row">
+                        <label class="duration-unit">
+                            <input type="number" class="form-input" id="actHoursInput" value="0" min="0" max="24" inputmode="numeric" aria-label="ชั่วโมง">
+                            <span data-i18n="label-hours">ชั่วโมง</span>
+                        </label>
+                        <label class="duration-unit">
+                            <input type="number" class="form-input" id="actMinutesInput" value="30" min="0" max="59" inputmode="numeric" aria-label="นาที">
+                            <span data-i18n="label-minutes">นาที</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- ระยะทาง: JS แสดงเฉพาะกิจกรรมที่ act_has_distance = 1 (เช่น วิ่ง / เดิน) -->
+                <div class="form-field" id="distanceField" hidden>
+                    <span class="form-label" data-i18n="label-distance">ระยะทาง (ถ้ามี)</span>
+                    <label class="duration-unit">
+                        <input type="number" class="form-input" id="actDistanceInput" min="0" max="999.99" step="0.01" inputmode="decimal" data-i18n-placeholder="placeholder-distance" placeholder="เช่น 5.25" aria-label="ระยะทาง">
+                        <span data-i18n="unit-km-long">กิโลเมตร</span>
+                    </label>
+                </div>
+
+                <label class="form-field">
+                    <span class="form-label" data-i18n="label-detail">รายละเอียด (ถ้ามี)</span>
+                    <input type="text" class="form-input" id="actDetailInput" maxlength="255" data-i18n-placeholder="detail-placeholder" placeholder="เช่น วิ่งรอบสวนสาธารณะ">
+                </label>
+
+                <div class="sheet-error" id="actFormError" hidden></div>
+            </div>
+
+            <div class="sheet-actions sheet-actions-row">
+                <button type="button" class="sheet-cancel-btn" id="actCancelBtn" data-i18n="btn-cancel">ยกเลิก</button>
+                <button type="button" class="save-btn" id="actSaveBtn" data-i18n="save-btn">บันทึกกิจกรรม</button>
+            </div>
+        </div>
+    </div>
+
     <script src="/assets/js/shared/i18n.js"></script>
+    <script src="/assets/js/shared/activity-categories.js"></script>
     <script src="/assets/js/shared/nav.js"></script>
     <script src="/assets/js/shared/app.js"></script>
     <script src="/assets/js/shared/datepicker.js"></script>

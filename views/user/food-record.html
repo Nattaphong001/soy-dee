@@ -37,15 +37,13 @@
 
         <div class="top-section">
             <header class="app-header">
-                <button class="back-btn" type="button" onclick="history.length > 1 ? history.back() : (window.location.href = 'index.html')" aria-label="ย้อนกลับ">🔙</button>
                 <h1 class="page-title" data-i18n="page-title">บันทึกอาหาร</h1>
-                <span class="header-spacer" aria-hidden="true"></span>
             </header>
 
             <!-- แถวเลือกวันที่: ปุ่ม "วันนี้" ชิดซ้าย + วันที่ปัจจุบันชิดขวา (รูปแบบเดียวกับหน้า Home) -->
             <div class="date-picker-wrapper">
                 <button class="edit-profile-btn today-btn" id="todayBtn" type="button" aria-label="กลับไปวันนี้">
-                    <span class="icon-inline"><span class="icon-emoji">📍</span></span>
+                    <span class="icon-inline"><span class="icon-emoji">↩️</span></span>
                     <span data-i18n="today-btn">วันนี้</span>
                 </button>
                 <div class="date-picker-pill" id="datePickerPill" role="button" tabindex="0" aria-label="เลือกวันที่บันทึก">
@@ -143,6 +141,11 @@
                 <span class="form-label" data-i18n="label-category">ประเภทอาหาร</span>
                 <div class="category-chip-group" id="categoryChipGroup"></div>
             </div>
+
+            <label class="form-field">
+                <span class="form-label" data-i18n="label-amount">ปริมาณ</span>
+                <input type="text" class="form-input" id="foodAmountInput" placeholder="เช่น 1 จาน, 200 กรัม" data-i18n-placeholder="placeholder-amount" maxlength="50">
+            </label>
 
             <label class="form-field">
                 <span class="form-label" data-i18n="label-time">เวลาที่กิน</span>

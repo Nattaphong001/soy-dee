@@ -32,6 +32,8 @@ const FOOD_I18N = {
         'label-food-name': 'ชื่ออาหาร',
         'placeholder-food-name': 'เช่น ข้าวผัดกะเพราไก่ไข่ดาว',
         'label-category': 'ประเภทอาหาร',
+        'label-amount': 'ปริมาณ',
+        'placeholder-amount': 'เช่น 1 จาน, 200 กรัม',
         'label-time': 'เวลาที่กิน',
         'save-btn': 'บันทึกรายการ',
         'btn-cancel': 'ยกเลิก',
@@ -53,7 +55,8 @@ const FOOD_I18N = {
         'toast-added': 'เพิ่มรายการอาหารแล้ว',
         'toast-updated': 'แก้ไขรายการอาหารแล้ว',
         'toast-deleted': 'ลบรายการอาหารแล้ว',
-        'toast-delete-failed': 'ลบรายการไม่สำเร็จ กรุณาลองใหม่'
+        'toast-delete-failed': 'ลบรายการไม่สำเร็จ กรุณาลองใหม่',
+        'toast-load-failed': 'โหลดรายการอาหารไม่สำเร็จ กรุณาลองใหม่'
     },
     en: {
         'page-title': 'Food Record',
@@ -75,6 +78,8 @@ const FOOD_I18N = {
         'label-food-name': 'Food name',
         'placeholder-food-name': 'e.g. Fried rice with basil and egg',
         'label-category': 'Food category',
+        'label-amount': 'Amount',
+        'placeholder-amount': 'e.g. 1 plate, 200 g',
         'label-time': 'Time eaten',
         'save-btn': 'Save item',
         'btn-cancel': 'Cancel',
@@ -96,7 +101,8 @@ const FOOD_I18N = {
         'toast-added': 'Food item added',
         'toast-updated': 'Food item updated',
         'toast-deleted': 'Food item deleted',
-        'toast-delete-failed': 'Failed to delete — please try again'
+        'toast-delete-failed': 'Failed to delete — please try again',
+        'toast-load-failed': 'Failed to load food records — please try again'
     }
 };
 
@@ -187,6 +193,7 @@ async function fetchRecords(date) {
         records = (await SoyDeeAPI.request(`/members/${mbId}/food-records`, { query: { date } })) || [];
     } catch (e) {
         records = [];
+        showToast(I18N.t(FOOD_I18N, 'toast-load-failed'), 'error');
     }
 }
 
@@ -250,7 +257,7 @@ function renderMealSections() {
 
 function renderFoodItemHtml(record) {
     const cat = categoryById(record.fd_id);
-    const dotClass = cat ? LIGHT_DOT_CLASS[cat.fd_traffic_light] : 'dot-yellow';
+    const dotClass = cat ? LIGHT_DOT_CLASS[cat.fd_traffic_light] : 'dot-gray';
     const thumbInner = record.dfd_image
         ? `<img src="${SoyDeeAPI.assetUrl(record.dfd_image)}" alt="">`
         : `<span class="icon-emoji">🍽️</span>`;
@@ -259,7 +266,7 @@ function renderFoodItemHtml(record) {
         <div class="food-item" data-id="${record.dfd_id}">
             <div class="food-thumb">${thumbInner}</div>
             <div class="food-info">
-                <div class="food-name">${escapeHtml(record.dfd_food_name)}</div>
+                <div class="food-name">${escapeHtml(record.dfd_food_name)}${record.dfd_amount ? ` · ${escapeHtml(record.dfd_amount)}` : ''}</div>
                 <div class="food-meta">
                     <span class="food-time numeric">${record.dfd_time.slice(0, 5)}</span>
                     <span class="food-category-badge">
@@ -305,6 +312,7 @@ function openModal(prefillMealId, existingRecord) {
         ? I18N.t(FOOD_I18N, 'modal-title-edit')
         : I18N.t(FOOD_I18N, 'modal-title-add');
     document.getElementById('foodNameInput').value = existingRecord ? existingRecord.dfd_food_name : '';
+    document.getElementById('foodAmountInput').value = existingRecord ? (existingRecord.dfd_amount || '') : '';
     document.getElementById('foodTimeInput').value = existingRecord ? existingRecord.dfd_time.slice(0, 5) : nowTimeHHMM();
     document.getElementById('foodFormError').hidden = true;
 
@@ -348,9 +356,11 @@ function updatePhotoPreview() {
 
 async function handleSave() {
     const nameInput = document.getElementById('foodNameInput');
+    const amountInput = document.getElementById('foodAmountInput');
     const timeInput = document.getElementById('foodTimeInput');
     const errorBox = document.getElementById('foodFormError');
     const name = nameInput.value.trim();
+    const amount = amountInput.value.trim();
     const time = timeInput.value || nowTimeHHMM();
 
     if (!selectedMeal) {
@@ -377,6 +387,7 @@ async function handleSave() {
         dfd_time: time + ':00',
         dfd_meal_type: selectedMeal,
         dfd_food_name: name,
+        dfd_amount: amount || null,
         dfd_image: null,
         fd_id: selectedCategoryId
     };
@@ -433,6 +444,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     await fetchCategories();
     renderCategoryChips();
     await loadAndRender();
+
+    // กลับมาหน้านี้ผ่าน bfcache (ปุ่ม back ของเบราว์เซอร์) — DOMContentLoaded ไม่ยิงซ้ำ
+    // บันทึกที่เพิ่ง/แก้ไว้เลยค้างจนกว่าจะกด refresh เอง แก้โดยโหลดรายการใหม่ทุกครั้งที่ restore
+    window.addEventListener('pageshow', (e) => {
+        if (e.persisted) loadAndRender();
+    });
 
     // เปิดฟอร์มเพิ่มรายการจากปุ่ม "+ เพิ่ม" ในแต่ละมื้อ / แก้ไข / ลบ (event delegation)
     document.getElementById('mealSections').addEventListener('click', (e) => {

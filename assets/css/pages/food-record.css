@@ -243,6 +243,7 @@
 .dot-green  { background: var(--color-green); }
 .dot-yellow { background: var(--color-yellow); }
 .dot-red    { background: var(--color-red); }
+.dot-gray   { background: var(--text-muted); }
 
 .food-item-actions {
     display: flex;

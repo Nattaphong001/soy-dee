@@ -79,6 +79,37 @@
 .sleep-eval-badge[data-eval="ok"]    { background: rgba(16, 185, 129, 0.30); }
 .sleep-eval-badge[data-eval="high"]  { background: rgba(245, 158, 11, 0.30); }
 
+/* ---------- 1b. การ์ดดูรายละเอียด (view mode สำหรับวันที่มี record อยู่แล้ว) ---------- */
+/* .form-card ประกาศ display:flex ไว้ ชนะ [hidden] ของ UA stylesheet ด้วย origin (ไม่ใช่ specificity)
+   ต้องประกาศทับตรงๆ ไม่งั้นการ์ดนี้โผล่ค้างซ้อนกับฟอร์มแก้ไขแม้ตั้ง hidden=true แล้ว (ดู pattern เดียวกันใน style.css .empty-state[hidden]) */
+.sleep-view-card[hidden] { display: none; }
+.sleep-view-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+.sleep-view-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.sleep-view-value {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-main);
+    background: var(--surface-alt);
+    border-radius: var(--radius-md);
+    padding: 11px 12px;
+}
+.sleep-view-card #sleepEditBtn {
+    align-self: flex-end;
+}
+.sleep-cancel-edit-btn {
+    display: block;
+    margin: 10px auto 0 auto;
+}
+.sleep-cancel-edit-btn[hidden] { display: none; }
+
 /* ---------- 2. แถวเวลาเริ่มนอน / ตื่นนอน (สองคอลัมน์) ---------- */
 .sleep-time-row {
     display: grid;
@@ -240,6 +271,37 @@
 .history-item-tag.tag-low  { background: rgba(239, 68, 68, 0.14); color: var(--color-red); }
 .history-item-tag.tag-ok   { background: rgba(16, 185, 129, 0.14); color: var(--color-green); }
 .history-item-tag.tag-high { background: rgba(245, 158, 11, 0.14); color: var(--color-yellow); }
+
+.history-item-actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.history-item-delete-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: none;
+    background: var(--card-inner);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12.5px;
+    color: var(--text-muted);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+.history-item-delete-btn:hover {
+    background: var(--surface-alt);
+    transform: translateY(-1px);
+    color: var(--color-red);
+}
+
+.history-item-body[role="button"] {
+    cursor: pointer;
+}
 
 .history-empty {
     text-align: center;

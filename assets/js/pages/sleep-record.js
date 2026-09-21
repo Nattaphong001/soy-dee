@@ -1,6 +1,7 @@
 /**
  * sleep-record.js — หน้าบันทึกการนอนหลับ
- * - dslp_total_hours / dslp_eval_result / dslp_quality_score คำนวณฝั่ง server ทั้งหมด (ดู API_SPEC.md §9)
+ * - dslp_total_hours / dslp_eval_result คำนวณฝั่ง server ทั้งหมด (ดู API_SPEC.md §9)
+ * - dslp_quality_score ผู้ใช้เลือกเอง (pill แย่/ปานกลาง/ดี) — ส่งไปพร้อม payload ทุกครั้ง (§2.6)
  * - ฟอร์มคำนวณค่าพรีวิวฝั่ง client เหมือนกันไว้แสดงสดระหว่างกรอก แต่ค่าจริงมาจาก response เท่านั้น
  * - เชื่อม SoyDeeAPI (assets/js/shared/api.js) จริง — ไม่มี mock/localStorage อีกต่อไป
  *
@@ -18,12 +19,12 @@ const SLEEP_I18N = {
         'eval-low': 'นอนน้อยไป',
         'eval-ok': 'นอนพอดี',
         'eval-high': 'นอนมากไป',
-        'label-date': 'วันที่บันทึกการนอน',
+        'today-btn': 'วันนี้',
         'label-start': '🌙 เวลาที่เริ่มนอน',
         'label-end': '☀️ เวลาที่ตื่นนอน',
         'err-time-order': 'เวลาตื่นนอนต้องอยู่หลังเวลาที่เริ่มนอน',
         'err-save': 'บันทึกไม่สำเร็จ ลองใหม่อีกครั้ง',
-        'label-quality': 'คุณภาพการนอน (ประเมินอัตโนมัติ)',
+        'label-quality': 'คุณภาพการนอน (เลือกเอง)',
         'quality-bad': 'แย่',
         'quality-mid': 'ปานกลาง',
         'quality-good': 'ดี',
@@ -32,7 +33,15 @@ const SLEEP_I18N = {
         'history-title': 'ประวัติการนอนล่าสุด',
         'history-subtitle': '7 วันล่าสุด',
         'history-empty': 'ยังไม่มีประวัติการนอนหลับ เริ่มบันทึกคืนนี้ได้เลย',
-        'toast-saved': 'บันทึกการนอนหลับแล้ว'
+        'toast-saved': 'บันทึกการนอนหลับแล้ว',
+        'delete-title': 'ลบบันทึกการนอน',
+        'delete-message': 'ต้องการลบบันทึกการนอนนี้ออกจากประวัติใช่หรือไม่?',
+        'delete-confirm': 'ลบรายการ',
+        'btn-cancel': 'ยกเลิก',
+        'toast-deleted': 'ลบบันทึกการนอนแล้ว',
+        'toast-delete-failed': 'ลบรายการไม่สำเร็จ กรุณาลองใหม่',
+        'btn-edit-record': '✏️ แก้ไขข้อมูล',
+        'cancel-edit-btn': 'ยกเลิกการแก้ไข'
     },
     en: {
         'page-title': 'Sleep Record',
@@ -41,12 +50,12 @@ const SLEEP_I18N = {
         'eval-low': 'Too little sleep',
         'eval-ok': 'Good amount',
         'eval-high': 'Too much sleep',
-        'label-date': 'Sleep date',
+        'today-btn': 'Today',
         'label-start': '🌙 Bedtime',
         'label-end': '☀️ Wake-up time',
         'err-time-order': 'Wake-up time must be after bedtime',
         'err-save': 'Failed to save, please try again',
-        'label-quality': 'Sleep quality (auto-assessed)',
+        'label-quality': 'Sleep quality (self-assessed)',
         'quality-bad': 'Poor',
         'quality-mid': 'Fair',
         'quality-good': 'Good',
@@ -55,7 +64,15 @@ const SLEEP_I18N = {
         'history-title': 'Recent sleep history',
         'history-subtitle': 'Last 7 days',
         'history-empty': 'No sleep records yet — start logging tonight',
-        'toast-saved': 'Sleep record saved'
+        'toast-saved': 'Sleep record saved',
+        'delete-title': 'Delete sleep record',
+        'delete-message': 'Delete this sleep record from your history?',
+        'delete-confirm': 'Delete',
+        'btn-cancel': 'Cancel',
+        'toast-deleted': 'Sleep record deleted',
+        'toast-delete-failed': 'Failed to delete — please try again',
+        'btn-edit-record': '✏️ Edit record',
+        'cancel-edit-btn': 'Cancel edit'
     }
 };
 
@@ -81,7 +98,7 @@ function applyI18n() {
 /* ==============================================================================
    2. ค่าคงที่ & Helper คำนวณการนอน (ใช้พรีวิวฝั่ง client เท่านั้น — ตรงกับ logic ฝั่ง server)
    ============================================================================== */
-const SLEEP_THRESHOLDS = { low: 6, high: 9 }; // < 6 ชม. = น้อยไป, > 9 ชม. = มากไป
+const SLEEP_THRESHOLDS = { low: 7, high: 9 }; // < 7 ชม. = น้อยไป, > 9 ชม. = มากไป (§2.6)
 const EVAL_KEY_BY_RESULT = { 1: 'low', 2: 'ok', 3: 'high' };
 
 function toLocalInputValue(date) {
@@ -97,6 +114,11 @@ function formatDateTH(dateStr) {
 function formatTime(dt) {
     const pad = n => String(n).padStart(2, '0');
     return `${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
+}
+
+function dateKey(d) {
+    const pad = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
 /**
@@ -146,12 +168,36 @@ function normalizeRecord(raw) {
 /* ==============================================================================
    3. State
    ============================================================================== */
+let selectedDate = new Date(); // วันที่กำลังดู/บันทึกอยู่ — ควบคุมด้วยปฏิทิน dropdown (datePickerPill)
 let sleepHistory = [];
-let editingRecordId = null;   // dslp_id ที่กำลังแก้ไข — null = กำลังจะสร้างรายการใหม่
-let editingRecordDate = null; // วันที่ของ record ที่กำลังแก้ไข (เทียบกับ #sleepDate เพื่อรู้ว่าออกจากโหมดแก้ไขหรือยัง)
+let editingRecordId = null;   // dslp_id ของ record ที่มีอยู่แล้วในวันที่เลือก — null = ยังไม่มี ต้องสร้างใหม่
+let selectedQuality = 3;      // dslp_quality_score ที่ผู้ใช้เลือกเอง (1=แย่ 2=ปานกลาง 3=ดี) — ห้ามคำนวณจากชั่วโมง (§2.6)
+let sleepDatePicker = null;
+let sleepMode = 'add';        // 'add' (ยังไม่มี record ของวันนี้) | 'view' (มีแล้ว ดูรายละเอียด) | 'edit' (กำลังแก้ไข record ที่มีอยู่)
+const QUALITY_KEY_BY_SCORE = { 1: 'quality-bad', 2: 'quality-mid', 3: 'quality-good' };
+
+/** สลับมุมมอง view (การ์ดอ่านอย่างเดียว) / add-edit (ฟอร์มกรอก) ตาม sleepMode */
+function renderSleepMode() {
+    const viewCard = document.getElementById('sleepViewCard');
+    const editSection = document.getElementById('sleepEditSection');
+    const cancelBtn = document.getElementById('sleepCancelEditBtn');
+    if (!viewCard || !editSection) return;
+
+    viewCard.hidden = sleepMode !== 'view';
+    editSection.hidden = sleepMode === 'view';
+    if (cancelBtn) cancelBtn.hidden = sleepMode !== 'edit';
+}
+
+/** เติมค่าลงการ์ดดูรายละเอียดจาก record ปัจจุบัน */
+function renderSleepViewCard(record) {
+    document.getElementById('sleepViewStart').textContent = formatTime(record.start);
+    document.getElementById('sleepViewEnd').textContent = formatTime(record.end);
+    const qKey = QUALITY_KEY_BY_SCORE[record.qualityScore] || 'quality-good';
+    document.getElementById('sleepViewQuality').textContent = t(qKey);
+}
 
 /* ==============================================================================
-   4. Quality pill — เป็น read-only indicator (dslp_quality_score คำนวณฝั่ง server เท่านั้น)
+   4. Quality pill — ผู้ใช้เลือกเอง (dslp_quality_score ไม่ใช่ค่าที่ server คำนวณ — §2.6)
    ============================================================================== */
 function setQualityIndicator(score) {
     document.querySelectorAll('.quality-pill').forEach(p => {
@@ -159,6 +205,11 @@ function setQualityIndicator(score) {
         p.classList.toggle('active', match);
         p.setAttribute('aria-checked', match ? 'true' : 'false');
     });
+}
+
+function selectQuality(score) {
+    selectedQuality = score;
+    setQualityIndicator(score);
 }
 
 /* ==============================================================================
@@ -183,11 +234,9 @@ function renderHistory() {
         const evalKey = EVAL_KEY_BY_RESULT[item.evalResult] || 'ok';
         const el = document.createElement('div');
         el.className = 'history-item';
-        el.setAttribute('role', 'button');
-        el.setAttribute('tabindex', '0');
         el.innerHTML = `
             <div class="history-item-icon" aria-hidden="true">💤</div>
-            <div class="history-item-body">
+            <div class="history-item-body" role="button" tabindex="0" aria-label="${formatDateTH(item.date)}">
                 <div class="history-item-date">${formatDateTH(item.date)}</div>
                 <div class="history-item-time">${formatTime(item.start)} – ${formatTime(item.end)}</div>
             </div>
@@ -195,21 +244,23 @@ function renderHistory() {
                 <div class="history-item-hours numeric">${item.hours.toFixed(1)} ${getLang() === 'en' ? 'hrs' : 'ชม.'}</div>
                 <span class="history-item-tag ${tagClassByEval[evalKey]}">${t('eval-' + evalKey)}</span>
             </div>
+            <div class="history-item-actions">
+                <button type="button" class="history-item-delete-btn" aria-label="${t('delete-title')}">🗑️</button>
+            </div>
         `;
-        // แตะรายการเก่าเพื่อโหลดเข้าฟอร์มแล้วแก้ไข (PUT) แทนการสร้างใหม่
-        el.addEventListener('click', () => loadRecordIntoForm(item));
+        // แตะที่แถวเพื่อกระโดดปฏิทินไปวันนั้น + โหลดค่าของวันนั้นเข้าฟอร์มให้แก้ไขได้ (ดู changeDate)
+        const jumpToItemDate = () => changeDate(new Date(item.date + 'T00:00:00'));
+        const body = el.querySelector('.history-item-body');
+        body.addEventListener('click', jumpToItemDate);
+        body.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); jumpToItemDate(); }
+        });
+        el.querySelector('.history-item-delete-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            handleDeleteRecord(item);
+        });
         list.appendChild(el);
     });
-}
-
-function loadRecordIntoForm(item) {
-    document.getElementById('sleepDate').value = item.date;
-    document.getElementById('sleepStart').value = formatTime(item.start);
-    document.getElementById('sleepEnd').value = formatTime(item.end);
-    editingRecordId = item.id;
-    editingRecordDate = item.date;
-    document.getElementById('sleepTimeError').hidden = true;
-    applyRecordToUI(item);
 }
 
 /* ==============================================================================
@@ -252,7 +303,7 @@ function updateHero() {
 /** อัปเดต hero + quality pill ด้วยค่าจริงจาก server (หลัง save สำเร็จ หรือโหลด record ที่มีอยู่แล้ว) */
 function applyRecordToUI(record) {
     if (!record) {
-        setQualityIndicator(null);
+        selectQuality(3);
         return;
     }
     const valueEl = document.getElementById('sleepDurationValue');
@@ -264,7 +315,7 @@ function applyRecordToUI(record) {
     const evalKey = EVAL_KEY_BY_RESULT[record.evalResult] || '';
     badge.dataset.eval = evalKey;
     badgeText.textContent = evalKey ? t('eval-' + evalKey) : t('eval-pending');
-    setQualityIndicator(record.qualityScore);
+    selectQuality(record.qualityScore || 3);
 }
 
 /* ==============================================================================
@@ -280,21 +331,46 @@ function dateStrOffset(offsetDays) {
     return toLocalInputValue(d).slice(0, 10);
 }
 
-/** โหลด record ของวันนี้ (ถ้ามี) มา prefill ฟอร์ม + hero การ์ด */
-async function loadTodayRecord(mbId) {
+/** โหลด record ของวันที่ที่เลือกอยู่ (ถ้ามี) มา prefill ฟอร์ม + hero การ์ด
+ *  ไม่มี record ของวันนั้น -> เคลียร์ฟอร์มพร้อมเวลาแนะนำเริ่มต้น (ไม่ใช่ค่าจริง แค่ช่วยกรอก) */
+async function loadRecordForDate(date) {
+    const mbId = SoyDeeAPI.session.getUserId();
+    if (!mbId) return;
+
     try {
-        const records = await SoyDeeAPI.request(`/members/${mbId}/sleep-records`, { query: { date: todayDateStr() } });
+        const records = await SoyDeeAPI.request(`/members/${mbId}/sleep-records`, { query: { date: dateKey(date) } });
         if (Array.isArray(records) && records.length > 0) {
             const record = normalizeRecord(records[0]);
             document.getElementById('sleepStart').value = formatTime(record.start);
             document.getElementById('sleepEnd').value = formatTime(record.end);
             editingRecordId = record.id;
-            editingRecordDate = record.date;
             applyRecordToUI(record);
+            renderSleepViewCard(record);
+            sleepMode = 'view';
+        } else {
+            editingRecordId = null;
+            document.getElementById('sleepStart').value = '23:00';
+            document.getElementById('sleepEnd').value = '07:00';
+            selectQuality(3);
+            sleepMode = 'add';
         }
     } catch (err) {
-        console.error('loadTodayRecord failed', err);
+        console.error('loadRecordForDate failed', err);
+        editingRecordId = null;
+        sleepMode = 'add';
     }
+    renderSleepMode();
+    updateHero();
+}
+
+/** เปลี่ยนวันที่ที่กำลังดู/บันทึกอยู่ — เรียกจากปฏิทิน dropdown หรือแตะรายการในประวัติ */
+async function changeDate(date) {
+    selectedDate = new Date(date);
+    document.getElementById('sleepDate').value = dateKey(selectedDate);
+    document.getElementById('dateText').textContent = formatDateTH(dateKey(selectedDate));
+    document.getElementById('sleepTimeError').hidden = true;
+    if (sleepDatePicker) sleepDatePicker.refreshTodayBtn();
+    await loadRecordForDate(selectedDate);
 }
 
 /** ไม่มี endpoint list ช่วงวันที่สำหรับ sleep-records (มีแค่ ?date= รายวัน ตาม API_SPEC.md §9)
@@ -310,6 +386,28 @@ async function loadHistory(mbId) {
         .map(normalizeRecord)
         .sort((a, b) => b.start - a.start);
     renderHistory();
+}
+
+function handleDeleteRecord(item) {
+    const mbId = SoyDeeAPI.session.getUserId();
+    if (!mbId) return;
+    showConfirm({
+        title: t('delete-title'),
+        message: t('delete-message'),
+        confirmText: t('delete-confirm'),
+        cancelText: t('btn-cancel'),
+        onConfirm: async () => {
+            try {
+                await SoyDeeAPI.request(`/members/${mbId}/sleep-records/${item.id}`, { method: 'DELETE' });
+                await loadHistory(mbId);
+                if (dateKey(selectedDate) === item.date) await loadRecordForDate(selectedDate);
+                showToast(t('toast-deleted'), 'success');
+            } catch (err) {
+                console.error('delete sleep record failed', err);
+                showToast(t('toast-delete-failed'), 'error');
+            }
+        }
+    });
 }
 
 async function handleSave() {
@@ -335,7 +433,8 @@ async function handleSave() {
     const payload = {
         dslp_date: dateInput.value,
         dslp_start_time: range.start.toISOString(),
-        dslp_end_time: range.end.toISOString()
+        dslp_end_time: range.end.toISOString(),
+        dslp_quality_score: selectedQuality
     };
 
     const originalText = saveBtn.textContent;
@@ -349,9 +448,12 @@ async function handleSave() {
 
         // fallback ใส่ date/start/end ที่ส่งไปเอง เผื่อ response ไม่ส่งกลับมาครบ (ดูตัวอย่าง response ใน API_SPEC.md §9)
         const record = normalizeRecord(Object.assign({}, payload, data));
+        // เก็บ id ไว้เผื่อกดบันทึกซ้ำในวันเดิม (จะเป็นการแก้ไข ไม่ใช่สร้างซ้ำ)
         editingRecordId = record.id;
-        editingRecordDate = record.date;
         applyRecordToUI(record);
+        renderSleepViewCard(record);
+        sleepMode = 'view';
+        renderSleepMode();
 
         saveBtn.dataset.i18nLock = '1';
         saveBtn.textContent = t('save-btn-success');
@@ -378,46 +480,56 @@ async function handleSave() {
 document.addEventListener('DOMContentLoaded', async () => {
     applyI18n();
 
-    const dateInput = document.getElementById('sleepDate');
     const startInput = document.getElementById('sleepStart');
     const endInput = document.getElementById('sleepEnd');
 
-    dateInput.value = todayDateStr();
-    dateInput.max = todayDateStr(); // ห้ามบันทึกล่วงหน้า เลือกได้ไม่เกินวันนี้
-    startInput.value = '23:00';
-    endInput.value = '07:00';
+    document.getElementById('sleepDate').value = dateKey(selectedDate);
+    document.getElementById('dateText').textContent = formatDateTH(dateKey(selectedDate));
 
-    // pill คุณภาพการนอนไม่ให้กดเลือกเองแล้ว (server คำนวณ dslp_quality_score จากชั่วโมงนอนเท่านั้น)
-    const qualityPillGroup = document.querySelector('.quality-pill-group');
-    if (qualityPillGroup) qualityPillGroup.setAttribute('aria-disabled', 'true');
+    // pill คุณภาพการนอน — ผู้ใช้เลือกเอง (§2.6), ค่าเริ่มต้น "ดี" ตามที่ตั้งไว้ใน markup
     document.querySelectorAll('.quality-pill').forEach(p => {
-        p.disabled = true;
-        p.setAttribute('aria-disabled', 'true');
+        p.addEventListener('click', () => selectQuality(Number(p.dataset.quality)));
     });
-    setQualityIndicator(null);
+    selectQuality(3);
 
-    updateHero();
-
-    function onDateChanged() {
-        if (dateInput.value !== editingRecordDate) {
-            editingRecordId = null;
-            editingRecordDate = null;
-            setQualityIndicator(null);
-        }
-        updateHero();
-    }
-    dateInput.addEventListener('change', onDateChanged);
-    dateInput.addEventListener('input', onDateChanged);
     [startInput, endInput].forEach(input => {
         input.addEventListener('change', updateHero);
         input.addEventListener('input', updateHero);
     });
 
+    // ปฏิทิน dropdown ที่ใช้ร่วมกันทุกหน้า (assets/js/shared/datepicker.js) — เลือกวันย้อนหลังได้
+    // (ห้ามอนาคต ด้วย disableFuture default ของ component) เพื่อดู/แก้ไขบันทึกของวันนั้น
+    sleepDatePicker = SoyDeeDatePicker.attach({
+        pillEl: document.getElementById('datePickerPill'),
+        todayBtnEl: document.getElementById('todayBtn'),
+        getDate: () => selectedDate,
+        onSelect: (date) => changeDate(date)
+    });
+
     document.getElementById('saveSleepBtn').addEventListener('click', handleSave);
+
+    // การ์ดดูรายละเอียด -> กดแก้ไขเพื่อสลับไปฟอร์ม, กดยกเลิกเพื่อกลับไปดูค่าเดิม (ไม่บันทึกที่แก้ค้างไว้)
+    document.getElementById('sleepEditBtn').addEventListener('click', () => {
+        sleepMode = 'edit';
+        renderSleepMode();
+    });
+    document.getElementById('sleepCancelEditBtn').addEventListener('click', () => {
+        loadRecordForDate(selectedDate);
+    });
 
     const mbId = SoyDeeAPI.session.getUserId();
     if (mbId) {
-        await loadTodayRecord(mbId);
+        await loadRecordForDate(selectedDate);
         await loadHistory(mbId);
     }
+
+    // กลับมาหน้านี้ผ่าน bfcache (ปุ่ม back ของเบราว์เซอร์) — DOMContentLoaded ไม่ยิงซ้ำ
+    // บันทึกที่เพิ่ง/แก้ไว้เลยค้างจนกว่าจะกด refresh เอง แก้โดยโหลดข้อมูลใหม่ทุกครั้งที่ restore
+    window.addEventListener('pageshow', (e) => {
+        if (!e.persisted) return;
+        const uid = SoyDeeAPI.session.getUserId();
+        if (!uid) return;
+        loadRecordForDate(selectedDate);
+        loadHistory(uid);
+    });
 });

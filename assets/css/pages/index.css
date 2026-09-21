@@ -1,0 +1,64 @@
+/* ==============================================================================
+   HOME (DASHBOARD) PAGE — ใช้ token จาก style.css และคอมโพเนนต์ร่วมจาก record-ui.css
+   (hero, .summary-card) โหลดคู่กันเสมอ ไฟล์นี้มีเฉพาะส่วนของหน้าหลัก:
+   ฉาก hero ยามเช้า, ปรับหัวการ์ดสถิติ/BMI/พลังงานให้เข้าธีมหน้าบันทึก
+   ============================================================================== */
+
+/* ---------- hero: assets/images/home-banner.svg (วาดเอง เป็น vector คมทุกขนาดจอ) ---------- */
+.home-hero {
+    background-color: #0e5a78;
+    background-image: url('../../images/home-banner.svg');
+    background-position: center;
+}
+/* ภาพสว่างกว่าหน้าอื่น — เงาทับบางกว่า ให้ชื่อสีขาวยังอ่านชัด (โหมดมืดหนักขึ้น) */
+.home-hero::before {
+    background: linear-gradient(180deg, rgba(6, 22, 44, 0.34) 0%, rgba(6, 22, 44, 0.20) 55%, rgba(6, 22, 44, 0.30) 100%);
+}
+.dark-theme .home-hero::before {
+    background: linear-gradient(180deg, rgba(3, 10, 22, 0.52) 0%, rgba(3, 10, 22, 0.40) 55%, rgba(3, 10, 22, 0.52) 100%);
+}
+
+.home-hero .user-info { gap: 2px; }
+.home-hero .user-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: #FFFFFF;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.4);
+}
+.home-hero .hero-sub { margin-top: 0; }
+/* เว้นล่างให้เห็นฉากกิ้งก่า + ไอคอนสามหมวดใต้แถวชื่อ */
+.home-hero .app-header { padding-bottom: 70px; }
+
+.home-hero .profile-avatar {
+    width: 48px;
+    height: 48px;
+    border-color: color-mix(in srgb, var(--surface) 90%, transparent);
+}
+/* กระดิ่ง: กระจกฝ้าเหมือนปุ่มวันที่ในหน้าบันทึก */
+.home-hero .notification-btn {
+    background-color: color-mix(in srgb, var(--surface) 90%, transparent);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+}
+
+/* ---------- ลิงก์แก้ไขข้อมูลร่างกาย: ชิปเดียวกับ .count-badge ของหน้าบันทึก แต่กดได้ ---------- */
+.section-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--accent-1);
+    background: var(--surface-alt);
+    padding: 4px 10px;
+    border-radius: var(--radius-pill);
+    text-decoration: none;
+    transition: transform 0.15s ease, background-color 0.2s ease;
+}
+.section-link .icon-inline { display: inline-flex; font-size: 14px; }
+.section-link:hover { background: color-mix(in srgb, var(--accent-1) 14%, var(--surface-alt)); }
+.section-link:active { transform: scale(0.96); }
+.section-link:focus-visible {
+    outline: 2px solid var(--accent-1);
+    outline-offset: 2px;
+}

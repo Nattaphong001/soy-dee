@@ -456,10 +456,10 @@ body.mobile-body {
 }
 
 .stat-icon {
-    width: 36px; height: 36px;
-    border-radius: 11px;
+    width: 30px; height: 30px;
+    border-radius: 9px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 21px;
+    font-size: 18px;
     flex-shrink: 0;
 }
 
@@ -500,31 +500,20 @@ body.mobile-body {
 /* =========================================
    5. Combined BMI & Energy Card (ซ้าย-ขวา)
    ========================================= */
+/* ตัวห่อการ์ด BMI + พลังงาน: แต่ละแผงเป็น .summary-card เต็มความกว้าง (record-ui.css) เรียงต่อกัน */
 .combined-dashboard-card {
-    background-color: var(--card-bg);
-    border: 1px solid var(--border-hairline);
-    border-radius: 20px;
     display: flex;
-    padding: 20px 0;
-    box-shadow: var(--shadow-soft);
+    flex-direction: column;
+    gap: 10px;
 }
+.combined-dashboard-card[hidden] { display: none; }
 
 .panel-left, .panel-right {
-    flex: 1;
-    width: 50%;
-    padding: 0 14px;
     display: flex;
     flex-direction: column;
 }
 
-.vertical-divider {
-    width: 1px;
-    background-color: var(--border-hairline);
-}
-
-.panel-header {
-    display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;
-}
+.combined-dashboard-card .panel-header { margin-bottom: 14px; }
 
 .header-title {
     display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600;
@@ -672,32 +661,51 @@ body.mobile-body {
 }
 
 /* -- Left Panel: BMI -- */
-.bmi-center-text { text-align: center; margin-bottom: 16px; }
-.bmi-label { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; font-weight: 500; }
+/* การ์ด BMI: ตัวเลขใหญ่ซ้าย + เกจขวา (แถวเดียวกัน) ใต้ลงมาเป็นคำอธิบายช่วงค่า 4 ระดับ */
+.panel-left {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 12px;
+    align-items: center;
+}
+.panel-left > .panel-header,
+.panel-left > .gauge-labels,
+.panel-left > .comparison-box { grid-column: 1 / -1; }
+
+.bmi-center-text { grid-column: 1; grid-row: 2; text-align: left; }
+.bmi-label { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
 /* สีต้องตาม eval_result จริง ไม่ตรึงเป็นเขียวเหมือนเดิม (JS เติมคลาส
    eval-thin/normal/over/obese ให้ตาม mbh_eval_result — ดู index.js) */
-.bmi-number { font-size: 34px; font-weight: 800; line-height: 1; margin-bottom: 6px; color: var(--text-main); }
-.bmi-status { font-size: 11px; font-weight: 600; color: var(--text-main); }
+.bmi-number { font-size: 40px; font-weight: 700; line-height: 1.05; margin-bottom: 6px; color: var(--text-main); }
+.bmi-status { font-size: 14px; font-weight: 700; color: var(--text-main); }
 .bmi-number.eval-thin,   .bmi-status.eval-thin   { color: var(--bmi-thin-text); }
 .bmi-number.eval-normal, .bmi-status.eval-normal { color: var(--bmi-normal-text); }
 .bmi-number.eval-over,   .bmi-status.eval-over   { color: var(--bmi-over-text); }
 .bmi-number.eval-obese,  .bmi-status.eval-obese  { color: var(--bmi-obese-text); }
 
-.gauge-wrapper { position: relative; width: 100%; height: 75px; display: flex; justify-content: center; }
-.gauge-svg { width: 130px; height: 75px; }
+/* เกจ 180×99 (สเกลจาก viewBox 200×110 ที่ 0.9 เท่า): จุดหมุนเข็มอยู่ที่ 90% ของความสูง = ห่างขอบล่าง 9px */
+.gauge-wrapper { grid-column: 2; grid-row: 2; position: relative; width: 180px; height: 99px; }
+.gauge-svg { display: block; width: 180px; height: 99px; }
 .gauge-needle-container {
-    position: absolute; bottom: 5px; left: 50%; width: 4px; height: 60px;
+    position: absolute; bottom: 7px; left: 50%; width: 4px; height: 84px;
     transform-origin: bottom center; transform: translateX(-50%) rotate(-45deg);
     transition: transform 1.5s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
-.needle-line { width: 3px; height: 50px; background-color: var(--text-main); border-radius: 3px; box-shadow: 0 0 4px rgba(0, 0, 0, 0.25); }
+.needle-line { width: 3px; height: 70px; background-color: var(--text-main); border-radius: 3px; box-shadow: 0 0 4px rgba(0, 0, 0, 0.25); }
 .needle-center {
     position: absolute; bottom: -3px; left: 50%; transform: translateX(-50%);
     width: 10px; height: 10px; background-color: var(--text-main); border-radius: 50%; border: 2px solid var(--card-bg);
 }
 
-.gauge-labels { display: flex; justify-content: space-between; text-align: center; margin: 10px 0; }
-.g-col { display: flex; flex-direction: column; font-size: 8px; color: var(--text-muted); gap: 2px; }
+.gauge-labels { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; text-align: center; margin: 16px 0 14px; }
+.g-col { --gc: var(--text-muted); display: flex; flex-direction: column; align-items: center; font-size: 10.5px; color: var(--text-muted); gap: 2px; }
+.g-col span:last-child { font-size: 12px; }
+/* แถบสีเล็กๆ เหนือแต่ละช่วง ให้จับคู่กับสีของเกจได้ทันที */
+.g-col::before { content: ''; width: 100%; max-width: 54px; height: 4px; margin-bottom: 4px; border-radius: var(--radius-pill); background: var(--gc); }
+.g-col:nth-child(1) { --gc: var(--bmi-thin); }
+.g-col:nth-child(2) { --gc: var(--bmi-normal); }
+.g-col:nth-child(3) { --gc: var(--bmi-over); }
+.g-col:nth-child(4) { --gc: var(--bmi-obese); }
 /* ป้ายกำกับเกจ BMI 4 ระดับ — ตั้งชื่อคลาสตามความหมาย BMI ไม่ใช่ชื่อสี
    (เดิมใช้ .c-yellow ให้ "ท้วม" ซึ่งพอย้ายสีจริงเป็นส้มแล้วชื่อคลาสจะผิดความหมาย) */
 .c-thin   { color: var(--bmi-thin-text); font-weight: 600;}
@@ -706,57 +714,69 @@ body.mobile-body {
 .c-obese  { color: var(--bmi-obese-text); font-weight: 600;}
 
 .comparison-box {
-    display: flex; align-items: center; gap: 6px; background-color: var(--card-inner);
-    padding: 9px 10px; border-radius: 10px; margin-top: auto;
+    display: flex; align-items: center; gap: 10px; background-color: var(--card-inner);
+    padding: 10px 12px; border-radius: 12px;
 }
-.comp-icon { font-size: 18px; color: var(--color-green); display: inline-flex; }
-.comp-label { font-size: 9px; color: var(--text-muted); }
-.comp-value { font-size: 10px; color: var(--color-green); font-weight: 600; margin-top: 2px;}
+.comparison-box[hidden] { display: none; }
+.comp-icon { font-size: 20px; color: var(--color-green); display: inline-flex; }
+.comp-label { font-size: 11px; color: var(--text-muted); }
+.comp-value { font-size: 13px; color: var(--color-green); font-weight: 700; margin-top: 2px;}
 
 /* -- Right Panel: Energy -- */
-.energy-block { margin-bottom: 14px; }
-.e-title { font-size: 12px; font-weight: 600; margin-bottom: 2px; color: var(--text-main); }
-.e-desc { font-size: 9px; color: var(--text-muted); margin-bottom: 4px; }
-.e-value { font-size: 20px; font-weight: 700; }
+/* BMR: ชื่อ+คำอธิบายซ้าย ตัวเลขใหญ่ขวา */
+.energy-block {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 12px;
+    align-items: center;
+    margin-bottom: 14px;
+}
+.e-title { grid-column: 1; font-size: 13px; font-weight: 700; margin-bottom: 2px; color: var(--text-main); }
+.e-desc { grid-column: 1; font-size: 11px; line-height: 1.5; color: var(--text-muted); }
+.e-value { grid-column: 2; grid-row: 1 / span 2; font-size: 32px; font-weight: 700; line-height: 1.1; }
 .c-purple { color: var(--color-purple); }
-.c-purple small { color: rgba(168, 85, 247, 0.7); font-size: 11px;}
+.c-purple small { color: rgba(168, 85, 247, 0.7); font-size: 13px; font-weight: 600; }
 
 /* TDEE + เป้าหมาย — การ์ดเดียว 2 แถว ไม่มีหลอด/เปอร์เซ็นต์การกินจริง
    (ระบบนี้ไม่เก็บแคลอรีที่บริโภครายวัน จึงแสดงเป็นค่าคงที่ล้วนๆ) */
 .tdee-target-card {
     background-color: var(--card-inner);
-    border-radius: 14px;
+    border-radius: 12px;
     padding: 12px 14px;
-    margin-top: auto;
     display: flex;
-    flex-direction: column;
-    gap: 10px;
+    flex-direction: row;
+    gap: 14px;
 }
 
+/* TDEE (ซ้าย) | เป้าหมาย (ขวา): ไอคอนอยู่บน ป้ายและตัวเลขเรียงลงมา */
 .tt-row {
+    flex: 1;
+    min-width: 0;
     display: flex;
-    align-items: center;
-    gap: 10px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
 }
 
 .tt-icon {
-    width: 32px; height: 32px;
+    width: 30px; height: 30px;
     border-radius: 9px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 19px;
+    font-size: 18px;
     flex-shrink: 0;
 }
 .tt-icon-blue { background-color: rgba(59, 130, 246, 0.12); color: var(--color-blue); }
 .tt-icon-orange { background-color: rgba(249, 115, 22, 0.12); color: var(--color-orange); }
 
 .tt-info { display: flex; flex-direction: column; gap: 1px; }
-.tt-label { font-size: 10px; color: var(--text-muted); font-weight: 500; }
-.tt-value { font-size: 17px; font-weight: 700; color: var(--color-blue); }
-.tt-value small { font-size: 10px; font-weight: 500; opacity: 0.75; }
+.tt-label { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+.tt-value { font-size: 20px; font-weight: 700; color: var(--color-blue); }
+.tt-value small { font-size: 11px; font-weight: 500; opacity: 0.75; }
 .tt-value-target { color: var(--color-orange); }
 
 .tt-divider {
-    height: 1px;
+    width: 1px;
+    align-self: stretch;
     background-color: var(--border-hairline);
 }
 

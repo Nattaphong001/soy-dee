@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 340" preserveAspectRatio="xMidYMid slice">
+<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#0b2f66"/>
+    <stop offset="0.5" stop-color="#0e7490"/>
+    <stop offset="1" stop-color="#2dd4bf"/>
+  </linearGradient>
+  <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0" stop-color="#fef9c3" stop-opacity="0.5"/>
+    <stop offset="1" stop-color="#fef9c3" stop-opacity="0"/>
+  </radialGradient>
+</defs>
+<rect width="800" height="340" fill="url(#sky)"/>
+<circle cx="615" cy="215" r="210" fill="url(#glow)"/>
+<!-- เมฆบาง -->
+<g fill="#fff">
+  <ellipse cx="120" cy="52" rx="90" ry="12" opacity="0.07"/>
+  <ellipse cx="430" cy="34" rx="70" ry="9" opacity="0.06"/>
+  <ellipse cx="700" cy="40" rx="80" ry="10" opacity="0.07"/>
+</g>
+<!-- ประกาย -->
+<g fill="#fff">
+  <path d="M330 20L331.4 24.6L336 26L331.4 27.4L330 32L328.6 27.4L324 26L328.6 24.6Z" opacity="0.8"/>
+  <path d="M520 62L521.1 65.9L525 67L521.1 68.1L520 72L518.9 68.1L515 67L518.9 65.9Z" opacity="0.7"/>
+  <path d="M60 30L61 33L64 34L61 35L60 38L59 35L56 34L59 33Z" opacity="0.7"/>
+  <circle cx="230" cy="24" r="1.5" opacity="0.6"/>
+  <circle cx="620" cy="30" r="1.5" opacity="0.6"/>
+</g>
+
+<!-- เนินสองชั้นหลัง -->
+<path d="M0 262 C120 236 240 268 380 256 C500 246 600 262 800 244 L800 340 L0 340Z" fill="#14a89a" opacity="0.55"/>
+<path d="M0 292 C140 272 280 300 420 290 C560 280 680 270 800 286 L800 340 L0 340Z" fill="#0f8a7a"/>
+
+<!-- รอยเท้ากิ้งก่า เดินไปหาไอคอนสามหมวด -->
+<g fill="#fff" opacity="0.4">
+  <ellipse cx="120" cy="305" rx="6" ry="3.6" transform="rotate(-10 120 305)"/>
+  <ellipse cx="170" cy="299" rx="6" ry="3.6" transform="rotate(-10 170 299)"/>
+  <ellipse cx="222" cy="307" rx="6" ry="3.6" transform="rotate(-6 222 307)"/>
+  <ellipse cx="274" cy="301" rx="6" ry="3.6" transform="rotate(-6 274 301)"/>
+  <ellipse cx="326" cy="308" rx="6" ry="3.6"/>
+  <ellipse cx="380" cy="302" rx="6" ry="3.6"/>
+  <ellipse cx="434" cy="309" rx="6" ry="3.6"/>
+  <ellipse cx="488" cy="303" rx="6" ry="3.6"/>
+</g>
+
+<!-- ไอคอนสามหมวดที่แอปติดตาม: อาหาร / กิจกรรม / การนอน -->
+<g fill="#fff" fill-opacity="0.16" stroke="#fff" stroke-opacity="0.5" stroke-width="1.6">
+  <circle cx="300" cy="246" r="27"/>
+  <circle cx="396" cy="226" r="27"/>
+  <circle cx="492" cy="246" r="27"/>
+</g>
+<!-- อาหาร: แอปเปิล -->
+<g transform="translate(300 247)">
+  <path d="M0 -8 C-6 -12 -15 -7 -14 3 C-13 12 -6 16 0 13 C6 16 13 12 14 3 C15 -7 6 -12 0 -8Z" fill="#fb7185"/>
+  <path d="M1 -8 C1 -14 5 -18 10 -18 C10 -12 6 -8 1 -8Z" fill="#86efac"/>
+</g>
+<!-- กิจกรรม: ดัมเบล -->
+<g transform="translate(396 226)" fill="#fde047">
+  <rect x="-9" y="-2.5" width="18" height="5" rx="2"/>
+  <rect x="-15" y="-9" width="6" height="18" rx="2.5"/>
+  <rect x="9" y="-9" width="6" height="18" rx="2.5"/>
+  <rect x="-20" y="-5" width="4.5" height="10" rx="2"/>
+  <rect x="15.5" y="-5" width="4.5" height="10" rx="2"/>
+</g>
+<!-- การนอน: พระจันทร์เสี้ยว + ดาว -->
+<g transform="translate(492 246)">
+  <path d="M5 -14 A14.87 14.87 0 1 0 14 5 A11 11 0 0 1 5 -14Z" fill="#c4b5fd"/>
+  <path d="M11 -12L12 -9L15 -8L12 -7L11 -4L10 -7L7 -8L10 -9Z" fill="#fff"/>
+</g>
+
+<!-- กิ้งก่า mascot: ยืนโบกมือบนเนิน หันไปทางไอคอน -->
+<g transform="translate(560 138)">
+  <path d="M66 122 C96 130 106 146 92 156 C86 160 78 156 82 150" fill="none" stroke="#6FBF5B" stroke-width="11" stroke-linecap="round"/>
+  <line x1="60" y1="124" x2="64" y2="150" stroke="#55A344" stroke-width="11" stroke-linecap="round"/>
+  <ellipse cx="62" cy="156" rx="11" ry="5" fill="#55A344"/>
+  <line x1="72" y1="88" x2="84" y2="108" stroke="#55A344" stroke-width="9" stroke-linecap="round"/>
+  <ellipse cx="56" cy="92" rx="26" ry="38" fill="#6FBF5B"/>
+  <ellipse cx="48" cy="96" rx="14" ry="30" fill="#B7E0A4"/>
+  <g fill="#55A344" opacity="0.45">
+    <circle cx="66" cy="78" r="4"/><circle cx="70" cy="96" r="3.5"/><circle cx="64" cy="112" r="3"/>
+  </g>
+  <line x1="46" y1="124" x2="44" y2="150" stroke="#6FBF5B" stroke-width="11" stroke-linecap="round"/>
+  <ellipse cx="40" cy="156" rx="11" ry="5" fill="#6FBF5B"/>
+  <line x1="40" y1="86" x2="22" y2="66" stroke="#6FBF5B" stroke-width="9" stroke-linecap="round"/>
+  <circle cx="20" cy="63" r="6" fill="#6FBF5B"/>
+  <ellipse cx="54" cy="48" rx="30" ry="23" fill="#6FBF5B"/>
+  <ellipse cx="30" cy="54" rx="18" ry="14" fill="#6FBF5B"/>
+  <circle cx="66" cy="28" r="12" fill="#6FBF5B"/>
+  <circle cx="46" cy="26" r="13" fill="#6FBF5B"/>
+  <circle cx="66" cy="28" r="9" fill="#fff"/>
+  <circle cx="46" cy="26" r="10" fill="#fff"/>
+  <circle cx="63" cy="29" r="4.5" fill="#1e293b"/>
+  <circle cx="43" cy="27" r="5" fill="#1e293b"/>
+  <circle cx="61.5" cy="27.5" r="1.6" fill="#fff"/>
+  <circle cx="41.5" cy="25.5" r="1.8" fill="#fff"/>
+  <circle cx="16" cy="50" r="1.8" fill="#3f8a30"/>
+  <ellipse cx="44" cy="61" rx="5" ry="3" fill="#f9a8b8" opacity="0.6"/>
+  <path d="M30 62 Q42 70 52 60" fill="none" stroke="#2f6f25" stroke-width="2.4" stroke-linecap="round"/>
+</g>
+
+<!-- เนินหน้าสุด -->
+<path d="M0 322 C150 308 300 326 460 318 C620 310 720 314 800 320 L800 340 L0 340Z" fill="#0b6b62"/>
+</svg>

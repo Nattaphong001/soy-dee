@@ -6,6 +6,9 @@
     <title>soy dee - Health Dashboard</title>
     <link rel="stylesheet" href="/assets/css/shared/style.css">
     <link rel="stylesheet" href="/assets/css/shared/nav.css">
+    <!-- record-ui.css: hero / .summary-card ใช้ร่วมกับหน้าอาหาร กิจกรรม และการนอน -->
+    <link rel="stylesheet" href="/assets/css/shared/record-ui.css">
+    <link rel="stylesheet" href="/assets/css/pages/index.css">
     <!-- ลบลิงก์ Noto Sans Thai เดิมออก แล้วใส่ Prompt เข้าไปแทน -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!--
@@ -41,10 +44,10 @@
     <div class="mobile-app">
 
         <!-- ==========================================================
-             TOP SECTION — โซนหัวหน้าจอ (ทักทาย + โปรไฟล์ + วันที่)
+             TOP SECTION — โซนหัวหน้าจอ (โปรไฟล์ + ชื่อ + กระดิ่ง)
              แยกจากส่วน body ด้วยพื้นผิว/เงาของตัวเอง ให้ดูเป็นคนละชั้น
              ========================================================== -->
-        <div class="top-section">
+        <div class="top-section record-hero home-hero">
             <!-- คำทักทายอบอุ่น (อยู่บนสุดกลางจอ)
             <div class="top-greeting">
                 สวัสดี! ดูแลสุขภาพกันนะ 💪
@@ -67,25 +70,25 @@
                     </a>
                     <div class="user-info">
                         <h1 class="user-name">ผู้ใช้ใหม่</h1>
+                        <p class="hero-sub" data-i18n="page-subtitle">ภาพรวมสุขภาพของคุณวันนี้</p>
                     </div>
                 </div>
                 <button class="notification-btn" aria-label="Notifications">
                     <i data-icon="bell"></i>
                 </button>
             </header>
-
-            <!-- Date Picker แบบ Dropdown (Pill Shape) ชิดขวา + ปุ่มแก้ไขข้อมูลร่างกายชิดซ้าย -->
-            <div class="date-picker-wrapper">
-                <a href="profile.html?tab=body" class="edit-profile-btn" aria-label="แก้ไขข้อมูลร่างกาย">
-                    <span class="icon-inline">
-                        <i data-icon="edit"></i>
-                    </span>
-                    <span data-i18n="edit-profile-btn">แก้ไขข้อมูล</span>
-                </a>
-            </div>
         </div>
 
         <main class="app-content">
+
+            <!-- หัวข้อ + ลิงก์แก้ไขข้อมูลร่างกาย (ทางเดียวจากหน้าหลักไปแท็บ body ของโปรไฟล์) -->
+            <div class="section-heading-row">
+                <h2 class="section-heading" data-i18n="section-heading-body">ข้อมูลร่างกาย</h2>
+                <a href="profile.html?tab=body" class="section-link" aria-label="แก้ไขข้อมูลร่างกาย">
+                    <span class="icon-inline"><i data-icon="edit"></i></span>
+                    <span data-i18n="edit-profile-btn">แก้ไขข้อมูล</span>
+                </a>
+            </div>
 
             <!-- ==========================================================
                  1. การ์ดข้อมูลร่างกาย 2x2 + เวทีของมาสคอต "กิ้งก่า"
@@ -190,7 +193,7 @@
             <section class="combined-dashboard-card">
                 
                 <!-- ด้านซ้าย: ดัชนีมวลกาย (BMI) -->
-                <div class="panel-left">
+                <div class="panel-left summary-card">
                     <div class="panel-header">
                         <div class="header-title">
                             <span class="icon-box green-box">
@@ -199,7 +202,7 @@
                         </div>
                         <div class="info-tooltip-wrap">
                             <button type="button" class="info-icon" aria-expanded="false" aria-controls="bmiInfoPopover" aria-label="ข้อมูลเพิ่มเติมเกี่ยวกับ BMI"><i data-icon="info"></i></button>
-                            <div class="info-popover info-popover--right" id="bmiInfoPopover" role="tooltip">
+                            <div class="info-popover" id="bmiInfoPopover" role="tooltip">
                                 <strong data-i18n="bmi-tooltip-title">BMI (ดัชนีมวลกาย)</strong> <span data-i18n="bmi-tooltip-desc">คำนวณจากน้ำหนัก (กก.) หารด้วยส่วนสูง² (เมตร) ใช้ประเมินสัดส่วนร่างกายเบื้องต้นเท่านั้น ไม่สามารถใช้แทนคำวินิจฉัยทางการแพทย์ได้ ควรปรึกษาแพทย์หรือนักโภชนาการเพื่อการประเมินที่แม่นยำ</span>
                             </div>
                         </div>
@@ -237,10 +240,8 @@
                     </div>
                 </div>
 
-                <div class="vertical-divider"></div>
-
                 <!-- ด้านขวา: พลังงาน -->
-                <div class="panel-right">
+                <div class="panel-right summary-card">
                     <div class="panel-header">
                         <div class="header-title">
                             <span class="icon-box purple-box">
@@ -249,7 +250,7 @@
                         </div>
                         <div class="info-tooltip-wrap">
                             <button type="button" class="info-icon" aria-expanded="false" aria-controls="energyInfoPopover" aria-label="ข้อมูลเพิ่มเติมเกี่ยวกับพลังงาน"><i data-icon="info"></i></button>
-                            <div class="info-popover info-popover--left" id="energyInfoPopover" role="tooltip">
+                            <div class="info-popover" id="energyInfoPopover" role="tooltip">
                                 <strong>BMR</strong> <span data-i18n="energy-tooltip-mid">คือพลังงานขั้นต่ำที่ร่างกายใช้ขณะพักนิ่ง ส่วน</span> <strong>TDEE</strong> <span data-i18n="energy-tooltip-end">คือพลังงานรวมที่ใช้ทั้งวันเมื่อรวมกิจกรรมต่างๆ เข้าไปด้วย ตัวเลขเหล่านี้เป็นการประมาณจากสูตรมาตรฐาน อาจคลาดเคลื่อนจากการเผาผลาญจริงของแต่ละบุคคลได้</span>
                             </div>
                         </div>
@@ -307,7 +308,7 @@
                 <li><a href="food-record.html" class="nav-icon-item" data-target="food"><i data-icon="food"></i></a></li>
                 <li><a href="activity-record.html" class="nav-icon-item" data-target="activity"><i data-icon="activity"></i></a></li>
                 <li><a href="sleep-record.html" class="nav-icon-item" data-target="sleep"><i data-icon="sleep"></i></a></li>
-                <li><a class="nav-icon-item is-disabled" data-target="report" aria-disabled="true" aria-label="รายงาน (เร็วๆ นี้)"><i data-icon="report"></i></a></li>
+                <li><a href="report.html" class="nav-icon-item" data-target="report"><i data-icon="report"></i></a></li>
             </ul>
         </nav>
     </div>

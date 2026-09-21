@@ -11,6 +11,8 @@
  */
 const INDEX_I18N = {
     th: {
+        'page-subtitle': 'ภาพรวมสุขภาพของคุณวันนี้',
+        'section-heading-body': 'ข้อมูลร่างกาย',
         'edit-profile-btn': 'แก้ไขข้อมูล',
         'stat-label-gender': 'เพศ',
         'stat-label-age': 'อายุ',
@@ -38,6 +40,8 @@ const INDEX_I18N = {
         'dashboard-empty-cta': 'ไปกรอกข้อมูลร่างกาย'
     },
     en: {
+        'page-subtitle': 'Your health overview today',
+        'section-heading-body': 'Body Info',
         'edit-profile-btn': 'Edit Info',
         'stat-label-gender': 'Gender',
         'stat-label-age': 'Age',

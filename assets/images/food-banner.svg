@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 340" preserveAspectRatio="xMidYMid slice">
+<defs>
+  <linearGradient id="table" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#12291b"/>
+    <stop offset="0.6" stop-color="#1f4a2b"/>
+    <stop offset="1" stop-color="#2c6237"/>
+  </linearGradient>
+  <radialGradient id="light" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0" stop-color="#ffe9a8" stop-opacity="0.32"/>
+    <stop offset="1" stop-color="#ffe9a8" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="shade" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0.7" stop-color="#04120a" stop-opacity="0.42"/>
+    <stop offset="1" stop-color="#04120a" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="plate" cx="0.42" cy="0.38" r="0.7">
+    <stop offset="0" stop-color="#ffffff"/>
+    <stop offset="1" stop-color="#eadfc6"/>
+  </radialGradient>
+  <linearGradient id="steel" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#f4f7f8"/>
+    <stop offset="1" stop-color="#b7c2c7"/>
+  </linearGradient>
+  <g id="leaf">
+    <path d="M0 0C10-15 32-15 44 0C32 15 10 15 0 0Z"/>
+    <path d="M2 0H40" stroke="#0f2a17" stroke-opacity="0.35" stroke-width="1.4" fill="none"/>
+  </g>
+</defs>
+<rect width="800" height="340" fill="url(#table)"/>
+<circle cx="665" cy="120" r="290" fill="url(#light)"/>
+
+<g fill="#fff" opacity="0.16">
+  <circle cx="80" cy="60" r="2"/><circle cx="210" cy="292" r="2.2"/><circle cx="330" cy="46" r="1.8"/>
+  <circle cx="392" cy="250" r="2"/><circle cx="150" cy="190" r="1.6"/><circle cx="452" cy="88" r="2"/>
+  <circle cx="30" cy="270" r="1.8"/><circle cx="286" cy="150" r="1.6"/>
+</g>
+
+<g fill="#4fa04b">
+  <use href="#leaf" transform="translate(14 96) rotate(-38) scale(1.15)" opacity="0.55"/>
+  <use href="#leaf" transform="translate(58 128) rotate(24) scale(0.9)" opacity="0.4"/>
+  <use href="#leaf" transform="translate(300 300) rotate(-152) scale(1.2)" opacity="0.5"/>
+  <use href="#leaf" transform="translate(360 330) rotate(-24) scale(0.95)" opacity="0.4"/>
+  <use href="#leaf" transform="translate(780 40) rotate(150) scale(1.1)" opacity="0.5"/>
+</g>
+
+<g id="fork" transform="translate(300 292) rotate(74) translate(-487 -186)">
+  <rect x="487" y="150" width="10" height="130" rx="5" fill="url(#steel)"/>
+  <path d="M478 92H506V132Q506 152 492 152Q478 152 478 132Z" fill="url(#steel)"/>
+  <path d="M485 92V126M492 92V132M499 92V126" stroke="#12291b" stroke-opacity="0.32" stroke-width="2.6" stroke-linecap="round"/>
+</g>
+
+<g transform="translate(665 114) scale(0.82) translate(-620 -158)">
+<circle cx="628" cy="184" r="132" fill="url(#shade)"/>
+<circle cx="620" cy="158" r="112" fill="url(#plate)"/>
+<circle cx="620" cy="158" r="112" fill="none" stroke="#d6c9a8" stroke-width="2"/>
+<circle cx="620" cy="158" r="88" fill="none" stroke="#dcd0b3" stroke-width="2"/>
+
+<g>
+  <circle cx="582" cy="140" r="23" fill="#4ea64a"/>
+  <circle cx="598" cy="122" r="19" fill="#69bf5a"/>
+  <circle cx="570" cy="166" r="21" fill="#3f9142"/>
+  <circle cx="592" cy="182" r="19" fill="#5cb554"/>
+  <circle cx="558" cy="146" r="15" fill="#7dd06a"/>
+  <circle cx="612" cy="146" r="13" fill="#b9e3a1" stroke="#3f9142" stroke-width="3"/>
+  <circle cx="612" cy="146" r="6" fill="none" stroke="#3f9142" stroke-width="1.6" stroke-opacity="0.6"/>
+  <circle cx="586" cy="160" r="12" fill="#b9e3a1" stroke="#3f9142" stroke-width="3"/>
+  <circle cx="586" cy="160" r="5.5" fill="none" stroke="#3f9142" stroke-width="1.6" stroke-opacity="0.6"/>
+</g>
+
+<g>
+  <path d="M622 110C640 96 672 100 684 120C696 140 680 152 660 150C648 160 626 152 626 136C614 132 612 118 622 110Z" fill="#fffdf6"/>
+  <path d="M622 110C640 96 672 100 684 120C696 140 680 152 660 150C648 160 626 152 626 136C614 132 612 118 622 110Z" fill="none" stroke="#e6dcc0" stroke-width="1.5"/>
+  <circle cx="655" cy="126" r="16" fill="#fbbf24"/>
+  <circle cx="650" cy="121" r="5" fill="#fde68a"/>
+</g>
+
+<g>
+  <circle cx="650" cy="188" r="22" fill="#e23c3c"/>
+  <circle cx="650" cy="188" r="16.5" fill="#f87171"/>
+  <path d="M650 188V173M650 188L663 195M650 188L637 195" stroke="#fecaca" stroke-width="2.4" stroke-linecap="round"/>
+  <circle cx="622" cy="204" r="17" fill="#e23c3c"/>
+  <circle cx="622" cy="204" r="12.5" fill="#f87171"/>
+  <path d="M622 204V193M622 204L632 209M622 204L612 209" stroke="#fecaca" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="676" cy="176" r="8" fill="#e23c3c"/>
+  <circle cx="676" cy="176" r="5.5" fill="#f87171"/>
+</g>
+
+<use href="#leaf" fill="#3f9142" transform="translate(624 172) rotate(-58) scale(0.62)"/>
+<use href="#leaf" fill="#69bf5a" transform="translate(628 122) rotate(-118) scale(0.5)"/>
+
+</g>
+
+<g transform="translate(424 290)">
+  <circle r="30" fill="#fcd34d"/>
+  <circle r="25" fill="#fde68a"/>
+  <path d="M0 0V-24M0 0L21 -12M0 0L21 12M0 0V24M0 0L-21 12M0 0L-21 -12" stroke="#fcd34d" stroke-width="2.4" stroke-linecap="round"/>
+</g>
+<g transform="translate(356 308)">
+  <circle r="21" fill="#65a30d"/>
+  <circle r="17" fill="#bef264"/>
+  <path d="M0 0V-16M0 0L14 -8M0 0L14 8M0 0V16M0 0L-14 8M0 0L-14 -8" stroke="#65a30d" stroke-width="2" stroke-linecap="round"/>
+</g>
+</svg>

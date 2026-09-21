@@ -1,0 +1,613 @@
+/* ==============================================================================
+   RECORD UI — คอมโพเนนต์กลางของหน้าบันทึก (อาหาร / กิจกรรม / ต่อไปคือการนอน)
+   ใช้ token จาก style.css; โหลดก่อนไฟล์ของแต่ละหน้าเสมอ (หน้านั้นตั้งค่าเฉพาะตัวเอง
+   เช่น รูปพื้นหลัง hero และสี --lc ของแต่ละรายการ)
+   มี: hero หัวหน้า, การ์ดสรุป, รายการบันทึก (.log-item), ปุ่ม FAB,
+   modal ดูรายละเอียด (.detail-card) และ bottom sheet ฟอร์ม (.sheet-card)
+   ============================================================================== */
+
+/* ---------- 0. หัวหน้า hero: รูปพื้นหลังตั้งโดยหน้านั้นๆ (background-image) ----------
+   ไล่เงาเข้มทับให้ตัวอักษรสีขาวอ่านชัดทั้งโหมดสว่าง/มืด */
+.record-hero {
+    background-color: #26331f;
+    background-position: center 36%;
+    background-size: cover;
+    background-repeat: no-repeat;
+    border-bottom: none;
+    overflow: hidden;
+    isolation: isolate;
+    margin-bottom: 14px;
+}
+.record-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: linear-gradient(180deg, rgba(12, 20, 14, 0.30) 0%, rgba(12, 20, 14, 0.58) 60%, rgba(12, 20, 14, 0.74) 100%);
+}
+.dark-theme .record-hero::before {
+    background: linear-gradient(180deg, rgba(6, 10, 8, 0.48) 0%, rgba(6, 10, 8, 0.72) 60%, rgba(6, 10, 8, 0.86) 100%);
+}
+.record-hero > * {
+    position: relative;
+    z-index: 1;
+}
+.record-hero .app-header {
+    padding: 30px 20px 12px;
+}
+.record-hero .page-title {
+    font-size: 26px;
+    line-height: 1.25;
+    color: #FFFFFF;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.4);
+}
+.hero-sub {
+    margin-top: 4px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.88);
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
+}
+.record-hero .date-picker-wrapper {
+    padding: 6px 20px 18px;
+}
+/* ปุ่มวันนี้/ชิปวันที่: กระจกฝ้าให้ลอยเด่นบนภาพ */
+.record-hero .date-picker-pill,
+.record-hero .today-btn {
+    background-color: color-mix(in srgb, var(--surface) 90%, transparent);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-color: transparent;
+}
+.record-hero .date-picker-pill { margin-left: auto; }
+.today-btn[hidden] { display: none; }
+.cat-pill[hidden] { display: none; }
+
+/* ---------- 1. การ์ดสรุปสัดส่วนสีโภชนาการ ---------- */
+.summary-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-card);
+    padding: 16px;
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.header-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.icon-box {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+.green-box  { background-color: rgba(16, 185, 129, 0.12); color: var(--color-green); }
+.yellow-box { background-color: rgba(245, 158, 11, 0.12); color: var(--color-yellow); }
+.red-box    { background-color: rgba(239, 68, 68, 0.12); color: var(--color-red); }
+.blue-box   { background-color: rgba(59, 130, 246, 0.12); color: var(--color-blue); }
+.purple-box { background-color: rgba(168, 85, 247, 0.12); color: var(--color-purple); }
+
+.summary-total {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* แถบสัดส่วนไฟจราจร — จุดเด่นของหน้า: กว้างตามจำนวนรายการแต่ละสี */
+.summary-bar {
+    display: flex;
+    gap: 3px;
+    height: 10px;
+    margin-top: 14px;
+    border-radius: var(--radius-pill);
+    overflow: hidden;
+    background: var(--card-inner);
+}
+.bar-seg {
+    flex: 0 1 0;
+    min-width: 0;
+    height: 100%;
+    border-radius: var(--radius-pill);
+}
+.bar-seg[hidden] { display: none; }
+
+.summary-insight {
+    margin: 12px 2px 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--text-muted);
+}
+.summary-insight[hidden] { display: none; }
+
+/* ชิปสถิติใต้การ์ดสรุป (กิจกรรม / การนอน) */
+.summary-stats {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+.stat-chip {
+    flex: 1;
+    min-width: 0;
+    background: var(--card-inner);
+    border-radius: 12px;
+    padding: 10px 8px;
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 2px 6px;
+    text-align: center;
+}
+.stat-chip[hidden] { display: none; }
+.stat-chip-value {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--text-main);
+}
+.stat-chip-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+@media (max-width: 340px) {
+    .stat-chip { padding: 9px 4px; }
+}
+
+/* ---------- จุดสีประเภทอาหาร (ใช้ใน .cat-pill) ---------- */
+.badge-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* ---------- บันทึกของวันนี้ (หัวข้อ/badge ใช้ร่วมกันหน้าอาหารและหน้ากิจกรรม) ---------- */
+.log-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.section-heading-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 4px;
+}
+
+.section-heading {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.count-badge {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--accent-1);
+    background: var(--surface-alt);
+    padding: 4px 10px;
+    border-radius: var(--radius-pill);
+}
+
+.log-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* กลุ่มรายการต่อมื้อ */
+.log-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.log-group-head {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 4px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+.log-group-head [data-icon] { display: inline-flex; font-size: 16px; }
+
+/* การ์ดรายการ: รูปอาหารนำหน้า + แถบสีไฟจราจรด้านซ้าย (--lc) — กดทั้งใบเพื่อดูรายละเอียด */
+.log-item {
+    --lc: var(--text-muted);
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: 10px 14px 10px 16px;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+.log-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 14px;
+    bottom: 14px;
+    width: 4px;
+    border-radius: 0 4px 4px 0;
+    background: var(--lc);
+}
+.log-item:hover { box-shadow: var(--shadow-soft); }
+.log-item:active { transform: scale(0.985); }
+.log-item:focus-visible {
+    outline: 2px solid var(--accent-1);
+    outline-offset: 2px;
+}
+
+
+/* รูปอาหาร: ไอคอนอยู่ข้างหลังเป็น placeholder, <img> ทับด้วย object-fit: cover */
+.log-thumb {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: color-mix(in srgb, var(--lc) 14%, var(--card-inner));
+    color: var(--lc);
+    font-size: 26px;
+}
+.log-thumb [data-icon] { display: inline-flex; }
+.log-thumb img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.log-item-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+}
+.log-item-name {
+    max-width: 100%;
+    font-size: 14.5px;
+    font-weight: 700;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.log-item-meta {
+    max-width: 100%;
+    font-size: 12px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.log-item-meta .numeric {
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.cat-pill {
+    max-width: 100%;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 2px;
+    padding: 2px 9px 2px 8px;
+    border-radius: var(--radius-pill);
+    background: color-mix(in srgb, var(--lc) 13%, transparent);
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.log-item-chevron {
+    width: 8px;
+    height: 8px;
+    flex-shrink: 0;
+    margin-right: 2px;
+    border-top: 2px solid var(--text-muted);
+    border-right: 2px solid var(--text-muted);
+    transform: rotate(45deg);
+    opacity: 0.5;
+}
+
+/* ---------- ปุ่มลอย (FAB) เพิ่มรายการ: กึ่งกลางจอ เหนือ bottom nav ---------- */
+.fab-spacer {
+    height: 72px;
+}
+
+.fab-wrapper {
+    position: fixed;
+    bottom: 92px;
+    left: 50%;
+    width: 100%;
+    max-width: 414px;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 90;
+}
+
+.fab-add-btn {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: var(--accent-grad);
+    color: #FFFFFF;
+    border: none;
+    font-size: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* วงแหวนสีพื้นหลังหน้า ทำให้ปุ่มดูแยกตัวออกจากการ์ดที่เลื่อนผ่านข้างหลัง */
+    box-shadow: 0 0 0 6px var(--bg-page), 0 12px 26px rgba(79, 99, 232, 0.34);
+    cursor: pointer;
+    pointer-events: auto;
+    transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+.fab-add-btn [data-icon] { display: inline-flex; }
+.fab-add-btn:hover {
+    box-shadow: 0 0 0 6px var(--bg-page), 0 16px 34px rgba(79, 99, 232, 0.44);
+}
+.fab-add-btn:active {
+    transform: scale(0.93);
+}
+.fab-add-btn:focus-visible {
+    outline: 2px solid var(--accent-1);
+    outline-offset: 8px;
+}
+
+/* ---------- Modal: ดูรายละเอียดรายการอาหาร ---------- */
+.detail-card {
+    --lc: var(--text-muted);
+    width: 100%;
+    max-width: 360px;
+    max-height: 92vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--card-bg);
+    border-radius: 22px;
+    box-shadow: var(--shadow-soft);
+    transform: translateY(10px) scale(0.97);
+    transition: transform 0.2s ease;
+}
+.modal-overlay.is-open .detail-card {
+    transform: translateY(0) scale(1);
+}
+
+.detail-photo {
+    position: relative;
+    height: 208px;
+    flex-shrink: 0;
+}
+.detail-photo-media {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--lc) 16%, var(--card-inner));
+    color: var(--lc);
+    font-size: 68px;
+}
+.detail-photo-media [data-icon] { display: inline-flex; }
+/* แบบเตี้ย: ไอคอนใหญ่แทนรูปถ่าย (กิจกรรม / การนอน) */
+.detail-photo.is-compact { height: 136px; }
+.detail-photo.is-compact .detail-photo-media { font-size: 62px; }
+.detail-photo-media img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.detail-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(15, 18, 26, 0.55);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    color: #FFFFFF;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.detail-close [data-icon] { display: inline-flex; }
+
+.detail-body {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 16px 20px 4px;
+    overflow-y: auto;
+}
+.detail-body .cat-pill {
+    margin-top: 0;
+    font-size: 12px;
+    padding: 3px 11px 3px 9px;
+}
+.detail-name {
+    font-size: 21px;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--text-main);
+    overflow-wrap: anywhere;
+}
+.detail-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 6px;
+}
+.detail-tile {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+    padding: 10px 12px;
+    background: var(--card-inner);
+    border-radius: 12px;
+}
+.detail-tile.is-wide { grid-column: 1 / -1; }
+.detail-tile[hidden] { display: none; }
+.detail-tile-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+.detail-tile-value {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-main);
+    overflow-wrap: anywhere;
+}
+.detail-tile-value [data-icon] {
+    display: inline-flex;
+    font-size: 16px;
+    color: var(--accent-1);
+}
+
+.detail-actions {
+    display: flex;
+    gap: 10px;
+    padding: 14px 20px 20px;
+}
+.detail-edit-btn,
+.detail-delete-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 13px 16px;
+    border-radius: var(--radius-lg);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+.detail-edit-btn [data-icon],
+.detail-delete-btn [data-icon] { display: inline-flex; font-size: 17px; }
+.detail-edit-btn {
+    flex: 1;
+    border: none;
+    background: var(--accent-grad);
+    color: #FFFFFF;
+    box-shadow: var(--shadow-card);
+}
+.detail-delete-btn {
+    flex: 0 0 auto;
+    background: transparent;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    color: var(--color-red);
+}
+.detail-delete-btn:hover { background: rgba(239, 68, 68, 0.1); }
+.detail-edit-btn:active,
+.detail-delete-btn:active { transform: scale(0.97); }
+
+/* ---------- Modal sheet: เพิ่ม/แก้ไขรายการอาหาร (ใช้ .modal-overlay กลางจาก style.css) ----------
+   หัวเรื่อง + ปุ่มล่างตรึงอยู่กับที่ ส่วนกลาง (.sheet-body) เลื่อนได้ในจอเตี้ย */
+.sheet-card {
+    width: 100%;
+    max-width: 360px;
+    max-height: 92vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--card-bg);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-soft);
+    transform: translateY(10px) scale(0.97);
+    transition: transform 0.2s ease;
+}
+.modal-overlay.is-open .sheet-card {
+    transform: translateY(0) scale(1);
+}
+.sheet-card .sheet-title {
+    margin: 0;
+    padding: 18px 20px 12px;
+}
+.sheet-body {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 2px 20px 14px;
+    overflow-y: auto;
+}
+
+.sheet-actions-row {
+    flex-direction: row;
+    gap: 10px;
+    margin-top: 0;
+    padding: 12px 20px 18px;
+    border-top: 1px solid var(--border-hairline);
+}
+.sheet-actions-row .save-btn {
+    flex: 1;
+    width: auto;
+    margin: 0;
+}
+.sheet-cancel-btn {
+    flex: 0 0 auto;
+    padding: 0 20px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-hairline);
+    background: var(--surface-alt);
+    color: var(--text-muted);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}

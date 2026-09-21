@@ -334,7 +334,7 @@ function renderLogItemHtml(record) {
 
     return `
         <div class="log-item ${cat ? 'light-' + cat.fd_traffic_light : ''}" data-id="${record.dfd_id}" data-open-id="${record.dfd_id}" role="button" tabindex="0" aria-label="${label}">
-            <span class="food-thumb">${foodPhotoHtml(record)}</span>
+            <span class="log-thumb">${foodPhotoHtml(record)}</span>
             <div class="log-item-info">
                 <span class="log-item-name">${escapeHtml(record.dfd_food_name)}</span>
                 <span class="log-item-meta"><span class="numeric">${record.dfd_time.slice(0, 5)}</span>${record.dfd_amount ? ` · ${escapeHtml(record.dfd_amount)}` : ''}</span>
@@ -364,7 +364,7 @@ function openDetail(id, opener) {
     const meal = mealById(rec.dfd_meal_type);
     const light = cat ? cat.fd_traffic_light : 0;
 
-    document.getElementById('foodDetailCard').className = 'food-detail-card' + (light ? ' light-' + light : '');
+    document.getElementById('foodDetailCard').className = 'detail-card' + (light ? ' light-' + light : '');
     document.getElementById('detailPhotoMedia').innerHTML = foodPhotoHtml(rec);
     document.getElementById('detailName').textContent = rec.dfd_food_name;
     document.getElementById('detailCat').innerHTML =
@@ -654,7 +654,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // รูปที่โหลดไม่ได้ (ไฟล์หาย/เน็ตหลุด) → เอา <img> ทิ้ง ให้ไอคอนที่อยู่ข้างหลังโผล่แทน
     document.addEventListener('error', (e) => {
         const t = e.target;
-        if (t && t.tagName === 'IMG' && t.closest('.food-thumb, .detail-photo-media, .food-photo-preview')) t.remove();
+        if (t && t.tagName === 'IMG' && t.closest('.log-thumb, .detail-photo-media, .food-photo-preview')) t.remove();
     }, true);
 
     // ปุ่มลอย (FAB) — เพิ่มรายการโดยเดามื้อจากเวลาปัจจุบัน

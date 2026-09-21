@@ -10,6 +10,7 @@
          หน้านี้ดึงมาใช้ซ้ำแทนการก็อปโค้ดซ้ำ เหมือนหน้า activity-record / sleep-record -->
     <link rel="stylesheet" href="/assets/css/shared/profile.css">
     <link rel="stylesheet" href="/assets/css/shared/datepicker.css">
+    <link rel="stylesheet" href="/assets/css/shared/record-ui.css">
     <link rel="stylesheet" href="/assets/css/pages/food-record.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Theme init: เหมือนหน้าอื่นทุกประการ ป้องกันหน้าจอกระพริบตอนโหลด -->
@@ -37,7 +38,7 @@
     <div class="mobile-app">
 
         <!-- หัวหน้า: ภาพอาหารเป็นพื้นหลัง (assets/images/food-banner.jpg) + แถวเลือกวันที่ -->
-        <div class="top-section food-hero">
+        <div class="top-section record-hero food-hero">
             <header class="app-header">
                 <div class="hero-text">
                     <h1 class="page-title" data-i18n="page-title">บันทึกอาหาร</h1>
@@ -62,7 +63,7 @@
         <main class="app-content">
 
             <!-- 1. การ์ดสรุปสัดส่วนสีโภชนาการของวันนั้น -->
-            <section class="food-summary-card">
+            <section class="summary-card">
                 <div class="panel-header">
                     <div class="header-title">
                         <span class="icon-box green-box"><i data-icon="food"></i></span>
@@ -132,7 +133,7 @@
 
     <!-- ============== Modal: ดูรายละเอียดรายการอาหาร (แยกจากฟอร์มแก้ไข) ============== -->
     <div class="modal-overlay" id="foodDetailOverlay">
-        <div class="food-detail-card" id="foodDetailCard" role="dialog" aria-modal="true" aria-labelledby="detailName">
+        <div class="detail-card" id="foodDetailCard" role="dialog" aria-modal="true" aria-labelledby="detailName">
             <div class="detail-photo">
                 <span class="detail-photo-media" id="detailPhotoMedia"></span>
                 <button type="button" class="detail-close" id="detailCloseBtn" aria-label="ปิด"><i data-icon="x"></i></button>
@@ -168,7 +169,7 @@
 
     <!-- ============== Modal: เพิ่ม/แก้ไขรายการอาหาร ============== -->
     <div class="modal-overlay" id="foodModalOverlay">
-        <div class="food-sheet-card" role="dialog" aria-modal="true" aria-labelledby="foodModalTitle">
+        <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="foodModalTitle">
             <h2 class="sheet-title" id="foodModalTitle" data-i18n="modal-title-add">เพิ่มรายการอาหาร</h2>
 
             <div class="sheet-body">

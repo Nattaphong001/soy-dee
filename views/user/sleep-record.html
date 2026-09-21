@@ -6,15 +6,14 @@
     <title>บันทึกการนอนหลับ - soy dee</title>
     <link rel="stylesheet" href="/assets/css/shared/style.css">
     <link rel="stylesheet" href="/assets/css/shared/nav.css">
+    <!-- profile.css: คอมโพเนนต์กลาง (form-field, form-input, save-btn ฯลฯ)
+         record-ui.css: hero / การ์ดสรุป / .log-item / FAB / modal รายละเอียด / bottom sheet ใช้ร่วมกับหน้าอาหารและกิจกรรม -->
     <link rel="stylesheet" href="/assets/css/shared/profile.css">
-    <!-- ใช้ profile.css ร่วมด้วยเพราะเก็บ component กลางที่ใช้ซ้ำได้ทุกหน้า
-         (back-btn, page-title, form-card, form-field, form-input, save-btn ฯลฯ)
-         ไม่ได้ผูกกับหน้าโปรไฟล์โดยเฉพาะ — ถ้าจะจัดระเบียบภายหลังแนะนำแยกเป็น
-         assets/css/forms.css ใช้ร่วมกันทุกหน้าแทน -->
     <link rel="stylesheet" href="/assets/css/shared/datepicker.css">
+    <link rel="stylesheet" href="/assets/css/shared/record-ui.css">
     <link rel="stylesheet" href="/assets/css/pages/sleep-record.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Theme init: เหมือนทุกหน้าอื่นเป๊ะ ป้องกันหน้าจอกระพริบตอนโหลด -->
+    <!-- Theme init: เหมือนหน้าอื่นๆ เป๊ะ ป้องกันหน้าจอกระพริบตอนโหลด -->
     <script>
         (function () {
             try {
@@ -38,20 +37,24 @@
 
     <div class="mobile-app">
 
-        <div class="top-section">
+        <!-- หัวหน้า: ท้องฟ้ายามค่ำคืนเป็นพื้นหลัง (CSS ล้วน) + แถวเลือกวันที่ -->
+        <div class="top-section record-hero sleep-hero">
             <header class="app-header">
-                <h1 class="page-title" data-i18n="page-title">บันทึกการนอนหลับ</h1>
+                <div class="hero-text">
+                    <h1 class="page-title" data-i18n="page-title">บันทึกการนอนหลับ</h1>
+                    <p class="hero-sub" data-i18n="page-subtitle">จดเวลานอน แล้วดูว่าพอดีกับที่ร่างกายต้องการไหม</p>
+                </div>
             </header>
 
+            <!-- แถวเลือกวันที่: ปุ่ม "วันนี้" แสดงเฉพาะตอนดูย้อนหลัง (JS สลับ hidden) + วันที่ชิดขวา -->
             <div class="date-picker-wrapper">
-                <button class="edit-profile-btn today-btn" type="button" id="todayBtn" aria-label="กลับไปวันนี้">
+                <button class="edit-profile-btn today-btn" id="todayBtn" type="button" aria-label="กลับไปวันนี้" hidden>
                     <span class="icon-inline"><i data-icon="today"></i></span>
                     <span data-i18n="today-btn">วันนี้</span>
                 </button>
-
                 <div class="date-picker-pill" id="datePickerPill" role="button" tabindex="0" aria-label="เลือกวันที่">
                     <span class="icon-calendar"><i data-icon="calendar"></i></span>
-                    <span class="date-text" id="dateText">24 พ.ค. 2567</span>
+                    <span class="date-text" id="dateText">—</span>
                     <span class="icon-chevron">⌄</span>
                 </div>
             </div>
@@ -59,103 +62,72 @@
 
         <main class="app-content">
 
-            <!-- ==========================================================
-                 1. Hero Card — สรุปผลการนอนล่าสุด/ที่กำลังกรอก
-                 dslp_total_hours (คำนวณสด) + dslp_eval_result (auto)
-                 ========================================================== -->
-            <section class="sleep-hero-card">
-                <div class="sleep-hero-icon" aria-hidden="true">
-                    <i data-icon="sleep"></i>
+            <!-- 1. การ์ดสรุปการนอนของวันนั้น: ชั่วโมงรวม + สเกลเทียบช่วงแนะนำ 7–9 ชม. + เวลา/คุณภาพ
+                 dslp_total_hours / dslp_eval_result มาจาก server (ดู API_SPEC.md §9) -->
+            <section class="summary-card sleep-summary" id="sleepSummary" data-eval="">
+                <div class="panel-header">
+                    <div class="header-title">
+                        <span class="icon-box purple-box"><i data-icon="sleep"></i></span>
+                        <span id="summaryTitleText">สรุปการนอนวันนี้</span>
+                    </div>
+                    <span class="cat-pill" id="summaryEval" hidden><span class="badge-dot" style="background:var(--lc)"></span><span id="summaryEvalText"></span></span>
                 </div>
-                <div class="sleep-hero-value numeric" id="sleepDurationValue">–.– <small>ชม.</small></div>
-                <div class="sleep-hero-label" data-i18n="hero-label">ระยะเวลาการนอนหลับรวม</div>
-                <div class="sleep-eval-badge" id="sleepEvalBadge" data-eval="">
-                    <span id="sleepEvalText" data-i18n="eval-pending">กรอกเวลาเพื่อประเมิน</span>
+
+                <div class="sleep-big">
+                    <span class="sleep-big-value numeric" id="summaryHours">–</span>
+                    <span class="sleep-big-unit" id="summaryHoursUnit">ชม.</span>
+                </div>
+
+                <div class="sleep-meter" id="sleepMeter" role="img" aria-label="ชั่วโมงการนอนเทียบกับช่วงแนะนำ">
+                    <div class="sleep-meter-track">
+                        <span class="sleep-meter-zone" aria-hidden="true"></span>
+                        <span class="sleep-meter-fill" id="sleepMeterFill"></span>
+                    </div>
+                    <div class="sleep-meter-scale" aria-hidden="true">
+                        <span class="numeric" style="left:0">0</span>
+                        <span class="numeric" style="left:58.333%">7</span>
+                        <span class="numeric" style="left:75%">9</span>
+                        <span class="numeric" style="left:100%">12</span>
+                    </div>
+                </div>
+
+                <div class="summary-stats">
+                    <div class="stat-chip">
+                        <span class="stat-chip-value numeric" id="summaryStart">–</span>
+                        <span class="stat-chip-label" data-i18n="stat-label-start">เริ่มนอน</span>
+                    </div>
+                    <div class="stat-chip">
+                        <span class="stat-chip-value numeric" id="summaryEnd">–</span>
+                        <span class="stat-chip-label" data-i18n="stat-label-end">ตื่นนอน</span>
+                    </div>
+                    <div class="stat-chip">
+                        <span class="stat-chip-value" id="summaryQuality">–</span>
+                        <span class="stat-chip-label" data-i18n="stat-label-quality">คุณภาพ</span>
+                    </div>
+                </div>
+                <p class="summary-insight" id="summaryInsight"></p>
+            </section>
+
+            <!-- 2. ประวัติการนอน 7 วันถึงวันที่เลือก — ใช้ข้อมูลชุดเดียวกับที่ป้อน Dashboard -->
+            <section class="log-section">
+                <div class="section-heading-row">
+                    <h2 class="section-heading" data-i18n="section-heading-history">ประวัติการนอน 7 วัน</h2>
+                    <span class="count-badge" id="logCountBadge">0 คืน</span>
+                </div>
+
+                <div class="log-list" id="logList" aria-live="polite">
+                    <!-- JS render รายการ .log-item หรือ .empty-state ที่นี่ -->
                 </div>
             </section>
 
-            <!-- ==========================================================
-                 2. การ์ดดูรายละเอียด — แสดงเมื่อวันที่เลือกมี record อยู่แล้ว (1 วัน = 1 ผล)
-                    กดแก้ไขเพื่อสลับไปฟอร์มแก้ไขด้านล่าง
-                 ========================================================== -->
-            <section class="form-card sleep-view-card" id="sleepViewCard" hidden>
-                <div class="sleep-view-row">
-                    <div class="sleep-view-field">
-                        <span class="form-label has-icon"><i data-icon="moon"></i><span data-i18n="label-start">เวลาที่เริ่มนอน</span></span>
-                        <span class="sleep-view-value" id="sleepViewStart">–</span>
-                    </div>
-                    <div class="sleep-view-field">
-                        <span class="form-label has-icon"><i data-icon="sun"></i><span data-i18n="label-end">เวลาที่ตื่นนอน</span></span>
-                        <span class="sleep-view-value" id="sleepViewEnd">–</span>
-                    </div>
-                </div>
-                <div class="sleep-view-field">
-                    <span class="form-label" data-i18n="label-quality">คุณภาพการนอน (ประเมินด้วยตัวเอง)</span>
-                    <span class="sleep-view-value" id="sleepViewQuality">–</span>
-                </div>
-                <button type="button" class="form-link-btn" id="sleepEditBtn"><i data-icon="edit"></i><span data-i18n="btn-edit-record">แก้ไขข้อมูล</span></button>
-            </section>
-
-            <!-- ==========================================================
-                 3. ฟอร์มเพิ่ม/แก้ไขบันทึก — dslp_date, dslp_start_time, dslp_end_time, dslp_quality_score
-                 ========================================================== -->
-            <div id="sleepEditSection">
-                <section class="form-card">
-                    <input type="hidden" id="sleepDate">
-
-                    <div class="sleep-time-row">
-                        <label class="form-field">
-                            <span class="form-label has-icon"><i data-icon="moon"></i><span data-i18n="label-start">เวลาที่เริ่มนอน</span></span>
-                            <input type="time" class="form-input" id="sleepStart">
-                        </label>
-                        <label class="form-field">
-                            <span class="form-label has-icon"><i data-icon="sun"></i><span data-i18n="label-end">เวลาที่ตื่นนอน</span></span>
-                            <input type="time" class="form-input" id="sleepEnd">
-                        </label>
-                    </div>
-
-                    <div class="sleep-error" id="sleepTimeError" hidden data-i18n="err-time-order">เวลาตื่นนอนต้องอยู่หลังเวลาที่เริ่มนอน</div>
-                </section>
-
-                <section class="form-card">
-                    <div class="form-field">
-                        <span class="form-label" data-i18n="label-quality">คุณภาพการนอน (ประเมินด้วยตัวเอง)</span>
-                        <div class="quality-pill-group" role="radiogroup" aria-label="คุณภาพการนอน">
-                            <button class="quality-pill" type="button" data-quality="1" role="radio" aria-checked="false">
-                                <span class="qp-emoji"><i data-icon="smile-sad"></i></span>
-                                <span data-i18n="quality-bad">แย่</span>
-                            </button>
-                            <button class="quality-pill" type="button" data-quality="2" role="radio" aria-checked="false">
-                                <span class="qp-emoji"><i data-icon="smile-meh"></i></span>
-                                <span data-i18n="quality-mid">ปานกลาง</span>
-                            </button>
-                            <button class="quality-pill active" type="button" data-quality="3" role="radio" aria-checked="true">
-                                <span class="qp-emoji"><i data-icon="smile"></i></span>
-                                <span data-i18n="quality-good">ดี</span>
-                            </button>
-                        </div>
-                    </div>
-                </section>
-
-                <button class="save-btn" type="button" id="saveSleepBtn" data-i18n="save-btn">บันทึกการนอนหลับ</button>
-                <button type="button" class="form-link-btn sleep-cancel-edit-btn" id="sleepCancelEditBtn" data-i18n="cancel-edit-btn" hidden>ยกเลิกการแก้ไข</button>
-            </div>
-
-            <!-- ==========================================================
-                 4. ประวัติการนอนล่าสุด — ใช้ข้อมูลชุดเดียวกับที่ป้อน Dashboard
-                 ========================================================== -->
-            <section class="history-section">
-                <div class="history-header">
-                    <h2 class="history-title" data-i18n="history-title">ประวัติการนอนล่าสุด</h2>
-                    <span class="history-subtitle" data-i18n="history-subtitle">7 วันล่าสุด</span>
-                </div>
-                <div class="history-list" id="sleepHistoryList" aria-live="polite">
-                    <!-- รายการถูกสร้างโดย sleep-record.js -->
-                </div>
-                <div class="history-empty" id="sleepHistoryEmpty" hidden data-i18n="history-empty">ยังไม่มีประวัติการนอนหลับ เริ่มบันทึกคืนนี้ได้เลย</div>
-            </section>
-
+            <!-- เว้นระยะให้พ้นปุ่ม FAB ก่อนถึง bottom nav -->
+            <div class="fab-spacer" aria-hidden="true"></div>
         </main>
+
+        <!-- ปุ่มลอยบันทึกการนอน: กึ่งกลางจอ เหนือ bottom nav (วันที่มีบันทึกแล้วจะเปิดฟอร์มแก้ไข — 1 วัน 1 รายการ) -->
+        <div class="fab-wrapper">
+            <button class="fab-add-btn" id="fabAddBtn" type="button" aria-label="บันทึกการนอน"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+        </div>
 
         <nav id="app-nav-bar" class="nav-pill-wrapper">
             <ul class="nav-pill-container" id="horizontalNav">
@@ -169,6 +141,96 @@
         </nav>
     </div>
 
+    <!-- ============== Modal: ดูรายละเอียดการนอน (แยกจากฟอร์มแก้ไข) ============== -->
+    <div class="modal-overlay" id="sleepDetailOverlay">
+        <div class="detail-card" id="sleepDetailCard" role="dialog" aria-modal="true" aria-labelledby="detailName">
+            <div class="detail-photo is-compact">
+                <span class="detail-photo-media"><i data-icon="sleep"></i></span>
+                <button type="button" class="detail-close" id="detailCloseBtn" aria-label="ปิด"><i data-icon="x"></i></button>
+            </div>
+            <div class="detail-body">
+                <h2 class="detail-name" id="detailName"></h2>
+                <span class="cat-pill" id="detailEval"><span class="badge-dot" style="background:var(--lc)"></span><span id="detailEvalText"></span></span>
+                <div class="detail-grid">
+                    <div class="detail-tile">
+                        <span class="detail-tile-label" data-i18n="detail-duration">ระยะเวลารวม</span>
+                        <span class="detail-tile-value numeric" id="detailDuration"></span>
+                    </div>
+                    <div class="detail-tile">
+                        <span class="detail-tile-label" data-i18n="detail-quality">คุณภาพ (ประเมินเอง)</span>
+                        <span class="detail-tile-value" id="detailQuality"></span>
+                    </div>
+                    <div class="detail-tile">
+                        <span class="detail-tile-label" data-i18n="label-start">เวลาที่เริ่มนอน</span>
+                        <span class="detail-tile-value numeric" id="detailStart"></span>
+                    </div>
+                    <div class="detail-tile">
+                        <span class="detail-tile-label" data-i18n="label-end">เวลาที่ตื่นนอน</span>
+                        <span class="detail-tile-value numeric" id="detailEnd"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="detail-actions">
+                <button type="button" class="detail-delete-btn" id="detailDeleteBtn"><i data-icon="trash"></i><span data-i18n="detail-delete">ลบ</span></button>
+                <button type="button" class="detail-edit-btn" id="detailEditBtn"><i data-icon="edit"></i><span data-i18n="detail-edit">แก้ไขรายการ</span></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============== Modal: บันทึก/แก้ไขการนอน (bottom sheet) ============== -->
+    <div class="modal-overlay" id="sleepSheetOverlay">
+        <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="sleepSheetTitle">
+            <h2 class="sheet-title" id="sleepSheetTitle" data-i18n="modal-title-add">บันทึกการนอน</h2>
+
+            <div class="sheet-body">
+                <div class="sleep-sheet-date" id="sleepSheetDate"></div>
+
+                <div class="sleep-time-row">
+                    <label class="form-field">
+                        <span class="form-label has-icon"><i data-icon="moon"></i><span data-i18n="label-start">เวลาที่เริ่มนอน</span></span>
+                        <input type="time" class="form-input" id="sleepStart">
+                    </label>
+                    <label class="form-field">
+                        <span class="form-label has-icon"><i data-icon="sun"></i><span data-i18n="label-end">เวลาที่ตื่นนอน</span></span>
+                        <input type="time" class="form-input" id="sleepEnd">
+                    </label>
+                </div>
+
+                <!-- พรีวิวสดฝั่ง client ระหว่างกรอก (ค่าจริงมาจาก server หลังบันทึก) -->
+                <div class="sleep-preview" id="sleepPreview" data-eval="">
+                    <span class="sleep-preview-value numeric" id="sleepPreviewValue">–</span>
+                    <span class="sleep-preview-text" id="sleepPreviewText" data-i18n="eval-pending">กรอกเวลาเพื่อประเมิน</span>
+                </div>
+
+                <div class="form-field">
+                    <span class="form-label" data-i18n="label-quality">คุณภาพการนอน (ประเมินด้วยตัวเอง)</span>
+                    <div class="quality-pill-group" role="radiogroup" aria-label="คุณภาพการนอน">
+                        <button class="quality-pill" type="button" data-quality="1" role="radio" aria-checked="false">
+                            <span class="qp-emoji"><i data-icon="smile-sad"></i></span>
+                            <span data-i18n="quality-bad">แย่</span>
+                        </button>
+                        <button class="quality-pill" type="button" data-quality="2" role="radio" aria-checked="false">
+                            <span class="qp-emoji"><i data-icon="smile-meh"></i></span>
+                            <span data-i18n="quality-mid">ปานกลาง</span>
+                        </button>
+                        <button class="quality-pill active" type="button" data-quality="3" role="radio" aria-checked="true">
+                            <span class="qp-emoji"><i data-icon="smile"></i></span>
+                            <span data-i18n="quality-good">ดี</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="sheet-error" id="sleepFormError" hidden></div>
+            </div>
+
+            <div class="sheet-actions sheet-actions-row">
+                <button type="button" class="sheet-cancel-btn" id="sleepCancelBtn" data-i18n="btn-cancel">ยกเลิก</button>
+                <button type="button" class="save-btn" id="saveSleepBtn" data-i18n="save-btn">บันทึกการนอนหลับ</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/assets/js/shared/i18n.js"></script>
     <script src="/assets/js/shared/nav.js"></script>
     <script src="/assets/js/shared/app.js"></script>
     <script src="/assets/js/shared/datepicker.js"></script>

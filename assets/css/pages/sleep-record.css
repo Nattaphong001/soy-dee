@@ -1,141 +1,170 @@
 /* ==============================================================================
-   SLEEP RECORD PAGE — ใช้ token สี/รัศมี/เงาจาก style.css (โหลดคู่กันเสมอ)
-   และ component กลาง back-btn / form-card / form-field / form-input / save-btn
-   จาก profile.css — ไฟล์นี้มีเฉพาะ component ใหม่เฉพาะหน้านี้
+   SLEEP RECORD PAGE — ใช้ token จาก style.css, คอมโพเนนต์ร่วมจาก profile.css
+   (.form-field, .form-input, .save-btn, .sheet-error) และ record-ui.css
+   (hero, การ์ดสรุป, .stat-chip, .log-item, FAB, .detail-card, .sheet-card) โหลดคู่กันเสมอ
+   ไฟล์นี้มีเฉพาะส่วนของหน้านอน: ฉาก hero กลางคืน, สี --lc ตามผลประเมิน,
+   ตัวเลขใหญ่ + สเกลเทียบช่วงแนะนำ, พรีวิว/ปุ่มคุณภาพในฟอร์ม
    ============================================================================== */
 
-/* ---------- 1. Hero Card: สรุปชั่วโมงการนอน ---------- */
-.sleep-hero-card {
-    background: var(--accent-grad);
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-soft);
-    padding: 26px 20px 22px 20px;
+/* ---------- hero: ท้องฟ้ายามค่ำคืนด้วย CSS ล้วน (ดาวเป็น radial-gradient จุดเล็ก) ---------- */
+.sleep-hero {
+    background-color: #1b2150;
+    background-image:
+        radial-gradient(1.6px 1.6px at 12% 30%, rgba(255, 255, 255, 0.85), transparent 60%),
+        radial-gradient(1.2px 1.2px at 27% 68%, rgba(255, 255, 255, 0.6), transparent 60%),
+        radial-gradient(1.8px 1.8px at 46% 22%, rgba(255, 255, 255, 0.8), transparent 60%),
+        radial-gradient(1.2px 1.2px at 63% 74%, rgba(255, 255, 255, 0.55), transparent 60%),
+        radial-gradient(1.5px 1.5px at 74% 38%, rgba(255, 255, 255, 0.75), transparent 60%),
+        radial-gradient(1.2px 1.2px at 90% 60%, rgba(255, 255, 255, 0.6), transparent 60%),
+        radial-gradient(90px 90px at 86% 26%, rgba(196, 181, 253, 0.42), transparent 70%),
+        linear-gradient(160deg, #1b2150 0%, #2f2f7a 55%, #4b3a97 100%);
+}
+
+/* ---------- สีประจำผลประเมิน: JS ใส่ .eval-low / .eval-ok / .eval-high (ไม่มีผล = เทา) ---------- */
+.sleep-summary,
+.log-item,
+.detail-card { --lc: var(--text-muted); }
+.eval-low  { --lc: var(--color-red); }
+.eval-ok   { --lc: var(--color-green); }
+.eval-high { --lc: var(--color-yellow); }
+
+/* ---------- 1. การ์ดสรุป: ตัวเลขใหญ่ + สเกล ---------- */
+.sleep-big {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 4px;
-    color: #FFFFFF;
-    position: relative;
-    overflow: hidden;
+    align-items: baseline;
+    gap: 6px;
+    margin-top: 14px;
 }
-
-/* จุดตกแต่งจางๆ ให้การ์ดมีมิติ ไม่แบนจนเกินไป (เหมือนแนว bg-blob ของทั้งเว็บ) */
-.sleep-hero-card::before {
-    content: '';
-    position: absolute;
-    top: -60px;
-    right: -50px;
-    width: 180px;
-    height: 180px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.14);
-    pointer-events: none;
-}
-
-.sleep-hero-icon {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 28px;
-    margin-bottom: 6px;
-}
-
-.sleep-hero-value {
-    font-size: 34px;
+.sleep-big-value {
+    font-size: 40px;
     font-weight: 700;
-    line-height: 1.1;
+    line-height: 1.05;
+    color: var(--text-main);
 }
-.sleep-hero-value small {
+.sleep-big-unit {
     font-size: 15px;
     font-weight: 600;
-    opacity: 0.85;
+    color: var(--text-muted);
 }
 
-.sleep-hero-label {
-    font-size: 12.5px;
-    font-weight: 500;
-    opacity: 0.9;
-    margin-bottom: 12px;
-}
-
-.sleep-eval-badge {
-    background: rgba(255, 255, 255, 0.18);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+/* สเกล 0–12 ชม.: แถบเขียวจางคือช่วงแนะนำ 7–9 ชม. เส้นสีแสดงชั่วโมงที่นอนจริง */
+.sleep-meter { margin-top: 12px; }
+.sleep-meter-track {
+    position: relative;
+    height: 10px;
     border-radius: var(--radius-pill);
-    padding: 7px 16px;
-    font-size: 12.5px;
-    font-weight: 700;
-    letter-spacing: 0.2px;
-    transition: background-color 0.25s ease;
+    background: var(--card-inner);
+    overflow: hidden;
 }
+.sleep-meter-zone {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 58.333%;
+    width: 16.667%;
+    background: rgba(16, 185, 129, 0.22);
+}
+.sleep-meter-fill {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    border-radius: var(--radius-pill);
+    background: var(--lc);
+    transition: width 0.35s ease, background-color 0.25s ease;
+}
+.sleep-meter-scale {
+    position: relative;
+    height: 14px;
+    margin-top: 4px;
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+.sleep-meter-scale span {
+    position: absolute;
+    transform: translateX(-50%);
+}
+.sleep-meter-scale span:first-child { transform: none; }
+.sleep-meter-scale span:last-child { transform: translateX(-100%); }
 
-/* สถานะประเมิน — คุมด้วย data-eval="low|ok|high" จาก JS */
-.sleep-eval-badge[data-eval="low"]   { background: rgba(239, 68, 68, 0.28); }
-.sleep-eval-badge[data-eval="ok"]    { background: rgba(16, 185, 129, 0.30); }
-.sleep-eval-badge[data-eval="high"]  { background: rgba(245, 158, 11, 0.30); }
+.sleep-summary .summary-insight { margin-top: 10px; }
+.sleep-summary .summary-insight:empty { display: none; }
 
-/* ---------- 1b. การ์ดดูรายละเอียด (view mode สำหรับวันที่มี record อยู่แล้ว) ---------- */
-/* .form-card ประกาศ display:flex ไว้ ชนะ [hidden] ของ UA stylesheet ด้วย origin (ไม่ใช่ specificity)
-   ต้องประกาศทับตรงๆ ไม่งั้นการ์ดนี้โผล่ค้างซ้อนกับฟอร์มแก้ไขแม้ตั้ง hidden=true แล้ว (ดู pattern เดียวกันใน style.css .empty-state[hidden]) */
-.sleep-view-card[hidden] { display: none; }
-.sleep-view-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+/* ---------- 2. รายการประวัติ: เรียงเดี่ยว ไม่จัดกลุ่ม ---------- */
+.log-list { gap: 8px; }
+.log-item.is-current {
+    border-color: color-mix(in srgb, var(--accent-1) 55%, var(--border-hairline));
 }
-.sleep-view-field {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-.sleep-view-value {
+.log-thumb.is-moon { font-size: 28px; }
+
+/* ชั่วโมงรวมชิดขวา ก่อนลูกศร */
+.log-item-hours {
+    flex-shrink: 0;
     font-size: 15px;
     font-weight: 700;
     color: var(--text-main);
-    background: var(--surface-alt);
-    border-radius: var(--radius-md);
-    padding: 11px 12px;
 }
-.sleep-view-card #sleepEditBtn {
-    align-self: flex-end;
+.log-item-hours small {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-left: 2px;
 }
-.sleep-cancel-edit-btn {
-    display: block;
-    margin: 10px auto 0 auto;
-}
-.sleep-cancel-edit-btn[hidden] { display: none; }
 
-/* ---------- 2. แถวเวลาเริ่มนอน / ตื่นนอน (สองคอลัมน์) ---------- */
+/* ---------- bottom sheet: วันที่ + เวลานอน/ตื่น + พรีวิว + คุณภาพ ---------- */
+.sleep-sheet-date {
+    align-self: flex-start;
+    padding: 4px 12px;
+    border-radius: var(--radius-pill);
+    background: var(--surface-alt);
+    color: var(--accent-1);
+    font-size: 12px;
+    font-weight: 700;
+}
+
 .sleep-time-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
 }
-
 @media (max-width: 340px) {
     .sleep-time-row { grid-template-columns: 1fr; }
 }
 
-.sleep-error {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--color-red);
-    background: rgba(239, 68, 68, 0.1);
+/* พรีวิวชั่วโมง/ผลประเมินสดระหว่างกรอก */
+.sleep-preview {
+    --lc: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 14px;
     border-radius: var(--radius-md);
-    padding: 8px 10px;
+    background: color-mix(in srgb, var(--lc) 12%, var(--card-inner));
+    transition: background-color 0.25s ease;
+}
+.sleep-preview[data-eval="low"]  { --lc: var(--color-red); }
+.sleep-preview[data-eval="ok"]   { --lc: var(--color-green); }
+.sleep-preview[data-eval="high"] { --lc: var(--color-yellow); }
+.sleep-preview-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+.sleep-preview-text {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--lc);
+    text-align: right;
 }
 
-/* ---------- 3. Quality pills (แนวนอน 3 ช่อง เท่ากัน) ---------- */
+/* ปุ่มคุณภาพ (แนวนอน 3 ช่อง เท่ากัน) */
 .quality-pill-group {
     display: flex;
     gap: 8px;
 }
-
 .quality-pill {
     flex: 1;
     display: flex;
@@ -146,170 +175,22 @@
     border-radius: var(--radius-lg);
     border: 1px solid var(--border-hairline);
     background: var(--surface-alt);
+    font-family: inherit;
     font-size: 12px;
     font-weight: 600;
     color: var(--text-muted);
     cursor: pointer;
     transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
 }
-
-.quality-pill:active {
-    transform: scale(0.96);
-}
-
+.quality-pill:active { transform: scale(0.96); }
 .quality-pill .qp-emoji {
     font-size: 26px;
     line-height: 1;
     display: inline-flex;
 }
-
 .quality-pill.active {
     background: var(--accent-grad);
     color: #FFFFFF;
     border-color: transparent;
     box-shadow: var(--shadow-card);
-}
-
-/* ---------- 4. ส่วนประวัติการนอนล่าสุด ---------- */
-.history-section {
-    margin-top: 4px;
-}
-
-.history-header {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    padding: 2px 4px 10px 4px;
-}
-
-.history-title {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--text-main);
-}
-
-.history-subtitle {
-    font-size: 11.5px;
-    font-weight: 500;
-    color: var(--text-muted);
-}
-
-.history-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.history-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: var(--card-bg);
-    border: 1px solid var(--border-hairline);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-card);
-    padding: 12px 14px;
-    transition: box-shadow 0.2s ease, transform 0.2s ease;
-}
-
-.history-item:hover {
-    box-shadow: var(--shadow-soft);
-    transform: translateY(-1px);
-}
-
-.history-item-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
-    background: rgba(79, 99, 232, 0.12);
-    color: var(--accent-1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    flex-shrink: 0;
-}
-
-.history-item-body {
-    flex: 1;
-    min-width: 0;
-}
-
-.history-item-date {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-main);
-}
-
-.history-item-time {
-    font-size: 11.5px;
-    color: var(--text-muted);
-    margin-top: 1px;
-}
-
-.history-item-meta {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 4px;
-    flex-shrink: 0;
-}
-
-.history-item-hours {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--text-main);
-}
-
-.history-item-tag {
-    font-size: 10.5px;
-    font-weight: 700;
-    padding: 3px 9px;
-    border-radius: var(--radius-pill);
-    white-space: nowrap;
-}
-
-.history-item-tag.tag-low  { background: rgba(239, 68, 68, 0.14); color: var(--color-red); }
-.history-item-tag.tag-ok   { background: rgba(16, 185, 129, 0.14); color: var(--color-green); }
-.history-item-tag.tag-high { background: rgba(245, 158, 11, 0.14); color: var(--color-yellow); }
-
-.history-item-actions {
-    display: flex;
-    gap: 4px;
-    flex-shrink: 0;
-}
-
-.history-item-delete-btn {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    border: none;
-    background: var(--card-inner);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    color: var(--text-muted);
-    cursor: pointer;
-    flex-shrink: 0;
-    transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
-}
-.history-item-delete-btn:hover {
-    background: var(--surface-alt);
-    transform: translateY(-1px);
-    color: var(--color-red);
-}
-
-.history-item-body[role="button"] {
-    cursor: pointer;
-}
-
-.history-empty {
-    text-align: center;
-    font-size: 12.5px;
-    color: var(--text-muted);
-    background: var(--card-bg);
-    border: 1px dashed var(--border-hairline);
-    border-radius: var(--radius-lg);
-    padding: 22px 14px;
 }

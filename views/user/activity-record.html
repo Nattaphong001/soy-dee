@@ -23,6 +23,7 @@
             } catch (e) {}
         })();
     </script>
+    <script src="/assets/js/shared/icons.js"></script>
     <script src="/assets/js/shared/api.js"></script>
     <script>
         SoyDeeAPI.guardMember();
@@ -43,12 +44,12 @@
 
             <div class="date-picker-wrapper">
                 <button class="edit-profile-btn today-btn" type="button" id="todayBtn" aria-label="กลับไปวันนี้">
-                    <span class="icon-inline"><span class="icon-emoji">↩️</span></span>
+                    <span class="icon-inline"><i data-icon="today"></i></span>
                     <span data-i18n="today-btn">วันนี้</span>
                 </button>
 
                 <div class="date-picker-pill" id="datePickerPill" role="button" tabindex="0" aria-label="เลือกวันที่">
-                    <span class="icon-calendar">📅</span>
+                    <span class="icon-calendar"><i data-icon="calendar"></i></span>
                     <span class="date-text" id="dateText">24 พ.ค. 2567</span>
                     <span class="icon-chevron">⌄</span>
                 </div>
@@ -64,8 +65,7 @@
                 <div class="stat-card">
                     <div class="stat-card-row">
                         <span class="stat-icon icon-blue">
-                            <img src="/assets/icons/activity-count.png" alt="" class="icon-img" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
-                            <span class="icon-emoji" style="display:none">📋</span>
+                            <i data-icon="clipboard"></i>
                         </span>
                         <span class="stat-label" data-i18n="stat-label-count">กิจกรรม</span>
                     </div>
@@ -77,8 +77,7 @@
                 <div class="stat-card">
                     <div class="stat-card-row">
                         <span class="stat-icon icon-green">
-                            <img src="/assets/icons/duration.png" alt="" class="icon-img" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
-                            <span class="icon-emoji" style="display:none">⏱️</span>
+                            <i data-icon="clock"></i>
                         </span>
                         <span class="stat-label" data-i18n="stat-label-duration">เวลารวม</span>
                     </div>
@@ -108,7 +107,7 @@
 
                 <!-- แสดงตอนยังไม่ได้เลือกกิจกรรม -->
                 <div class="duration-placeholder" id="durationPlaceholder">
-                    <span class="duration-placeholder-icon">👆</span>
+                    <span class="duration-placeholder-icon"><i data-icon="tap"></i></span>
                     <p data-i18n="duration-placeholder-text">แตะเลือกกิจกรรมด้านบนก่อน เพื่อบันทึกระยะเวลาที่ทำ</p>
                 </div>
 
@@ -116,7 +115,7 @@
                 <div class="duration-form" id="durationForm" hidden>
                     <div class="selected-activity-row">
                         <span class="stat-icon icon-purple" id="selectedActivityIcon">
-                            <span class="icon-emoji">🏃</span>
+                            <i data-icon="run"></i>
                         </span>
                         <div class="selected-activity-info">
                             <span class="selected-activity-label" data-i18n="label-selected-activity">กิจกรรมที่เลือก</span>
@@ -166,11 +165,11 @@
         <nav id="app-nav-bar" class="nav-pill-wrapper">
             <ul class="nav-pill-container" id="horizontalNav">
                 <div class="nav-indicator" id="navIndicator"></div>
-                <li><a href="index.html" class="nav-icon-item" data-target="home"><span>🏠</span></a></li>
-                <li><a href="food-record.html" class="nav-icon-item" data-target="food"><span>🥗</span></a></li>
-                <li><a href="activity-record.html" class="nav-icon-item active" data-target="activity"><span>⚡</span></a></li>
-                <li><a href="sleep-record.html" class="nav-icon-item" data-target="sleep"><span>💤</span></a></li>
-                <li><a class="nav-icon-item is-disabled" data-target="report" aria-disabled="true" aria-label="รายงาน (เร็วๆ นี้)"><span>📊</span></a></li>
+                <li><a href="index.html" class="nav-icon-item" data-target="home"><i data-icon="home"></i></a></li>
+                <li><a href="food-record.html" class="nav-icon-item" data-target="food"><i data-icon="food"></i></a></li>
+                <li><a href="activity-record.html" class="nav-icon-item active" data-target="activity"><i data-icon="activity"></i></a></li>
+                <li><a href="sleep-record.html" class="nav-icon-item" data-target="sleep"><i data-icon="sleep"></i></a></li>
+                <li><a class="nav-icon-item is-disabled" data-target="report" aria-disabled="true" aria-label="รายงาน (เร็วๆ นี้)"><i data-icon="report"></i></a></li>
             </ul>
         </nav>
     </div>

@@ -144,11 +144,33 @@ function timeLabel(dateTimeStr) {
     return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 }
 
-// สร้าง markup ไอคอน: มีรูปจริงใช้รูป (พร้อม fallback อีโมจิเมื่อโหลดรูปพัง), ไม่มีรูปใช้อีโมจิเลย
+// ไอคอนตามชื่อกิจกรรม (จับ keyword ตามลำดับ — ตัวที่เฉพาะกว่าต้องมาก่อน เช่น "เดินขึ้นบันได" ก่อน "เดิน")
+const ACTIVITY_ICON_RULES = [
+    [/บันได|stair/i, 'stairs'],
+    [/แอโรบิก|เต้น|aerobic|dance/i, 'music'],
+    [/ว่าย|swim/i, 'swim'],
+    [/โยคะ|yoga/i, 'yoga'],
+    [/เวท|ยกน้ำหนัก|weight|gym|ออกกำลัง|workout/i, 'muscle'],
+    [/กีฬา|ฟุตบอล|บาส|แบด|sport|ball/i, 'ball'],
+    [/เชือก|rope/i, 'heartbeat'],
+    [/สวน|garden/i, 'plant'],
+    [/บ้าน|ทำความสะอาด|house|clean/i, 'broom'],
+    [/เดิน|walk/i, 'walk'],
+    [/วิ่ง|run|jog/i, 'run']
+];
+
+function activityIconName(act) {
+    const name = act && act.act_name ? act.act_name : '';
+    const hit = ACTIVITY_ICON_RULES.find(rule => rule[0].test(name));
+    return hit ? hit[1] : 'run';
+}
+
+// สร้าง markup ไอคอน: มีรูปจริงใช้รูป (พร้อม fallback ไอคอนเมื่อโหลดรูปพัง), ไม่มีรูปใช้ไอคอนตามชื่อกิจกรรม
 function activityIconMarkup(act) {
     const img = act && act.act_images ? SoyDeeAPI.assetUrl(act.act_images) : '';
-    if (!img) return `<span class="icon-emoji">🏃</span>`;
-    return `<img src="${img}" alt="" class="icon-img" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'"><span class="icon-emoji" style="display:none">🏃</span>`;
+    const icon = activityIconName(act);
+    if (!img) return `<i data-icon="${icon}"></i>`;
+    return `<img src="${img}" alt="" class="icon-img" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'"><i data-icon="${icon}" style="display:none"></i>`;
 }
 
 /* ==============================================================================
@@ -383,7 +405,7 @@ function renderLogList() {
     if (entries.length === 0) {
         list.innerHTML = `
             <div class="empty-state">
-                <span class="empty-state-icon">🗒️</span>
+                <span class="empty-state-icon"><i data-icon="note"></i></span>
                 <div class="empty-state-title">${I18N.t(ACTIVITY_I18N, 'empty-state-title')}</div>
                 <div class="empty-state-desc">${I18N.t(ACTIVITY_I18N, 'empty-state-desc')}</div>
             </div>
@@ -443,8 +465,8 @@ function renderLogList() {
                 </span>
             </div>
             <div class="log-item-actions">
-                <button type="button" class="log-item-edit" aria-label="แก้ไขรายการนี้">✏️</button>
-                <button type="button" class="log-item-delete" aria-label="ลบรายการนี้">🗑️</button>
+                <button type="button" class="log-item-edit" aria-label="แก้ไขรายการนี้"><i data-icon="edit"></i></button>
+                <button type="button" class="log-item-delete" aria-label="ลบรายการนี้"><i data-icon="trash"></i></button>
             </div>
         `;
         item.addEventListener('click', (e) => {

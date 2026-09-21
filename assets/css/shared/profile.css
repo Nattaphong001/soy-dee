@@ -321,6 +321,34 @@
     padding-left: 2px;
 }
 
+/* ---------- BMR/TDEE ล่าสุด (read-only, จาก GET /bmr/history) ---------- */
+.bmr-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.bmr-history-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 12px;
+    background: var(--surface-alt);
+    border-radius: var(--radius-md);
+    font-size: 13px;
+}
+.bmr-history-row .bmr-history-date { color: var(--text-muted); }
+.bmr-history-row-latest {
+    background: var(--surface);
+    box-shadow: 0 0 0 2px var(--accent-1);
+    font-weight: 600;
+}
+.bmr-history-row-latest .bmr-history-date { color: var(--accent-1); }
+.bmr-history-empty {
+    font-size: 12px;
+    color: var(--text-muted);
+    padding: 6px 2px;
+}
+
 /* ---------- Goal pills (เป้าหมาย: ลดน้ำหนัก/เพิ่มกล้าม/รักษาน้ำหนัก) ---------- */
 .goal-pill-group {
     display: flex;

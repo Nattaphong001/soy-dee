@@ -68,7 +68,7 @@
                     </label>
                     <label class="form-field">
                         <span class="form-label" data-i18n="label-username">ชื่อผู้ใช้ (Username)</span>
-                        <input type="text" class="form-input" id="username" value="" placeholder="username" data-i18n-placeholder="placeholder-username">
+                        <input type="text" class="form-input" id="username" value="" placeholder="username" data-i18n-placeholder="placeholder-username" disabled title="เปลี่ยนชื่อผู้ใช้ไม่ได้">
                     </label>
                     <button class="form-link-btn" type="button" id="changePasswordBtn" data-i18n="link-change-password">เปลี่ยนรหัสผ่าน</button>
                 </div>
@@ -128,11 +128,23 @@
                     <label class="form-field">
                         <span class="form-label" data-i18n="label-activity">ระดับกิจกรรม</span>
                         <select class="form-input" id="activitySelect">
-                            <option value="low" data-i18n="activity-low">น้อย (นั่งทำงาน แทบไม่ออกกำลังกาย)</option>
-                            <option value="mid" selected data-i18n="activity-mid">ปานกลาง (ออกกำลังกาย 3–4 วัน/สัปดาห์)</option>
-                            <option value="high" data-i18n="activity-high">มาก (ออกกำลังกายหนักเกือบทุกวัน)</option>
+                            <option value="sedentary" data-i18n="activity-sedentary">ไม่ออกกำลังกาย / นั่งโต๊ะ (1.2)</option>
+                            <option value="light" data-i18n="activity-light">เบา 1–3 วัน/สัปดาห์ (1.375)</option>
+                            <option value="moderate" selected data-i18n="activity-moderate">ปานกลาง 3–5 วัน/สัปดาห์ (1.5)</option>
+                            <option value="active" data-i18n="activity-active">หนัก 6–7 วัน/สัปดาห์ (1.725)</option>
+                            <option value="very_active" data-i18n="activity-very-active">หนักมาก / นักกีฬา (1.9)</option>
                         </select>
                     </label>
+                </div>
+
+                <!-- BMR/TDEE ล่าสุด: อ่านอย่างเดียว ดึงจาก GET /members/{id}/bmr/history -->
+                <div class="form-card">
+                    <div class="form-field">
+                        <span class="form-label" data-i18n="label-bmr-history">BMR / TDEE ล่าสุด</span>
+                        <div class="bmr-history-list" id="bmrHistoryList">
+                            <div class="bmr-history-empty" data-i18n="bmr-history-empty">ยังไม่มีข้อมูล</div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- เป้าหมาย: 1=ลดน้ำหนัก, 2=เพิ่มกล้ามเนื้อ, 3=รักษาน้ำหนัก -->

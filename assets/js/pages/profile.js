@@ -4,6 +4,12 @@
  *
  * หมายเหตุ: toggleTheme() และ showConfirm() มาจาก assets/js/app.js
  * (โหลดคู่กันเสมอในหน้านี้ ก่อน profile.js)
+ *
+ * ตารางผลกระทบ cross-tab sync (broadcastSync ใน app.js):
+ *   น้ำหนัก/ส่วนสูง/ระดับกิจกรรม/เป้าหมาย/วันเกิด → broadcastSync('bmr-updated', ...) หลัง POST /body-stats
+ *   รูปโปรไฟล์ → broadcastSync('avatar-updated', ...) หลัง POST /avatar
+ *   ธีม → broadcastSync('theme-updated', ...) ใน app.js toggleTheme/setTheme
+ *   ภาษา → broadcastSync('lang-updated', ...) ตอนกด langToggle
  */
 
 /* ==============================================================================
@@ -36,9 +42,11 @@ const PROFILE_I18N = {
         'label-height': 'ส่วนสูง (ซม.)',
         'label-weight': 'น้ำหนัก (กก.)',
         'label-activity': 'ระดับกิจกรรม',
-        'activity-low': 'น้อย (นั่งทำงาน แทบไม่ออกกำลังกาย)',
-        'activity-mid': 'ปานกลาง (ออกกำลังกาย 3–4 วัน/สัปดาห์)',
-        'activity-high': 'มาก (ออกกำลังกายหนักเกือบทุกวัน)',
+        'activity-sedentary': 'ไม่ออกกำลังกาย / นั่งโต๊ะ (1.2)',
+        'activity-light': 'เบา 1–3 วัน/สัปดาห์ (1.375)',
+        'activity-moderate': 'ปานกลาง 3–5 วัน/สัปดาห์ (1.5)',
+        'activity-active': 'หนัก 6–7 วัน/สัปดาห์ (1.725)',
+        'activity-very-active': 'หนักมาก / นักกีฬา (1.9)',
         'label-goal': 'เป้าหมาย',
         'goal-lose': '🔻 ลดน้ำหนัก',
         'goal-gain': '💪 เพิ่มกล้ามเนื้อ',
@@ -60,7 +68,10 @@ const PROFILE_I18N = {
         'confirm-logout-confirm': 'ออกจากระบบ',
         'confirm-logout-cancel': 'ยกเลิก',
         'age-hint': (age) => `อายุ ${age} ปี`,
-        'age-hint-empty': 'ยังไม่ระบุวันเกิด กรุณากรอกข้อมูล'
+        'age-hint-empty': 'ยังไม่ระบุวันเกิด กรุณากรอกข้อมูล',
+        'label-bmr-history': 'BMR / TDEE ล่าสุด',
+        'bmr-history-empty': 'ยังไม่มีข้อมูล บันทึกส่วนสูง/น้ำหนักเพื่อคำนวณ',
+        'bmr-history-row': (bmr, tdee) => `BMR ${bmr} · TDEE ${tdee} kcal`
     },
     en: {
         'page-title': 'Profile',
@@ -84,9 +95,11 @@ const PROFILE_I18N = {
         'label-height': 'Height (cm)',
         'label-weight': 'Weight (kg)',
         'label-activity': 'Activity Level',
-        'activity-low': 'Low (mostly sedentary)',
-        'activity-mid': 'Moderate (exercise 3–4 days/week)',
-        'activity-high': 'High (intense exercise almost daily)',
+        'activity-sedentary': 'Sedentary / desk job (1.2)',
+        'activity-light': 'Light 1–3 days/week (1.375)',
+        'activity-moderate': 'Moderate 3–5 days/week (1.5)',
+        'activity-active': 'Active 6–7 days/week (1.725)',
+        'activity-very-active': 'Very active / athlete (1.9)',
         'label-goal': 'Goal',
         'goal-lose': '🔻 Lose Weight',
         'goal-gain': '💪 Build Muscle',
@@ -108,7 +121,10 @@ const PROFILE_I18N = {
         'confirm-logout-confirm': 'Log Out',
         'confirm-logout-cancel': 'Cancel',
         'age-hint': (age) => `${age} years old`,
-        'age-hint-empty': 'Birthdate not set yet — please fill it in'
+        'age-hint-empty': 'Birthdate not set yet — please fill it in',
+        'label-bmr-history': 'Latest BMR / TDEE',
+        'bmr-history-empty': 'No data yet — save your height/weight to calculate',
+        'bmr-history-row': (bmr, tdee) => `BMR ${bmr} · TDEE ${tdee} kcal`
     }
 };
 
@@ -179,42 +195,87 @@ async function loadProfileAndBodyStats() {
     try {
         applyBodyStatsToForm(await SoyDeeAPI.request(`/members/${id}/body-stats/latest`));
     } catch (e) { /* 404 = ยังไม่เคยบันทึกข้อมูลร่างกาย — ใช้ค่าเริ่มต้นใน HTML ต่อไป */ }
+
+    await loadBmrHistory();
+}
+
+function fmtBmrDate(value) {
+    const d = new Date(value);
+    if (isNaN(d.getTime())) return '—';
+    return d.toLocaleDateString(getLang() === 'en' ? 'en-GB' : 'th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+/** แท็บข้อมูลร่างกาย: แสดง BMR/TDEE ล่าสุด (อ่านอย่างเดียว) จาก GET /bmr/history */
+async function loadBmrHistory() {
+    const list = document.getElementById('bmrHistoryList');
+    if (!list) return;
+    const id = mbId();
+    if (!id) return;
+
+    let items = [];
+    try {
+        const history = await SoyDeeAPI.request(`/members/${id}/bmr/history`, { query: { limit: 4, page: 1 } });
+        items = (history && history.items) || [];
+    } catch (e) { /* ยังไม่มีประวัติ — แสดงข้อความว่าง */ }
+
+    list.innerHTML = items.length
+        ? items.map((h, i) => `
+            <div class="bmr-history-row${i === 0 ? ' bmr-history-row-latest' : ''}">
+                <span class="bmr-history-date">${fmtBmrDate(h.mbh_record_date)}</span>
+                <span>${h.mbh_bmr != null && h.mbh_tdee != null ? t('bmr-history-row')(Math.round(h.mbh_bmr), Math.round(h.mbh_tdee)) : '—'}</span>
+            </div>`).join('')
+        : `<div class="bmr-history-empty">${t('bmr-history-empty')}</div>`;
 }
 
 /** แท็บบัญชี: อัปเดตชื่อ/username แต่แนบเพศ+วันเกิดเดิมไปด้วย (validation บังคับส่งครบ) */
 async function saveAccountTab() {
     const id = mbId();
+    // อ่านเพศ/วันเกิดสดจาก input เสมอ (ไม่ใช้ profileState ที่อาจเก่า) — กันเคสแก้ในแท็บ
+    // ข้อมูลร่างกายแล้วสลับมากดบันทึกจากแท็บนี้โดยไม่ได้กดบันทึกแท็บนั้นก่อน ค่าที่เพิ่งแก้จะไม่หายไป
+    const activeGender = document.querySelector('.gender-pill.active');
+    const genderNum = activeGender ? genderKeyToNum(activeGender.dataset.gender) : profileState.mb_gender;
+    const birthDate = document.getElementById('birthDateInput').value || null;
+
     const body = {
         mb_full_name: document.getElementById('displayName').value.trim(),
         mb_user_name: document.getElementById('username').value.trim(),
-        mb_gender: profileState.mb_gender,
-        mb_birth_date: profileState.mb_birth_date ? String(profileState.mb_birth_date).slice(0, 10) : null,
+        mb_gender: genderNum,
+        mb_birth_date: birthDate,
         mb_profile_pic: profileState.mb_profile_pic
     };
     const updated = await SoyDeeAPI.request(`/members/${id}/profile`, { method: 'PUT', body });
     profileState.mb_full_name = body.mb_full_name;
     profileState.mb_user_name = body.mb_user_name;
+    profileState.mb_gender = genderNum;
+    profileState.mb_birth_date = birthDate;
     SoyDeeAPI.session.updateStoredUser({ full_name: updated.mb_full_name, username: updated.mb_user_name });
 }
 
 /** แท็บข้อมูลร่างกาย: อัปเดตเพศ+วันเกิดผ่าน /profile, เพิ่ม snapshot ใหม่ผ่าน /body-stats
- *  (ไม่มี PUT แก้ไข body-stats — ทุกครั้งที่บันทึกคือแถวประวัติใหม่เสมอ ตามตั้งใจ)
- *  แล้วสั่งคำนวณ BMI/BMR/TDEE ใหม่ทันที เพื่อให้ dashboard เห็นค่าล่าสุดโดยไม่ต้องรอ */
+ *  — เซิร์ฟเวอร์เช็คเองว่าค่าไม่เปลี่ยนก็ skip insert (§7.4) และคำนวณ+insert
+ *  member_bmr_history ในทรานแซกชันเดียวกับ body-stats เสมอ ไม่ต้องยิง
+ *  /bmr/calculate แยกอีกก้อนแบบเดิม */
 async function saveBodyTab() {
     const id = mbId();
     const activeGender = document.querySelector('.gender-pill.active');
     const activeGoal = document.querySelector('.goal-pill.active');
     const birthDate = document.getElementById('birthDateInput').value || null;
     const genderNum = activeGender ? genderKeyToNum(activeGender.dataset.gender) : profileState.mb_gender;
+    // อ่านชื่อ/username สดจาก input เสมอ (ไม่ใช้ profileState ที่อาจเก่า) — กันเคสแก้ชื่อในแท็บ
+    // บัญชีแล้วสลับมากดบันทึกจากแท็บนี้โดยไม่ได้กดบันทึกแท็บบัญชีก่อน ค่าที่เพิ่งแก้จะไม่หายไป
+    const fullName = document.getElementById('displayName').value.trim();
+    const userName = document.getElementById('username').value.trim();
 
     const profileBody = {
-        mb_full_name: profileState.mb_full_name,
-        mb_user_name: profileState.mb_user_name,
+        mb_full_name: fullName,
+        mb_user_name: userName,
         mb_gender: genderNum,
         mb_birth_date: birthDate,
         mb_profile_pic: profileState.mb_profile_pic
     };
     await SoyDeeAPI.request(`/members/${id}/profile`, { method: 'PUT', body: profileBody });
+    profileState.mb_full_name = fullName;
+    profileState.mb_user_name = userName;
     profileState.mb_gender = genderNum;
     profileState.mb_birth_date = birthDate;
 
@@ -226,10 +287,20 @@ async function saveBodyTab() {
     };
     await SoyDeeAPI.request(`/members/${id}/body-stats`, { method: 'POST', body: bodyStatsBody });
 
-    const today = new Date().toISOString().slice(0, 10);
-    try {
-        await SoyDeeAPI.request(`/members/${id}/bmr/calculate`, { method: 'POST', body: { mbh_record_date: today } });
-    } catch (e) { /* ไม่ critical ต่อการบันทึกฝั่งนี้ — dashboard จะคำนวณใหม่รอบถัดไปได้ */ }
+    if (typeof broadcastSync === 'function') {
+        try {
+            const history = await SoyDeeAPI.request(`/members/${id}/bmr/history`, { query: { limit: 1, page: 1 } });
+            const latest = history && history.items && history.items[0];
+            if (latest) {
+                broadcastSync('bmr-updated', {
+                    bmi: { value: latest.mbh_bmi, eval_result: latest.mbh_eval_result },
+                    bmr: { bmr: latest.mbh_bmr, tdee: latest.mbh_tdee, tdee_target: latest.mbh_tdee_target }
+                });
+            }
+        } catch (e) { /* broadcast ล้มเหลวไม่ควรบล็อกการบันทึก — เงียบไว้ */ }
+    }
+
+    await loadBmrHistory();
 }
 
 function getLang() {
@@ -262,6 +333,7 @@ function applyLanguage(lang) {
 
     // อายุที่คำนวณไว้ ต้อง re-render ด้วย เพราะมีข้อความ "อายุ __ ปี" ที่ไม่ได้มาจาก data-i18n ตรงๆ
     updateAgeHint();
+    loadBmrHistory();
 }
 
 /* ==============================================================================
@@ -293,6 +365,12 @@ function updateAgeHint() {
 document.addEventListener('DOMContentLoaded', () => {
 
     loadProfileAndBodyStats();
+
+    // กลับมาหน้านี้ผ่าน bfcache (ปุ่ม back ของเบราว์เซอร์) — DOMContentLoaded ไม่ยิงซ้ำ
+    // ค่าที่แก้จากที่อื่นเลยค้างจนกว่าจะกด refresh เอง แก้โดยโหลดข้อมูลใหม่ทุกครั้งที่ restore
+    window.addEventListener('pageshow', (e) => {
+        if (e.persisted) loadProfileAndBodyStats();
+    });
 
     /* ============================================
        3. สลับแท็บ บัญชี / ข้อมูลร่างกาย
@@ -348,11 +426,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (errBox) errBox.hidden = true;
 
             if (!ALLOWED_AVATAR_TYPES.includes(file.type)) {
-                showErr('รองรับเฉพาะไฟล์ jpg, png, webp เท่านั้น');
+                const msg = getLang() === 'en' ? 'Unsupported image file. Use jpg, png or webp.' : 'ไฟล์ภาพนี้ไม่รองรับ ใช้ได้เฉพาะ jpg, png, webp';
+                showErr(msg);
+                showToast(msg, 'error');
                 return;
             }
             if (file.size > MAX_AVATAR_BYTES) {
-                showErr('ขนาดไฟล์ต้องไม่เกิน 5MB');
+                const msg = getLang() === 'en' ? 'File size must not exceed 5MB' : 'ขนาดไฟล์ต้องไม่เกิน 5MB';
+                showErr(msg);
+                showToast(msg, 'error');
                 return;
             }
 
@@ -365,6 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderAvatar(result.mb_profile_pic);
                 profileState.mb_profile_pic = result.mb_profile_pic;
                 SoyDeeAPI.session.updateStoredUser({ profile_pic: result.mb_profile_pic });
+                if (typeof broadcastSync === 'function') broadcastSync('avatar-updated', { url: result.mb_profile_pic });
                 showToast(getLang() === 'en' ? 'Profile photo updated' : 'เปลี่ยนรูปโปรไฟล์แล้ว', 'success');
             } catch (e) {
                 const msg = (e && e.message) || 'อัปโหลดรูปไม่สำเร็จ';
@@ -413,6 +496,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setLang(nextLang);
             syncToggle(nextLang);
             applyLanguage(nextLang);
+            if (typeof broadcastSync === 'function') broadcastSync('lang-updated', { lang: nextLang });
         });
     }
 
@@ -582,6 +666,28 @@ document.addEventListener('DOMContentLoaded', () => {
                     errBox.hidden = false;
                 }
                 showToast(msg, 'error');
+            }
+        });
+    }
+
+    /* ============================================
+       10. Cross-tab sync (soydee_sync) — รับค่าจากแท็บอื่นที่เปิดหน้านี้/หน้าอื่น
+       ค้างอยู่พร้อมกัน (ดู assets/js/shared/app.js broadcastSync/onSync)
+       theme-updated: app.js จัดการ toggle class ให้แล้ว ที่นี่แค่ sync UI สวิตช์
+       ============================================ */
+    if (typeof onSync === 'function') {
+        onSync((msg) => {
+            if (msg.type === 'avatar-updated' && msg.payload.url) {
+                renderAvatar(msg.payload.url);
+                profileState.mb_profile_pic = msg.payload.url;
+            }
+            if (msg.type === 'theme-updated' && themeSwitch) {
+                themeSwitch.setAttribute('aria-checked', String(msg.payload.theme === 'dark'));
+            }
+            if (msg.type === 'lang-updated') {
+                setLang(msg.payload.lang);
+                if (langToggle) langToggle.textContent = msg.payload.lang === 'en' ? 'EN' : 'TH';
+                applyLanguage(msg.payload.lang);
             }
         });
     }

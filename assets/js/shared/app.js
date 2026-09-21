@@ -189,7 +189,8 @@ const BMI_GAUGE = {
     cy: 100,      // จุดศูนย์กลางแกน Y ของเกจ
     r: 80,        // รัศมีเกจ
     strokeWidth: 14,
-    gapDeg: 3     // ช่องว่างระหว่างแต่ละแท่งสี (องศา) ให้ดูเป็นเซกเมนต์แยกกันสวยงาม
+    gapDeg: 3,    // ช่องว่างระหว่างแต่ละแท่งสี (องศา) ให้ดูเป็นเซกเมนต์แยกกันสวยงาม
+    capDeg: 5     // ปลายมนของแท่งถัดไปล้ำเข้ามาทับ (องศา) = strokeWidth/2 ÷ r
 };
 
 /** อ่านค่าตัวแปรสีจาก CSS ตรงๆ (single source of truth เดียวกับ style.css)
@@ -203,10 +204,10 @@ function cssColorVar(name, fallback) {
 // สีอ้างอิงตัวแปร --bmi-* ใน style.css (แยกจากสี traffic light อาหารโดยเจตนา
 // — ก่อนหน้านี้ "ท้วม" ใช้สีเหลืองซ้ำกับ "อาหารกินได้แต่ควบคุม" ดู §2.4)
 const BMI_GAUGE_SEGMENTS = [
-    { label: 'ผอม', angleStart: -90, angleEnd: -45, color: cssColorVar('--bmi-thin', '#3B82F6') },
-    { label: 'ปกติ', angleStart: -45, angleEnd: 0, color: cssColorVar('--bmi-normal', '#10B981') },
-    { label: 'ท้วม', angleStart: 0, angleEnd: 45, color: cssColorVar('--bmi-over', '#F97316') },
-    { label: 'อ้วน', angleStart: 45, angleEnd: 90, color: cssColorVar('--bmi-obese', '#EF4444') }
+    { label: 'ผอม', angleStart: -90, angleEnd: -45, color: cssColorVar('--bmi-thin-text', '#3B82F6') },
+    { label: 'ปกติ', angleStart: -45, angleEnd: 0, color: cssColorVar('--bmi-normal-text', '#10B981') },
+    { label: 'ท้วม', angleStart: 0, angleEnd: 45, color: cssColorVar('--bmi-over-text', '#F97316') },
+    { label: 'อ้วน', angleStart: 45, angleEnd: 90, color: cssColorVar('--bmi-obese-text', '#EF4444') }
 ];
 
 /** แปลงมุม (องศา, 0 = บน, ตามทิศ CSS rotate) เป็นพิกัด x,y บนวงกลมเกจ */
@@ -232,18 +233,22 @@ function describeBmiArc(angleStart, angleEnd) {
  *  เซกเมนต์ที่ผิด) ตอนนี้เปลี่ยนเป็น <23.0 / <25.0 ให้ตรงกับ mbh_eval_result
  *  ฝั่ง Go (bmiEvalResult ใน pkg/utils/bmr.go) เป๊ะ */
 function bmiToGaugeAngle(bmiValue) {
-    if (bmiValue < 18.5) {
-        const ratio = Math.max(bmiValue, 0) / 18.5;
-        return -90 + ratio * 45;
-    }
-    if (bmiValue < 23.0) {
-        return -45 + ((bmiValue - 18.5) / (23.0 - 18.5)) * 45;
-    }
-    if (bmiValue < 25.0) {
-        return ((bmiValue - 23.0) / (25.0 - 23.0)) * 45;
-    }
-    const ratio = Math.min((bmiValue - 25.0) / 10, 1);
-    return 45 + ratio * 45;
+    if (bmiValue < 18.5) return gaugeAngleIn(0, Math.max(bmiValue, 0) / 18.5);
+    if (bmiValue < 23.0) return gaugeAngleIn(1, (bmiValue - 18.5) / (23.0 - 18.5));
+    if (bmiValue < 25.0) return gaugeAngleIn(2, (bmiValue - 23.0) / (25.0 - 23.0));
+    return gaugeAngleIn(3, Math.min((bmiValue - 25.0) / 10, 1));
+}
+
+/** มุมเข็มภายในเซกเมนต์ที่ index ตามสัดส่วน ratio (0-1) — ไม่ให้เข็มตกบนรอยต่อสี
+ *  ปลายมนของแท่งถัดไปทับปลายแท่งก่อนหน้าเข้ามา ~5° ถ้าใช้มุมเต็มช่วง ค่าที่ชิดขอบบน
+ *  (เช่น 22.9) เข็มจะชี้เข้าสีของช่วงถัดไปทั้งที่ตัวเลข/ป้ายเป็นอีกสี จึงบีบช่วงมุมเข้ามา */
+function gaugeAngleIn(index, ratio) {
+    const seg = BMI_GAUGE_SEGMENTS[index];
+    const isFirst = index === 0;
+    const isLast = index === BMI_GAUGE_SEGMENTS.length - 1;
+    const lo = seg.angleStart + (isFirst ? 0 : BMI_GAUGE.gapDeg / 2);
+    const hi = seg.angleEnd - (isLast ? 0 : BMI_GAUGE.capDeg);
+    return lo + ratio * (hi - lo);
 }
 
 /** วาดแท่งสีของเกจ BMI ด้วย SVG path จริง (แทนพิกัดที่วาดมือแบบเดิม) */

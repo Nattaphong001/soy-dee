@@ -702,10 +702,10 @@ body.mobile-body {
 .g-col span:last-child { font-size: 12px; }
 /* แถบสีเล็กๆ เหนือแต่ละช่วง ให้จับคู่กับสีของเกจได้ทันที */
 .g-col::before { content: ''; width: 100%; max-width: 54px; height: 4px; margin-bottom: 4px; border-radius: var(--radius-pill); background: var(--gc); }
-.g-col:nth-child(1) { --gc: var(--bmi-thin); }
-.g-col:nth-child(2) { --gc: var(--bmi-normal); }
-.g-col:nth-child(3) { --gc: var(--bmi-over); }
-.g-col:nth-child(4) { --gc: var(--bmi-obese); }
+.g-col:nth-child(1) { --gc: var(--bmi-thin-text); }
+.g-col:nth-child(2) { --gc: var(--bmi-normal-text); }
+.g-col:nth-child(3) { --gc: var(--bmi-over-text); }
+.g-col:nth-child(4) { --gc: var(--bmi-obese-text); }
 /* ป้ายกำกับเกจ BMI 4 ระดับ — ตั้งชื่อคลาสตามความหมาย BMI ไม่ใช่ชื่อสี
    (เดิมใช้ .c-yellow ให้ "ท้วม" ซึ่งพอย้ายสีจริงเป็นส้มแล้วชื่อคลาสจะผิดความหมาย) */
 .c-thin   { color: var(--bmi-thin-text); font-weight: 600;}

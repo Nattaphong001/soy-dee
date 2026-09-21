@@ -264,13 +264,13 @@ async function renderBmiComparison(mbId, dashboard) {
 
         if (delta === 0) {
             valueEl.textContent = I18N.getLang() === 'en' ? 'No change' : 'ไม่เปลี่ยนแปลง';
-            if (iconEl) iconEl.textContent = '➖';
+            if (iconEl) iconEl.innerHTML = SoyIcons.svg('minus');
         } else if (delta > 0) {
             valueEl.textContent = (I18N.getLang() === 'en' ? `Increased ${delta}` : `เพิ่มขึ้น ${delta}`) + ' ↑';
-            if (iconEl) iconEl.textContent = '📈';
+            if (iconEl) iconEl.innerHTML = SoyIcons.svg('trend-up');
         } else {
             valueEl.textContent = (I18N.getLang() === 'en' ? `Decreased ${Math.abs(delta)}` : `ลดลง ${Math.abs(delta)}`) + ' ↓';
-            if (iconEl) iconEl.textContent = '📉';
+            if (iconEl) iconEl.innerHTML = SoyIcons.svg('trend-down');
         }
         box.hidden = false;
     } catch (err) {

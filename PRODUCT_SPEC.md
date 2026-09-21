@@ -65,6 +65,7 @@ assets/
 | `/members/:id/body-stats`, `/body-stats/latest` | POST/GET | profile.js, index.js |
 | `/members/:id/bmr/calculate`, `/bmr/history` | POST/GET | profile.js, index.js |
 | `/members/:id/dashboard` | GET | index.js |
+| `/members/:id/report?from&to` | GET | report.js (สรุปรายงานรายช่วงวัน ≤366 วัน: overview + body/food/activity/sleep) |
 | `/members/:id/avatar` | POST (form-data) | profile.js |
 | `/members/:id/password` | PUT | profile.js |
 | `/members/:id/food-records` | GET/POST/PUT/DELETE | food-record.js |

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>รายงานของฉัน - soy dee</title>
+    <link rel="stylesheet" href="/assets/css/shared/style.css">
+    <link rel="stylesheet" href="/assets/css/shared/nav.css">
+    <link rel="stylesheet" href="/assets/css/shared/record-ui.css">
+    <link rel="stylesheet" href="/assets/css/pages/report.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Theme init: เหมือนหน้าอื่นๆ เป๊ะ ป้องกันหน้าจอกระพริบตอนโหลด -->
+    <script>
+        (function () {
+            try {
+                var saved = localStorage.getItem('theme');
+                if (saved === 'dark') {
+                    document.documentElement.classList.add('dark-theme');
+                }
+            } catch (e) {}
+        })();
+    </script>
+    <script src="/assets/js/shared/icons.js"></script>
+    <script src="/assets/js/shared/api.js"></script>
+    <script>
+        SoyDeeAPI.guardMember();
+    </script>
+</head>
+<body class="mobile-body">
+    <div class="bg-blob-a" aria-hidden="true"></div>
+    <div class="bg-blob-b" aria-hidden="true"></div>
+    <div class="bg-dot-grid" aria-hidden="true"></div>
+
+    <div class="mobile-app">
+
+        <!-- หัวหน้า: ภาพ vector + ตัวเลือกช่วงเวลา -->
+        <div class="top-section record-hero report-hero">
+            <header class="app-header">
+                <div class="hero-text">
+                    <h1 class="page-title" data-i18n="page-title">รายงานของฉัน</h1>
+                    <p class="hero-sub" data-i18n="page-subtitle">สรุปอาหาร กิจกรรม การนอน และร่างกาย ตามช่วงเวลาที่เลือก</p>
+                </div>
+            </header>
+
+            <div class="range-bar">
+                <div class="range-chips" id="rangeChips" role="radiogroup" aria-label="ช่วงเวลา">
+                    <button type="button" class="range-chip" data-range="7" role="radio" aria-checked="false"><span data-i18n="range-7">7 วัน</span></button>
+                    <button type="button" class="range-chip" data-range="30" role="radio" aria-checked="true"><span data-i18n="range-30">30 วัน</span></button>
+                    <button type="button" class="range-chip" data-range="90" role="radio" aria-checked="false"><span data-i18n="range-90">90 วัน</span></button>
+                    <button type="button" class="range-chip" data-range="custom" role="radio" aria-checked="false"><span data-i18n="range-custom">กำหนดเอง</span></button>
+                </div>
+                <div class="range-custom" id="rangeCustom" hidden>
+                    <label class="range-date">
+                        <span data-i18n="range-from">จาก</span>
+                        <input type="date" id="rangeFrom">
+                    </label>
+                    <label class="range-date">
+                        <span data-i18n="range-to">ถึง</span>
+                        <input type="date" id="rangeTo">
+                    </label>
+                    <button type="button" class="range-apply" id="rangeApply" data-i18n="range-apply">ดูรายงาน</button>
+                </div>
+            </div>
+        </div>
+
+        <main class="app-content" id="reportContent">
+
+            <div class="report-error" id="reportError" role="alert" hidden>
+                <span id="reportErrorText"></span>
+                <button type="button" class="range-apply" id="reportRetry" data-i18n="retry">ลองใหม่</button>
+            </div>
+
+            <!-- 1. ภาพรวม -->
+            <section class="summary-card" id="overviewCard">
+                <div class="panel-header">
+                    <div class="header-title">
+                        <span class="icon-box blue-box"><i data-icon="report"></i></span>
+                        <span data-i18n="overview-title">ภาพรวม</span>
+                    </div>
+                    <span class="summary-total" id="rangeLabel">–</span>
+                </div>
+                <div class="kpi-grid" id="kpiGrid"></div>
+            </section>
+
+            <!-- 2. ข้อสังเกตจากบันทึก (กฎง่ายๆ ฝั่ง client จากข้อมูลช่วงที่เลือก ไม่ใช่คำแนะนำทางการแพทย์) -->
+            <section class="summary-card" id="insightCard" hidden>
+                <div class="panel-header">
+                    <div class="header-title">
+                        <span class="icon-box purple-box"><i data-icon="info"></i></span>
+                        <span data-i18n="insight-title">ข้อสังเกตจากบันทึกของคุณ</span>
+                    </div>
+                </div>
+                <ul class="insight-list" id="insightList"></ul>
+                <p class="summary-insight" data-i18n="insight-note">สรุปจากบันทึกของคุณในช่วงที่เลือกเท่านั้น ไม่ใช่คำแนะนำทางการแพทย์</p>
+            </section>
+
+            <!-- 3. แยกย่อยรายส่วน -->
+            <div class="report-tabs" id="reportTabs" role="tablist" aria-label="ส่วนของรายงาน">
+                <button type="button" class="report-tab active" role="tab" data-tab="body" aria-selected="true"><i data-icon="weight"></i><span data-i18n="tab-body">ร่างกาย</span></button>
+                <button type="button" class="report-tab" role="tab" data-tab="food" aria-selected="false"><i data-icon="food"></i><span data-i18n="tab-food">อาหาร</span></button>
+                <button type="button" class="report-tab" role="tab" data-tab="activity" aria-selected="false"><i data-icon="activity"></i><span data-i18n="tab-activity">กิจกรรม</span></button>
+                <button type="button" class="report-tab" role="tab" data-tab="sleep" aria-selected="false"><i data-icon="sleep"></i><span data-i18n="tab-sleep">การนอน</span></button>
+                <button type="button" class="report-tab" role="tab" data-tab="daily" aria-selected="false"><i data-icon="clipboard"></i><span data-i18n="tab-daily">รายวัน</span></button>
+            </div>
+
+            <div class="report-panel" id="panel-body" role="tabpanel"></div>
+            <div class="report-panel" id="panel-food" role="tabpanel" hidden></div>
+            <div class="report-panel" id="panel-activity" role="tabpanel" hidden></div>
+            <div class="report-panel" id="panel-sleep" role="tabpanel" hidden></div>
+            <div class="report-panel" id="panel-daily" role="tabpanel" hidden></div>
+
+            <!-- เว้นระยะให้พ้น bottom nav -->
+            <div class="nav-spacer" aria-hidden="true"></div>
+        </main>
+
+        <nav id="app-nav-bar" class="nav-pill-wrapper">
+            <ul class="nav-pill-container" id="horizontalNav">
+                <div class="nav-indicator" id="navIndicator"></div>
+                <li><a href="index.html" class="nav-icon-item" data-target="home"><i data-icon="home"></i></a></li>
+                <li><a href="food-record.html" class="nav-icon-item" data-target="food"><i data-icon="food"></i></a></li>
+                <li><a href="activity-record.html" class="nav-icon-item" data-target="activity"><i data-icon="activity"></i></a></li>
+                <li><a href="sleep-record.html" class="nav-icon-item" data-target="sleep"><i data-icon="sleep"></i></a></li>
+                <li><a href="report.html" class="nav-icon-item active" data-target="report"><i data-icon="report"></i></a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- tooltip กลางของกราฟทุกอัน (แตะ/วางเมาส์บนแท่งหรือจุด) -->
+    <div class="chart-tip" id="chartTip" role="tooltip" hidden></div>
+
+    <script src="/assets/js/shared/i18n.js"></script>
+    <script src="/assets/js/shared/nav.js"></script>
+    <script src="/assets/js/shared/app.js"></script>
+    <script src="/assets/js/shared/activity-categories.js"></script>
+    <script src="/assets/js/pages/report.js"></script>
+</body>
+</html>

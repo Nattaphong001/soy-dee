@@ -1,0 +1,544 @@
+/* ==============================================================================
+   REPORT PAGE — ใช้ token จาก style.css และคอมโพเนนต์ร่วมจาก record-ui.css
+   (hero, .summary-card, .panel-header, .icon-box, .stat-chip, .cat-pill, .summary-bar)
+   ไฟล์นี้มีเฉพาะส่วนของหน้ารายงาน: ตัวเลือกช่วงเวลา, การ์ด KPI, แท็บ, กราฟ (CSS/SVG ล้วน)
+   สีกราฟ: ซีรีส์เดียว = --rp-s1, หลายหมวด = --rp-s1..s5 ตามลำดับ (พาเลตต์ที่ผ่านการตรวจ CVD)
+   สถานะ (เขียว/เหลือง/แดง) ใช้ token ของโปรเจกต์ และมีข้อความกำกับเสมอ ไม่พึ่งสีอย่างเดียว
+   ============================================================================== */
+
+:root {
+    --rp-s1: #2a78d6;
+    --rp-s2: #eb6834;
+    --rp-s3: #1baf7a;
+    --rp-s4: #eda100;
+    --rp-s5: #e87ba4;
+}
+.dark-theme {
+    --rp-s1: #3987e5;
+    --rp-s2: #d95926;
+    --rp-s3: #199e70;
+    --rp-s4: #c98500;
+    --rp-s5: #d55181;
+}
+
+/* ---------- hero: assets/images/report-banner.svg (วาดเอง เป็น vector) ---------- */
+.report-hero {
+    background-color: #2a3aa8;
+    background-image: url('../../images/report-banner.svg');
+    background-position: center;
+}
+.report-hero::before {
+    background: linear-gradient(180deg, rgba(10, 14, 50, 0.22) 0%, rgba(10, 14, 50, 0.20) 60%, rgba(10, 14, 50, 0.40) 100%);
+}
+.dark-theme .report-hero::before {
+    background: linear-gradient(180deg, rgba(4, 6, 24, 0.40) 0%, rgba(4, 6, 24, 0.44) 60%, rgba(4, 6, 24, 0.62) 100%);
+}
+
+/* ---------- ตัวเลือกช่วงเวลา ---------- */
+.range-bar { padding: 4px 20px 18px; }
+.range-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.range-chip {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 8px 6px;
+    border-radius: var(--radius-pill);
+    border: 1px solid rgba(255, 255, 255, 0.38);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.10));
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    backdrop-filter: blur(14px) saturate(160%);
+    color: #FFFFFF;
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+.range-chip:active { transform: scale(0.96); }
+.range-chip[aria-checked="true"] {
+    background: rgba(255, 255, 255, 0.96);
+    color: #1f2a8a;
+    border-color: transparent;
+}
+.range-chip:focus-visible,
+.range-apply:focus-visible,
+.report-tab:focus-visible,
+.rp-more:focus-visible { outline: 2px solid var(--accent-1); outline-offset: 2px; }
+.range-chip:focus-visible { outline-color: #FFFFFF; }
+
+.range-custom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 8px;
+    margin-top: 10px;
+}
+.range-custom[hidden] { display: none; }
+.range-date {
+    flex: 1 1 130px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+}
+.range-date input {
+    width: 100%;
+    min-width: 0;
+    padding: 8px 10px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.38);
+    background: rgba(255, 255, 255, 0.92);
+    color: #171B26;
+    font: inherit;
+    font-size: 13px;
+}
+.range-apply {
+    padding: 9px 16px;
+    border-radius: var(--radius-pill);
+    border: none;
+    background: var(--accent-grad);
+    color: #FFFFFF;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.range-apply:disabled { opacity: 0.55; cursor: default; }
+.range-custom .range-apply { flex: 1 1 100%; background: #FFFFFF; color: #1f2a8a; }
+
+.report-error {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    border-radius: var(--radius-lg);
+    background: rgba(239, 68, 68, 0.10);
+    border: 1px solid rgba(239, 68, 68, 0.28);
+    font-size: 13px;
+    color: var(--text-main);
+}
+.report-error[hidden] { display: none; }
+.report-error .range-apply[hidden] { display: none; }
+
+#reportContent { display: flex; flex-direction: column; gap: 14px; }
+
+/* ---------- ภาพรวม: KPI ---------- */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 12px;
+}
+.kpi {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 12px;
+    border-radius: var(--radius-lg);
+    background: var(--card-inner);
+}
+.kpi-label {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+.kpi-value {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    flex-wrap: wrap;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--text-main);
+}
+.kpi-unit {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+.kpi-sub {
+    font-size: 11.5px;
+    line-height: 1.4;
+    color: var(--text-muted);
+}
+.kpi .cat-pill { align-self: flex-start; margin-top: 4px; }
+.kpi .summary-bar { margin-top: 6px; height: 8px; }
+
+/* ---------- แท็บส่วนย่อย ---------- */
+.report-tabs {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+    padding: 4px;
+    border-radius: var(--radius-xl);
+    background: var(--card-bg);
+    border: 1px solid var(--border-hairline);
+    box-shadow: var(--shadow-card);
+}
+.report-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 2px 7px;
+    border: none;
+    border-radius: 14px;
+    background: transparent;
+    color: var(--text-muted);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+.report-tab [data-icon] { display: inline-flex; font-size: 20px; }
+.report-tab.active {
+    background: var(--accent-grad);
+    color: #FFFFFF;
+}
+
+.report-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+.report-panel[hidden] { display: none; }
+
+.rp-loading {
+    padding: 28px 0;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.chart-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+.chart-sub {
+    margin-top: 2px;
+    font-size: 11.5px;
+    color: var(--text-muted);
+}
+.chart-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+/* ชิปสถิติหลายแถว */
+.rp-chips {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+.rp-chips.is-3 { grid-template-columns: repeat(3, 1fr); }
+.rp-chips:not(.is-3) .stat-chip:last-child:nth-child(odd) { grid-column: 1 / -1; }
+.rp-chips .stat-chip { flex-direction: column; align-items: center; gap: 2px; padding: 12px 6px; }
+
+/* ---------- กราฟแท่ง (CSS) ---------- */
+.bar-chart { position: relative; }
+.bar-plot {
+    position: relative;
+    height: 132px;
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    border-bottom: 1px solid var(--border-hairline);
+}
+.grid-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 0;
+    border-top: 1px dashed var(--border-hairline);
+    pointer-events: none;
+}
+.grid-tag {
+    position: absolute;
+    left: 0;
+    top: -14px;
+    font-size: 10px;
+    color: var(--text-muted);
+}
+.bar-band {
+    position: absolute;
+    left: 0;
+    right: 0;
+    background: color-mix(in srgb, var(--color-green) 14%, transparent);
+    border-top: 1px dashed color-mix(in srgb, var(--color-green) 45%, transparent);
+    border-bottom: 1px dashed color-mix(in srgb, var(--color-green) 45%, transparent);
+    pointer-events: none;
+}
+.bar-col {
+    position: relative;
+    z-index: 1;
+    flex: 1 1 0;
+    min-width: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 2px;
+    cursor: pointer;
+}
+.bar {
+    width: 100%;
+    max-width: 22px;
+    margin: 0 auto;
+    min-height: 0;
+    background: var(--rp-s1);
+    border-radius: 4px 4px 0 0;
+    transition: opacity 0.15s ease;
+}
+.bar-col:hover .bar,
+.bar-col.is-active .bar { opacity: 0.78; }
+.bar.seg-green  { background: var(--color-green); }
+.bar.seg-yellow { background: var(--color-yellow); }
+.bar.seg-red    { background: var(--color-red); }
+.bar.seg-green, .bar.seg-yellow { border-radius: 0; }
+.bar.seg-red { border-radius: 4px 4px 0 0; }
+.bar-col.is-stack .bar:first-child:not(:last-child) { border-radius: 0; }
+.bar-axis {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+    font-size: 10.5px;
+    color: var(--text-muted);
+}
+
+/* ---------- กราฟเส้น (SVG) ---------- */
+.line-chart { width: 100%; height: auto; display: block; overflow: visible; }
+.line-chart .lc-grid { stroke: var(--border-hairline); stroke-width: 1; stroke-dasharray: 3 3; }
+.line-chart .lc-ref { stroke: color-mix(in srgb, var(--text-muted) 55%, transparent); stroke-width: 1; stroke-dasharray: 2 3; }
+.line-chart .lc-line { fill: none; stroke: var(--rp-s1); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.line-chart .lc-dot { fill: var(--rp-s1); stroke: var(--card-bg); stroke-width: 2; }
+.line-chart .lc-hit { fill: transparent; cursor: pointer; }
+.line-chart text { font-size: 10px; fill: var(--text-muted); font-family: inherit; }
+
+/* ---------- โดนัท ---------- */
+.donut-wrap {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.donut {
+    position: relative;
+    flex: 0 0 132px;
+    width: 132px;
+    height: 132px;
+}
+.donut svg { width: 100%; height: 100%; transform: rotate(-90deg); display: block; }
+.donut-track { fill: none; stroke: var(--card-inner); stroke-width: 6; }
+.donut-seg { fill: none; stroke-width: 6; cursor: pointer; }
+.donut-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+.donut-center strong { font-size: 24px; font-weight: 700; line-height: 1.1; color: var(--text-main); }
+.donut-center span { font-size: 11px; color: var(--text-muted); }
+
+.legend {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.legend-row {
+    display: grid;
+    grid-template-columns: 10px 1fr auto;
+    align-items: center;
+    gap: 8px;
+    font-size: 12.5px;
+    color: var(--text-main);
+}
+.legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+.legend-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.legend-val { font-weight: 700; }
+.legend-val small { font-weight: 500; color: var(--text-muted); margin-left: 3px; }
+
+/* legend ใต้แถบสัดส่วน (การนอน) */
+.seg-legend { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+
+/* ---------- แถบแนวนอน (Top N) ---------- */
+.hbar-list { display: flex; flex-direction: column; gap: 12px; }
+.hbar-row { display: flex; flex-direction: column; gap: 5px; }
+.hbar-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 12.5px;
+    color: var(--text-main);
+}
+.hbar-name { min-width: 0; display: flex; align-items: center; gap: 6px; overflow: hidden; }
+.hbar-name span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hbar-val { flex-shrink: 0; font-weight: 700; }
+.hbar-val small { font-weight: 500; color: var(--text-muted); margin-left: 3px; }
+.hbar-track { height: 8px; border-radius: 999px; background: var(--card-inner); overflow: hidden; }
+.hbar-fill { height: 100%; border-radius: 999px; background: var(--rp-s1); }
+
+/* เป้าหมายรายสัปดาห์ (กิจกรรม) */
+.goal-meter { margin-top: 12px; }
+.goal-meter .hbar-fill { background: var(--color-green); }
+.goal-meter .hbar-fill.is-under { background: var(--rp-s1); }
+
+/* ---------- รายการบันทึก (ตาราง/ลิสต์ย่อย) ---------- */
+.rp-list { display: flex; flex-direction: column; }
+.rp-row {
+    --lc: var(--text-muted);
+    display: grid;
+    grid-template-columns: 46px 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-top: 1px solid var(--border-hairline);
+}
+.rp-row:first-child { border-top: none; }
+.rp-date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 5px 0;
+    border-radius: 10px;
+    background: var(--card-inner);
+    line-height: 1.15;
+}
+.rp-date strong { font-size: 16px; font-weight: 700; color: var(--text-main); }
+.rp-date span { font-size: 10px; color: var(--text-muted); }
+.rp-main { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.rp-name {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text-main);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.rp-meta { font-size: 11.5px; line-height: 1.4; color: var(--text-muted); }
+.rp-meta .numeric { font-weight: 600; color: var(--text-main); }
+.rp-side { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; text-align: right; }
+.rp-side .cat-pill { margin-top: 0; }
+.rp-value { font-size: 15px; font-weight: 700; color: var(--text-main); }
+.rp-value small { font-size: 11px; font-weight: 500; color: var(--text-muted); }
+.rp-more {
+    margin-top: 6px;
+    padding: 10px;
+    border: 1px dashed var(--border-hairline);
+    border-radius: var(--radius-lg);
+    background: transparent;
+    color: var(--accent-1);
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.rp-more[hidden] { display: none; }
+.rp-cap-note { margin-top: 8px; font-size: 11px; color: var(--text-muted); text-align: center; }
+
+/* ---------- สถานะ/สีประจำรายการ ---------- */
+.lc-green  { --lc: var(--color-green); }
+.lc-yellow { --lc: var(--color-yellow); }
+.lc-red    { --lc: var(--color-red); }
+.lc-blue   { --lc: var(--color-blue); }
+.lc-orange { --lc: var(--color-orange); }
+.lc-muted  { --lc: var(--text-muted); }
+
+/* ---------- ข้อสังเกต ---------- */
+.insight-list { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.insight {
+    --ic: var(--color-blue);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: var(--radius-lg);
+    background: color-mix(in srgb, var(--ic) 9%, var(--card-inner));
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text-main);
+}
+.insight.is-good { --ic: var(--color-green); }
+.insight.is-warn { --ic: var(--color-yellow); }
+.insight-icon { flex-shrink: 0; display: inline-flex; margin-top: 1px; font-size: 18px; color: var(--ic); }
+
+/* ---------- ตารางรายวัน ---------- */
+.daily-scroll { overflow-x: auto; margin: 0 -4px; padding: 0 4px; }
+.daily-table { width: 100%; border-collapse: collapse; font-size: 12.5px; color: var(--text-main); }
+.daily-table th, .daily-table td { padding: 8px 4px; text-align: center; border-top: 1px solid var(--border-hairline); white-space: nowrap; }
+.daily-table thead th {
+    border-top: none;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--text-muted);
+    vertical-align: bottom;
+}
+.daily-table thead th small { display: block; font-size: 10px; font-weight: 500; }
+.daily-table tbody th { text-align: left; font-weight: 700; padding-left: 2px; }
+.daily-table thead th:first-child { text-align: left; padding-left: 2px; }
+.daily-table .badge-dot { display: inline-block; vertical-align: middle; margin-left: 2px; }
+.daily-table tr.is-empty { color: var(--text-muted); }
+.daily-table tr.is-empty th { font-weight: 500; }
+.daily-legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; font-size: 11.5px; color: var(--text-main); }
+.daily-legend span { display: inline-flex; align-items: center; gap: 5px; }
+
+/* ---------- ยังไม่มีข้อมูล ---------- */
+.rp-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 26px 16px;
+    text-align: center;
+}
+.rp-empty-icon { font-size: 34px; color: var(--text-muted); display: inline-flex; }
+.rp-empty-title { font-size: 14px; font-weight: 700; color: var(--text-main); }
+.rp-empty-desc { font-size: 12px; line-height: 1.5; color: var(--text-muted); }
+.rp-empty .range-apply { margin-top: 8px; text-decoration: none; }
+
+/* ---------- tooltip ---------- */
+.chart-tip {
+    position: fixed;
+    z-index: 9999;
+    max-width: 220px;
+    padding: 7px 10px;
+    border-radius: 9px;
+    background: #171B26;
+    color: #FFFFFF;
+    font-size: 12px;
+    line-height: 1.45;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+}
+.dark-theme .chart-tip { background: #F2F4F9; color: #171B26; }
+.chart-tip[hidden] { display: none; }
+.chart-tip strong { display: block; font-weight: 700; }
+
+@media (max-width: 340px) {
+    .donut-wrap { flex-direction: column; align-items: stretch; }
+    .donut { align-self: center; }
+    .kpi-value { font-size: 21px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .bar, .range-chip, .report-tab { transition: none; }
+}

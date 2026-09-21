@@ -63,7 +63,7 @@
     transition: left 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
                 width 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
     z-index: 0;
-    box-shadow: 0 6px 16px rgba(108, 92, 231, 0.35);
+    box-shadow: 0 4px 12px rgba(79, 99, 232, 0.28);
     view-transition-name: app-nav-indicator;
 }
 
@@ -103,7 +103,7 @@
     flex: 1;
     height: 46px;
     border-radius: var(--radius-full);
-    font-size: 20px;
+    font-size: 24px;
     color: var(--text-muted);
     cursor: pointer;
     text-decoration: none;

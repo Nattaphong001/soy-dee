@@ -25,7 +25,7 @@ function showConfirm({ title = '', message = '', confirmText = 'ยืนยั�
     overlay.id = 'globalConfirmOverlay';
     overlay.innerHTML = `
         <div class="confirm-card" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMessage">
-            <div class="confirm-icon">⚠️</div>
+            <div class="confirm-icon"><i data-icon="warning"></i></div>
             <div class="confirm-title" id="confirmTitle"></div>
             <div class="confirm-message" id="confirmMessage"></div>
             <div class="confirm-actions">
@@ -363,10 +363,10 @@ const GECKO_CONFIG = {
 
 // ท่าทาง + ข้อความ + สีรอยเท้า ของการ์ดแต่ละใบ
 const GECKO_CARD_ACTIONS = {
-    gender:  { pose: 'pose-flex',    bubble: 'แข็งแรง! 💪',  color: '#A855F7' },
-    age:     { pose: 'pose-cool',    bubble: 'ยังเด็กอยู่ 😎', color: '#3B82F6' },
+    gender:  { pose: 'pose-flex',    bubble: 'แข็งแรง!',     color: '#A855F7' },
+    age:     { pose: 'pose-cool',    bubble: 'ยังเด็กอยู่',    color: '#3B82F6' },
     height:  { pose: 'pose-stretch', bubble: 'ยืดตัวหน่อย!',  color: '#10B981' },
-    weight:  { pose: 'pose-weigh',   bubble: 'โอ้โห! ⚖️',     color: '#F97316' }
+    weight:  { pose: 'pose-weigh',   bubble: 'โอ้โห!',        color: '#F97316' }
 };
 
 const ALL_POSE_CLASSES = Object.values(GECKO_CARD_ACTIONS).map(a => a.pose);

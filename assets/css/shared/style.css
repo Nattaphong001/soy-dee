@@ -32,9 +32,9 @@
     color-scheme: light;
 
     /* --- พื้นผิว (Surfaces) --- */
-    --bg-page: #F5F7FB;
+    --bg-page: #F4F6FA;
     --surface: #FFFFFF;
-    --surface-alt: #EEF1F7;
+    --surface-alt: #EDF0F6;
     --card-bg: #FFFFFF;
     --card-inner: #F5F7FB;
 
@@ -48,14 +48,14 @@
     --accent-grad: linear-gradient(135deg, var(--accent-1), var(--accent-2));
 
     /* --- เงาและเส้นขอบ (Depth) --- */
-    --shadow-soft: 0 14px 32px rgba(23, 27, 38, 0.08);
-    --shadow-card: 0 4px 16px rgba(23, 27, 38, 0.05);
-    --border-hairline: rgba(23, 27, 38, 0.07);
+    --shadow-soft: 0 10px 28px rgba(23, 27, 38, 0.07);
+    --shadow-card: 0 1px 2px rgba(23, 27, 38, 0.04), 0 6px 16px rgba(23, 27, 38, 0.04);
+    --border-hairline: rgba(23, 27, 38, 0.08);
 
     /* --- ความโค้งมน (Radius) --- */
-    --radius-xl: 20px;
-    --radius-lg: 18px;
-    --radius-md: 13px;
+    --radius-xl: 18px;
+    --radius-lg: 14px;
+    --radius-md: 12px;
     --radius-full: 999px;
     --radius-pill: 999px;
 
@@ -99,10 +99,10 @@
     color-scheme: dark;
 
     --bg-page: #0E1015;
-    --surface: #161923;
-    --surface-alt: #1E2230;
-    --card-bg: #1C1C1E;
-    --card-inner: #252528;
+    --surface: #151923;
+    --surface-alt: #1E2331;
+    --card-bg: #171B27;
+    --card-inner: #202536;
 
     --text-main: #F2F4F9;
     --text-muted: #8A93A8;
@@ -151,6 +151,12 @@ body.mobile-body {
      หรือกันคลิก content จริง
    - ปรับสี/ตำแหน่ง/ความเบลอได้ที่ตัวแปรด้านล่างนี้
    ============================================================================== */
+.bg-blob-a,
+.bg-blob-b,
+.bg-dot-grid {
+    display: none; /* Clean Health-Tech: พื้นหลังเรียบ ไม่มีลวดลายตกแต่ง */
+}
+
 .bg-blob-a,
 .bg-blob-b {
     position: fixed;
@@ -216,8 +222,9 @@ body.mobile-body {
     position: relative;
     z-index: 1;
     background: var(--surface);
-    border-radius: 0 0 28px 28px;
+    border-radius: 0 0 24px 24px;
     box-shadow: var(--shadow-card);
+    border-bottom: 1px solid var(--border-hairline);
     padding-bottom: 4px;
     margin-bottom: 10px;
 }
@@ -309,7 +316,8 @@ body.mobile-body {
     background: var(--surface-alt);
     border: none;
     border-radius: 50%;
-    font-size: 18px;
+    font-size: 20px;
+    color: var(--text-main);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -364,8 +372,7 @@ body.mobile-body {
     color: var(--accent-1);
     flex-shrink: 0;
 }
-.edit-profile-btn .icon-inline .icon-img { width: 100%; height: 100%; }
-.edit-profile-btn .icon-inline .icon-emoji { font-size: 13px; }
+.edit-profile-btn .icon-inline { font-size: 16px; }
 
 .date-picker-pill {
     background-color: var(--surface);
@@ -386,7 +393,7 @@ body.mobile-body {
     transform: translateY(-1px);
 }
 
-.date-picker-pill .icon-calendar { font-size: 14px; }
+.date-picker-pill .icon-calendar { font-size: 17px; color: var(--accent-1); display: inline-flex; }
 .date-picker-pill .date-text { font-size: 13px; font-weight: 500; }
 .date-picker-pill .icon-chevron { font-size: 12px; color: var(--text-muted); }
 
@@ -450,31 +457,34 @@ body.mobile-body {
 
 .stat-icon {
     width: 36px; height: 36px;
-    border-radius: 10px;
+    border-radius: 11px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 17px;
+    font-size: 21px;
     flex-shrink: 0;
 }
 
-.icon-blue { background-color: rgba(59, 130, 246, 0.15); }
-.icon-green { background-color: rgba(16, 185, 129, 0.15); }
-.icon-purple { background-color: rgba(168, 85, 247, 0.15); }
-.icon-orange { background-color: rgba(249, 115, 22, 0.15); }
+.icon-blue { background-color: rgba(59, 130, 246, 0.12); color: var(--color-blue); }
+.icon-green { background-color: rgba(16, 185, 129, 0.12); color: var(--color-green); }
+.icon-purple { background-color: rgba(168, 85, 247, 0.12); color: var(--color-purple); }
+.icon-orange { background-color: rgba(249, 115, 22, 0.12); color: var(--color-orange); }
 
 /* ==============================================================================
-   ICON UPGRADE PATH — เตรียมไว้สำหรับไอคอน 3D/Isometric
+   ICON SYSTEM — Phosphor Duotone (inline SVG จาก assets/js/shared/icons.js)
    ------------------------------------------------------------------------------
-   ทุกจุดไอคอนใช้โครงสร้างเดียวกัน:
-     <img src="assets/icons/xxx.png" class="icon-img" onerror="...">
-     <span class="icon-emoji" style="display:none">🔔</span>
-   ถ้าไฟล์รูปที่ assets/icons/ ยังไม่มี (404) → onerror จะซ่อน <img> แล้วโชว์
-   emoji เดิมแทนอัตโนมัติ ไม่มีวันพังแม้ยังไม่ได้เพิ่มไฟล์จริง
-   พอวางไฟล์ 3D icon ที่ path ถูกต้องแล้ว รูปจะขึ้นแทน emoji ทันทีโดยไม่ต้องแก้โค้ด
+   ใช้ <i data-icon="ชื่อ"></i> — ขนาด = font-size ของตัวแม่ (1em), สี = color ของตัวแม่
+   แต่ละจุดกำหนดสีผ่านคลาสของตัวแม่ (.icon-blue, .green-box ฯลฯ) ให้ตามธีมสว่าง/มืดเอง
    ============================================================================== */
-.icon-img {
-    width: 70%;
-    height: 70%;
-    object-fit: contain;
+.ph {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-style: normal;
+    line-height: 0;
+    flex-shrink: 0;
+}
+.ph-icon {
+    width: 1em;
+    height: 1em;
     display: block;
 }
 .icon-emoji {
@@ -522,11 +532,14 @@ body.mobile-body {
 }
 
 .icon-box {
-    width: 22px; height: 22px; border-radius: 6px;
-    display: flex; align-items: center; justify-content: center; font-size: 11px;
+    width: 24px; height: 24px; border-radius: 7px;
+    display: flex; align-items: center; justify-content: center; font-size: 15px;
 }
-.green-box { background-color: rgba(16, 185, 129, 0.15); }
-.purple-box { background-color: rgba(168, 85, 247, 0.15); }
+.green-box { background-color: rgba(16, 185, 129, 0.12); color: var(--color-green); }
+.purple-box { background-color: rgba(168, 85, 247, 0.12); color: var(--color-purple); }
+.yellow-box { background-color: rgba(245, 158, 11, 0.12); color: var(--color-yellow); }
+.red-box { background-color: rgba(239, 68, 68, 0.12); color: var(--color-red); }
+.blue-box { background-color: rgba(59, 130, 246, 0.12); color: var(--color-blue); }
 
 /* ==============================================================================
    INFO TOOLTIP / POPOVER — ปุ่ม info-icon ตอนนี้เป็นปุ่มจริง กดแล้วโชว์คำอธิบาย
@@ -541,8 +554,10 @@ body.mobile-body {
 }
 
 .info-icon {
-    font-size: 12px;
-    opacity: 0.6;
+    font-size: 16px;
+    color: var(--text-muted);
+    display: inline-flex;
+    opacity: 0.8;
     background: none;
     border: none;
     padding: 4px;
@@ -694,7 +709,7 @@ body.mobile-body {
     display: flex; align-items: center; gap: 6px; background-color: var(--card-inner);
     padding: 9px 10px; border-radius: 10px; margin-top: auto;
 }
-.comp-icon { font-size: 14px; color: var(--color-green); }
+.comp-icon { font-size: 18px; color: var(--color-green); display: inline-flex; }
 .comp-label { font-size: 9px; color: var(--text-muted); }
 .comp-value { font-size: 10px; color: var(--color-green); font-weight: 600; margin-top: 2px;}
 
@@ -728,11 +743,11 @@ body.mobile-body {
     width: 32px; height: 32px;
     border-radius: 9px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 15px;
+    font-size: 19px;
     flex-shrink: 0;
 }
-.tt-icon-blue { background-color: rgba(59, 130, 246, 0.15); }
-.tt-icon-orange { background-color: rgba(249, 115, 22, 0.15); }
+.tt-icon-blue { background-color: rgba(59, 130, 246, 0.12); color: var(--color-blue); }
+.tt-icon-orange { background-color: rgba(249, 115, 22, 0.12); color: var(--color-orange); }
 
 .tt-info { display: flex; flex-direction: column; gap: 1px; }
 .tt-label { font-size: 10px; color: var(--text-muted); font-weight: 500; }
@@ -786,7 +801,7 @@ body.mobile-body {
    ประกาศทับตรงๆ ไม่งั้น #dashboardEmptyState โผล่มาซ้อนกับการ์ดข้อมูลจริง
    ทั้งที่ set .hidden=true ไปแล้ว (เจอจริงตอนทดสอบ 390px) */
 .empty-state[hidden] { display: none; }
-.empty-state-icon { font-size: 30px; }
+.empty-state-icon { font-size: 36px; color: var(--accent-1); opacity: 0.75; display: inline-flex; }
 .empty-state-title { font-size: 14px; font-weight: 700; color: var(--text-main); }
 .empty-state-desc { font-size: 12px; line-height: 1.6; max-width: 240px; }
 .empty-state-cta {
@@ -1179,7 +1194,7 @@ body.mobile-body {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+    font-size: 24px;
     margin: 0 auto 12px auto;
 }
 

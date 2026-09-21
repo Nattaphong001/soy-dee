@@ -20,8 +20,8 @@ const SLEEP_I18N = {
         'eval-ok': 'นอนพอดี',
         'eval-high': 'นอนมากไป',
         'today-btn': 'วันนี้',
-        'label-start': '🌙 เวลาที่เริ่มนอน',
-        'label-end': '☀️ เวลาที่ตื่นนอน',
+        'label-start': 'เวลาที่เริ่มนอน',
+        'label-end': 'เวลาที่ตื่นนอน',
         'err-time-order': 'เวลาตื่นนอนต้องอยู่หลังเวลาที่เริ่มนอน',
         'err-save': 'บันทึกไม่สำเร็จ ลองใหม่อีกครั้ง',
         'label-quality': 'คุณภาพการนอน (เลือกเอง)',
@@ -40,7 +40,7 @@ const SLEEP_I18N = {
         'btn-cancel': 'ยกเลิก',
         'toast-deleted': 'ลบบันทึกการนอนแล้ว',
         'toast-delete-failed': 'ลบรายการไม่สำเร็จ กรุณาลองใหม่',
-        'btn-edit-record': '✏️ แก้ไขข้อมูล',
+        'btn-edit-record': 'แก้ไขข้อมูล',
         'cancel-edit-btn': 'ยกเลิกการแก้ไข'
     },
     en: {
@@ -51,8 +51,8 @@ const SLEEP_I18N = {
         'eval-ok': 'Good amount',
         'eval-high': 'Too much sleep',
         'today-btn': 'Today',
-        'label-start': '🌙 Bedtime',
-        'label-end': '☀️ Wake-up time',
+        'label-start': 'Bedtime',
+        'label-end': 'Wake-up time',
         'err-time-order': 'Wake-up time must be after bedtime',
         'err-save': 'Failed to save, please try again',
         'label-quality': 'Sleep quality (self-assessed)',
@@ -71,7 +71,7 @@ const SLEEP_I18N = {
         'btn-cancel': 'Cancel',
         'toast-deleted': 'Sleep record deleted',
         'toast-delete-failed': 'Failed to delete — please try again',
-        'btn-edit-record': '✏️ Edit record',
+        'btn-edit-record': 'Edit record',
         'cancel-edit-btn': 'Cancel edit'
     }
 };
@@ -235,7 +235,7 @@ function renderHistory() {
         const el = document.createElement('div');
         el.className = 'history-item';
         el.innerHTML = `
-            <div class="history-item-icon" aria-hidden="true">💤</div>
+            <div class="history-item-icon" aria-hidden="true"><i data-icon="sleep"></i></div>
             <div class="history-item-body" role="button" tabindex="0" aria-label="${formatDateTH(item.date)}">
                 <div class="history-item-date">${formatDateTH(item.date)}</div>
                 <div class="history-item-time">${formatTime(item.start)} – ${formatTime(item.end)}</div>
@@ -245,7 +245,7 @@ function renderHistory() {
                 <span class="history-item-tag ${tagClassByEval[evalKey]}">${t('eval-' + evalKey)}</span>
             </div>
             <div class="history-item-actions">
-                <button type="button" class="history-item-delete-btn" aria-label="${t('delete-title')}">🗑️</button>
+                <button type="button" class="history-item-delete-btn" aria-label="${t('delete-title')}"><i data-icon="trash"></i></button>
             </div>
         `;
         // แตะที่แถวเพื่อกระโดดปฏิทินไปวันนั้น + โหลดค่าของวันนั้นเข้าฟอร์มให้แก้ไขได้ (ดู changeDate)

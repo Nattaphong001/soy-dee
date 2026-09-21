@@ -25,6 +25,7 @@
             } catch (e) {}
         })();
     </script>
+    <script src="/assets/js/shared/icons.js"></script>
     <script src="/assets/js/shared/api.js"></script>
     <script>
         SoyDeeAPI.guardMember();
@@ -44,12 +45,12 @@
 
             <div class="date-picker-wrapper">
                 <button class="edit-profile-btn today-btn" type="button" id="todayBtn" aria-label="กลับไปวันนี้">
-                    <span class="icon-inline"><span class="icon-emoji">↩️</span></span>
+                    <span class="icon-inline"><i data-icon="today"></i></span>
                     <span data-i18n="today-btn">วันนี้</span>
                 </button>
 
                 <div class="date-picker-pill" id="datePickerPill" role="button" tabindex="0" aria-label="เลือกวันที่">
-                    <span class="icon-calendar">📅</span>
+                    <span class="icon-calendar"><i data-icon="calendar"></i></span>
                     <span class="date-text" id="dateText">24 พ.ค. 2567</span>
                     <span class="icon-chevron">⌄</span>
                 </div>
@@ -64,7 +65,7 @@
                  ========================================================== -->
             <section class="sleep-hero-card">
                 <div class="sleep-hero-icon" aria-hidden="true">
-                    <span class="icon-emoji">💤</span>
+                    <i data-icon="sleep"></i>
                 </div>
                 <div class="sleep-hero-value numeric" id="sleepDurationValue">–.– <small>ชม.</small></div>
                 <div class="sleep-hero-label" data-i18n="hero-label">ระยะเวลาการนอนหลับรวม</div>
@@ -80,11 +81,11 @@
             <section class="form-card sleep-view-card" id="sleepViewCard" hidden>
                 <div class="sleep-view-row">
                     <div class="sleep-view-field">
-                        <span class="form-label" data-i18n="label-start">🌙 เวลาที่เริ่มนอน</span>
+                        <span class="form-label has-icon"><i data-icon="moon"></i><span data-i18n="label-start">เวลาที่เริ่มนอน</span></span>
                         <span class="sleep-view-value" id="sleepViewStart">–</span>
                     </div>
                     <div class="sleep-view-field">
-                        <span class="form-label" data-i18n="label-end">☀️ เวลาที่ตื่นนอน</span>
+                        <span class="form-label has-icon"><i data-icon="sun"></i><span data-i18n="label-end">เวลาที่ตื่นนอน</span></span>
                         <span class="sleep-view-value" id="sleepViewEnd">–</span>
                     </div>
                 </div>
@@ -92,7 +93,7 @@
                     <span class="form-label" data-i18n="label-quality">คุณภาพการนอน (ประเมินด้วยตัวเอง)</span>
                     <span class="sleep-view-value" id="sleepViewQuality">–</span>
                 </div>
-                <button type="button" class="form-link-btn" id="sleepEditBtn" data-i18n="btn-edit-record">แก้ไขข้อมูล</button>
+                <button type="button" class="form-link-btn" id="sleepEditBtn"><i data-icon="edit"></i><span data-i18n="btn-edit-record">แก้ไขข้อมูล</span></button>
             </section>
 
             <!-- ==========================================================
@@ -104,11 +105,11 @@
 
                     <div class="sleep-time-row">
                         <label class="form-field">
-                            <span class="form-label" data-i18n="label-start">🌙 เวลาที่เริ่มนอน</span>
+                            <span class="form-label has-icon"><i data-icon="moon"></i><span data-i18n="label-start">เวลาที่เริ่มนอน</span></span>
                             <input type="time" class="form-input" id="sleepStart">
                         </label>
                         <label class="form-field">
-                            <span class="form-label" data-i18n="label-end">☀️ เวลาที่ตื่นนอน</span>
+                            <span class="form-label has-icon"><i data-icon="sun"></i><span data-i18n="label-end">เวลาที่ตื่นนอน</span></span>
                             <input type="time" class="form-input" id="sleepEnd">
                         </label>
                     </div>
@@ -121,15 +122,15 @@
                         <span class="form-label" data-i18n="label-quality">คุณภาพการนอน (ประเมินด้วยตัวเอง)</span>
                         <div class="quality-pill-group" role="radiogroup" aria-label="คุณภาพการนอน">
                             <button class="quality-pill" type="button" data-quality="1" role="radio" aria-checked="false">
-                                <span class="qp-emoji">😖</span>
+                                <span class="qp-emoji"><i data-icon="smile-sad"></i></span>
                                 <span data-i18n="quality-bad">แย่</span>
                             </button>
                             <button class="quality-pill" type="button" data-quality="2" role="radio" aria-checked="false">
-                                <span class="qp-emoji">😐</span>
+                                <span class="qp-emoji"><i data-icon="smile-meh"></i></span>
                                 <span data-i18n="quality-mid">ปานกลาง</span>
                             </button>
                             <button class="quality-pill active" type="button" data-quality="3" role="radio" aria-checked="true">
-                                <span class="qp-emoji">😴</span>
+                                <span class="qp-emoji"><i data-icon="smile"></i></span>
                                 <span data-i18n="quality-good">ดี</span>
                             </button>
                         </div>
@@ -159,11 +160,11 @@
         <nav id="app-nav-bar" class="nav-pill-wrapper">
             <ul class="nav-pill-container" id="horizontalNav">
                 <div class="nav-indicator" id="navIndicator"></div>
-                <li><a href="index.html" class="nav-icon-item" data-target="home"><span>🏠</span></a></li>
-                <li><a href="food-record.html" class="nav-icon-item" data-target="food"><span>🥗</span></a></li>
-                <li><a href="activity-record.html" class="nav-icon-item" data-target="activity"><span>⚡</span></a></li>
-                <li><a href="sleep-record.html" class="nav-icon-item active" data-target="sleep"><span>💤</span></a></li>
-                <li><a class="nav-icon-item is-disabled" data-target="report" aria-disabled="true" aria-label="รายงาน (เร็วๆ นี้)"><span>📊</span></a></li>
+                <li><a href="index.html" class="nav-icon-item" data-target="home"><i data-icon="home"></i></a></li>
+                <li><a href="food-record.html" class="nav-icon-item" data-target="food"><i data-icon="food"></i></a></li>
+                <li><a href="activity-record.html" class="nav-icon-item" data-target="activity"><i data-icon="activity"></i></a></li>
+                <li><a href="sleep-record.html" class="nav-icon-item active" data-target="sleep"><i data-icon="sleep"></i></a></li>
+                <li><a class="nav-icon-item is-disabled" data-target="report" aria-disabled="true" aria-label="รายงาน (เร็วๆ นี้)"><i data-icon="report"></i></a></li>
             </ul>
         </nav>
     </div>

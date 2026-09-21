@@ -119,7 +119,6 @@
             passwordInput.setAttribute('type', isHidden ? 'text' : 'password');
             passwordToggleBtn.setAttribute('aria-pressed', isHidden ? 'true' : 'false');
             passwordToggleBtn.setAttribute('aria-label', isHidden ? I18N.t(LOGIN_I18N, 'aria-hide-password') : I18N.t(LOGIN_I18N, 'aria-show-password'));
-            passwordToggleBtn.querySelector('.icon-emoji').textContent = isHidden ? '🙈' : '👁️';
         });
     }
 

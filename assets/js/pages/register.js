@@ -14,7 +14,6 @@
         passwordToggleBtn.addEventListener('click', function () {
             var isHidden = passwordInput.getAttribute('type') === 'password';
             passwordInput.setAttribute('type', isHidden ? 'text' : 'password');
-            passwordToggleBtn.querySelector('.icon-emoji').textContent = isHidden ? '🙈' : '👁️';
         });
     }
 

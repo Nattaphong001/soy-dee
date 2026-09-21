@@ -19,6 +19,7 @@
             } catch (e) {}
         })();
     </script>
+    <script src="/assets/js/shared/icons.js"></script>
     <script src="/assets/js/shared/api.js"></script>
     <script>
         SoyDeeAPI.redirectIfLoggedIn();
@@ -76,7 +77,7 @@
                     <div class="password-field-wrap">
                         <input type="password" class="form-input" id="regPassword" name="password" autocomplete="new-password" placeholder="อย่างน้อย 8 ตัวอักษร" required minlength="8">
                         <button type="button" class="password-toggle-btn" id="regPasswordToggleBtn" aria-label="แสดงรหัสผ่าน" aria-pressed="false">
-                            <span class="icon-emoji">👁️</span>
+                            <i data-icon="eye" class="pw-on"></i><i data-icon="eye-off" class="pw-off"></i>
                         </button>
                     </div>
                 </label>
@@ -123,9 +124,9 @@
                 <div class="form-field">
                     <span class="form-label">เป้าหมาย</span>
                     <div class="goal-pill-group">
-                        <button class="goal-pill active" data-goal="1" type="button">🔻 ลดน้ำหนัก</button>
-                        <button class="goal-pill" data-goal="2" type="button">💪 เพิ่มกล้ามเนื้อ</button>
-                        <button class="goal-pill" data-goal="3" type="button">⚖️ รักษาน้ำหนัก</button>
+                        <button class="goal-pill active" data-goal="1" type="button"><i data-icon="trend-down"></i><span>ลดน้ำหนัก</span></button>
+                        <button class="goal-pill" data-goal="2" type="button"><i data-icon="muscle"></i><span>เพิ่มกล้ามเนื้อ</span></button>
+                        <button class="goal-pill" data-goal="3" type="button"><i data-icon="weight"></i><span>รักษาน้ำหนัก</span></button>
                     </div>
                 </div>
 

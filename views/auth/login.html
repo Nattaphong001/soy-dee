@@ -19,6 +19,7 @@
             } catch (e) {}
         })();
     </script>
+    <script src="/assets/js/shared/icons.js"></script>
     <script src="/assets/js/shared/api.js"></script>
     <script>
         // มี session ค้างอยู่แล้ว ไม่ต้องให้กรอกฟอร์ม login ซ้ำ
@@ -86,7 +87,7 @@
                     <div class="password-field-wrap">
                         <input type="password" class="form-input" id="loginPassword" name="loginPassword" autocomplete="current-password" placeholder="กรอกรหัสผ่านของคุณ" data-i18n-placeholder="placeholder-password" required minlength="6">
                         <button type="button" class="password-toggle-btn" id="passwordToggleBtn" aria-label="แสดงรหัสผ่าน" aria-pressed="false">
-                            <span class="icon-emoji">👁️</span>
+                            <i data-icon="eye" class="pw-on"></i><i data-icon="eye-off" class="pw-off"></i>
                         </button>
                     </div>
                 </label>

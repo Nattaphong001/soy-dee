@@ -11,6 +11,10 @@
     padding-bottom: 28px;
 }
 
+/* กันปัญหา [hidden] ถูกรจากด้วย display ที่ประกาศไว้ในไฟล์นี้เอง (specificity เท่ากันแต่มาทีหลัง)
+   ครอบทั้งหน้า (ไม่ใช่แค่ .admin-app) เพราะ modal ก็อยู่นอก .mobile-app เช่นกัน */
+body.admin-page [hidden] { display: none !important; }
+
 /* ---------- Header: ชื่อหน้า + badge บทบาท ---------- */
 .admin-title-block {
     display: flex;
@@ -101,6 +105,9 @@
     padding: 2px 4px 2px 4px;
 }
 
+/* ---------- หัวตาราง (แสดงเฉพาะจอ ≥768px — ดู media query ด้านล่างไฟล์) ---------- */
+.item-table-head { display: none; }
+
 /* ---------- รายการ (Item List) ---------- */
 .item-list {
     display: flex;
@@ -175,6 +182,11 @@
 .traffic-yellow { color: var(--color-yellow); background: rgba(245, 158, 11, 0.14); }
 .traffic-red    { color: var(--color-red);    background: rgba(239, 68, 68, 0.12); }
 
+/* placeholder cell กิจกรรม (ไม่มีเกณฑ์สี) + คอลัมน์ "จำนวนที่ถูกใช้" — เอาไว้จัดคอลัมน์ตาราง
+   บนจอ ≥768px เท่านั้น, มือถือซ่อนไว้ไม่ให้กระทบการ์ดเดิม */
+.traffic-badge-empty,
+.item-usage { display: none; }
+
 .item-actions {
     display: flex;
     align-items: center;
@@ -198,6 +210,240 @@
 .icon-btn:hover { transform: translateY(-1px); }
 .icon-btn:active { transform: scale(0.94); }
 .icon-btn-danger:hover { background: rgba(239, 68, 68, 0.14); }
+
+/* ---------- Pagination ---------- */
+.pagination-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 14px 4px 2px 4px;
+}
+.page-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    border: none;
+    background: var(--surface-alt);
+    color: var(--text-main);
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease, transform 0.15s ease, opacity 0.2s ease;
+}
+.page-btn:hover:not(:disabled) { transform: translateY(-1px); }
+.page-btn:active:not(:disabled) { transform: scale(0.94); }
+.page-btn:disabled { opacity: 0.35; cursor: default; }
+.page-info {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    min-width: 64px;
+    text-align: center;
+}
+
+/* ---------- ข้อมูลสมาชิก: แถบตัวกรอง ---------- */
+.member-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 0 0 12px 0;
+}
+.filter-select,
+.filter-date {
+    height: 38px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-hairline);
+    background: var(--surface-alt);
+    color: var(--text-main);
+    font-size: 12.5px;
+    font-family: inherit;
+    padding: 0 10px;
+}
+.filter-select:focus,
+.filter-date:focus { outline: none; box-shadow: 0 0 0 2px rgba(79, 99, 232, 0.25); }
+.filter-date-sep { color: var(--text-muted); font-size: 12px; }
+
+/* ---------- ข้อมูลสมาชิก: ตาราง ---------- */
+.member-table-wrap {
+    overflow-x: auto;
+    background: var(--card-bg);
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+}
+.member-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+    white-space: nowrap;
+}
+.member-table th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--text-muted);
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border-hairline);
+}
+.member-table td {
+    padding: 10px 14px;
+    color: var(--text-main);
+    border-bottom: 1px solid var(--border-hairline);
+}
+.member-table tbody tr:last-child td { border-bottom: none; }
+.member-table tbody tr { cursor: pointer; transition: background-color 0.15s ease; }
+.member-table tbody tr:hover { background: var(--surface-alt); }
+.member-table td.member-cell-muted { color: var(--text-muted); }
+
+/* ---------- Modal รายละเอียดสมาชิก ---------- */
+.member-detail-card { max-width: 400px; text-align: left; }
+.member-detail-meta {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+}
+.member-detail-section h3 {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 6px;
+}
+.member-detail-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 140px;
+    overflow-y: auto;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+.member-detail-list-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 6px 10px;
+    background: var(--surface-alt);
+    border-radius: var(--radius-md);
+}
+.member-detail-empty { font-size: 12px; color: var(--text-muted); padding: 6px 2px; }
+
+@media (min-width: 1024px) {
+    .member-detail-card { max-width: 460px; }
+}
+
+/* ---------- รายงาน: ตัวเลือกประเภทรายงาน ---------- */
+.report-type-bar { padding-bottom: 12px; }
+.report-type-bar .filter-select { width: 100%; max-width: 280px; height: 42px; }
+
+.report-actions {
+    display: flex;
+    gap: 8px;
+    padding-bottom: 14px;
+}
+.report-action-btn {
+    width: auto;
+    height: 34px;
+    padding: 0 14px;
+    border-radius: var(--radius-md);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* ---------- รายงาน: การ์ดสรุปตัวเลข ---------- */
+.report-summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    padding-bottom: 16px;
+}
+.report-stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.report-stat-card .report-stat-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+.report-stat-card .report-stat-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+.report-stat-card .report-stat-value small {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+/* ---------- รายงาน: กราฟแท่ง (SVG) ---------- */
+.report-chart-wrap {
+    background: var(--card-bg);
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: 12px;
+    margin-bottom: 16px;
+}
+.report-chart { width: 100%; height: auto; display: block; }
+.report-chart text { fill: var(--text-main); font-family: inherit; }
+.report-chart .report-chart-axis-label { fill: var(--text-muted); }
+
+.report-chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 2px 4px 12px 4px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+.report-chart-legend-item { display: flex; align-items: center; gap: 6px; }
+.report-chart-legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+/* ---------- รายงาน: placeholder (ยังไม่ implement) ---------- */
+.report-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 60px 24px;
+    gap: 8px;
+    color: var(--text-muted);
+}
+.report-placeholder .empty-icon { font-size: 34px; opacity: 0.8; }
+
+/* ---------- พิมพ์รายงาน ---------- */
+@media print {
+    .admin-sidebar,
+    .admin-app .app-header,
+    .admin-app .profile-tabs,
+    .admin-app .admin-toolbar,
+    .report-type-bar,
+    .member-filter-bar,
+    .report-actions,
+    .pagination-bar {
+        display: none !important;
+    }
+    .mobile-app.admin-app { margin-left: 0 !important; width: 100% !important; max-width: 100% !important; }
+    body.admin-page { background: #fff !important; }
+    .bg-blob-a, .bg-blob-b, .bg-dot-grid { display: none !important; }
+}
 
 /* ---------- Empty state ---------- */
 .empty-state {
@@ -338,4 +584,145 @@
 /* ---------- Responsive: จอกว้างขึ้นเล็กน้อย (tablet) ---------- */
 @media (min-width: 480px) {
     .mobile-app.admin-app { max-width: 414px; }
+}
+
+/* ==============================================================================
+   SIDEBAR — จอ ≥768px เท่านั้น (มือถือ <768px ใช้ .profile-tabs เดิม ไม่แตะ)
+   ============================================================================== */
+.admin-sidebar {
+    display: none;
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+.sidebar-brand-icon { font-size: 22px; line-height: 1; }
+.sidebar-brand-text { display: none; font-size: 15px; white-space: nowrap; }
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.sidebar-nav-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 44px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    white-space: nowrap;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+.sidebar-nav-item:hover { background: var(--surface-alt); color: var(--text-main); }
+.sidebar-nav-item.active { background: rgba(79, 99, 232, 0.12); color: var(--accent-1); }
+.dark-theme .sidebar-nav-item.active,
+[data-theme="dark"] .sidebar-nav-item.active { background: rgba(139, 124, 255, 0.16); }
+.sidebar-nav-icon { font-size: 18px; line-height: 1; flex-shrink: 0; }
+.sidebar-nav-label { display: none; }
+
+@media (min-width: 768px) {
+    body.admin-page.mobile-body { justify-content: flex-start; }
+
+    .admin-sidebar {
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        top: 0; left: 0; bottom: 0;
+        width: 64px;
+        padding: 20px 10px;
+        background: var(--card-bg);
+        border-right: 1px solid var(--border-hairline);
+        z-index: 20;
+    }
+    .sidebar-brand { justify-content: center; padding-bottom: 18px; }
+    .sidebar-logout-btn { margin-top: 8px; }
+
+    .mobile-app.admin-app {
+        margin-left: 64px;
+        width: calc(100% - 64px);
+        max-width: none;
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+    .admin-app .profile-tabs { display: none; }
+
+    /* ---------- ตาราง (แทนการ์ด) — ตัดคอลัมน์ "จำนวนที่ถูกใช้" ออกก่อนบนแท็บเล็ต ---------- */
+    .item-table-head {
+        display: grid;
+        grid-template-columns: 50px 1fr 110px 88px;
+        column-gap: 14px;
+        padding: 6px 12px;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+    .item-table-head span:nth-child(4) { display: none; }
+
+    .item-list {
+        gap: 0;
+        background: var(--card-bg);
+        border: 1px solid var(--border-hairline);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-card);
+        overflow: hidden;
+    }
+    .item-row {
+        display: grid;
+        grid-template-columns: 50px 1fr 110px 88px;
+        column-gap: 14px;
+        border-radius: 0;
+        box-shadow: none;
+        border: none;
+        border-bottom: 1px solid var(--border-hairline);
+    }
+    .item-row:last-child { border-bottom: none; }
+    .item-row:hover { transform: none; background: var(--surface-alt); }
+    .item-info { display: contents; }
+    .traffic-badge-empty { display: inline-flex; }
+    .item-actions { justify-content: flex-end; }
+}
+
+@media (min-width: 1024px) {
+    .admin-sidebar { width: 240px; padding: 24px 16px; }
+    .sidebar-brand { justify-content: flex-start; padding: 0 8px 22px 8px; }
+    .sidebar-brand-text { display: inline; }
+    .sidebar-nav-item { justify-content: flex-start; padding: 0 12px; }
+    .sidebar-nav-label { display: inline; }
+
+    .mobile-app.admin-app {
+        margin-left: 240px;
+        width: calc(100% - 240px);
+        max-width: 1100px;
+        padding-left: 32px;
+        padding-right: 32px;
+    }
+
+    .item-table-head,
+    .item-row { grid-template-columns: 56px 1fr 130px 140px 100px; }
+    .item-table-head span:nth-child(4) { display: block; }
+    .item-usage {
+        display: flex;
+        align-items: center;
+        font-size: 12.5px;
+        color: var(--text-muted);
+    }
+
+    .admin-sheet-card { max-width: 520px; }
 }

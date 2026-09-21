@@ -175,6 +175,7 @@
             pillEl.classList.add('is-active');
 
             requestAnimationFrame(function () {
+                if (!panel) return;   // ถูกปิดไปแล้วก่อนเฟรมถัดไป (เช่น เลื่อนหน้าทันทีหลังกดเปิด)
                 var rect = pillEl.getBoundingClientRect();
                 var panelRect = panel.getBoundingClientRect();
                 var left = rect.right - panelRect.width;

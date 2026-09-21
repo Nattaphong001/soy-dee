@@ -23,6 +23,7 @@
             } catch (e) {}
         })();
     </script>
+    <script src="/assets/js/shared/icons.js"></script>
     <script src="/assets/js/shared/api.js"></script>
     <script>
         SoyDeeAPI.guardMember();
@@ -35,19 +36,23 @@
 
     <div class="mobile-app">
 
-        <div class="top-section">
+        <!-- หัวหน้า: ภาพอาหารเป็นพื้นหลัง (assets/images/food-banner.jpg) + แถวเลือกวันที่ -->
+        <div class="top-section food-hero">
             <header class="app-header">
-                <h1 class="page-title" data-i18n="page-title">บันทึกอาหาร</h1>
+                <div class="hero-text">
+                    <h1 class="page-title" data-i18n="page-title">บันทึกอาหาร</h1>
+                    <p class="hero-sub" data-i18n="page-subtitle">จดสิ่งที่กิน แล้วดูสมดุลของวันจากสีสถานะ</p>
+                </div>
             </header>
 
-            <!-- แถวเลือกวันที่: ปุ่ม "วันนี้" ชิดซ้าย + วันที่ปัจจุบันชิดขวา (รูปแบบเดียวกับหน้า Home) -->
+            <!-- แถวเลือกวันที่: ปุ่ม "วันนี้" แสดงเฉพาะตอนดูย้อนหลัง (JS สลับ hidden) + วันที่ชิดขวา -->
             <div class="date-picker-wrapper">
-                <button class="edit-profile-btn today-btn" id="todayBtn" type="button" aria-label="กลับไปวันนี้">
-                    <span class="icon-inline"><span class="icon-emoji">↩️</span></span>
+                <button class="edit-profile-btn today-btn" id="todayBtn" type="button" aria-label="กลับไปวันนี้" hidden>
+                    <span class="icon-inline"><i data-icon="today"></i></span>
                     <span data-i18n="today-btn">วันนี้</span>
                 </button>
                 <div class="date-picker-pill" id="datePickerPill" role="button" tabindex="0" aria-label="เลือกวันที่บันทึก">
-                    <span class="icon-calendar">📅</span>
+                    <span class="icon-calendar"><i data-icon="calendar"></i></span>
                     <span class="date-text" id="dateText">—</span>
                     <span class="icon-chevron">⌄</span>
                 </div>
@@ -60,103 +65,166 @@
             <section class="food-summary-card">
                 <div class="panel-header">
                     <div class="header-title">
-                        <span class="icon-box green-box"><span class="icon-emoji">🍽️</span></span>
+                        <span class="icon-box green-box"><i data-icon="food"></i></span>
                         <span id="summaryTitleText">สรุปโภชนาการวันนี้</span>
                     </div>
                     <div class="summary-total" id="summaryTotal">ทั้งหมด 0 รายการ</div>
+                </div>
+                <div class="summary-bar is-empty" id="summaryBar" role="img" aria-label="สัดส่วนสถานะอาหารของวัน">
+                    <span class="bar-seg seg-green" id="barGreen"></span>
+                    <span class="bar-seg seg-yellow" id="barYellow"></span>
+                    <span class="bar-seg seg-red" id="barRed"></span>
                 </div>
                 <div class="summary-lights" id="summaryLights">
                     <div class="light-chip light-green">
                         <span class="light-dot"></span>
                         <span class="light-count numeric" id="countGreen">0</span>
-                        <span class="light-label" data-i18n="light-green">ควรกิน</span>
+                        <span class="light-label" data-i18n="light-green">ดีต่อสุขภาพ</span>
                     </div>
                     <div class="light-chip light-yellow">
                         <span class="light-dot"></span>
                         <span class="light-count numeric" id="countYellow">0</span>
-                        <span class="light-label" data-i18n="light-yellow">พอดี</span>
+                        <span class="light-label" data-i18n="light-yellow">ทานพอดี</span>
                     </div>
                     <div class="light-chip light-red">
                         <span class="light-dot"></span>
                         <span class="light-count numeric" id="countRed">0</span>
-                        <span class="light-label" data-i18n="light-red">ควรลด</span>
+                        <span class="light-label" data-i18n="light-red">ควรระวัง</span>
                     </div>
                 </div>
+                <p class="summary-insight" id="summaryInsight" hidden></p>
             </section>
 
-            <!-- 2. รายการอาหารแยกตามมื้อ (สร้างด้วย JS จาก food-record.js) -->
-            <div class="meal-sections" id="mealSections"></div>
+            <!-- ==========================================================
+                 2. รายการอาหารที่บันทึกแล้วของวันนี้
+                 ========================================================== -->
+            <section class="log-section">
+                <div class="section-heading-row">
+                    <h2 class="section-heading" data-i18n="section-heading-today-log">บันทึกของวันนี้</h2>
+                    <span class="count-badge" id="logCountBadge">0 รายการ</span>
+                </div>
+
+                <div class="log-list" id="logList">
+                    <!-- JS render รายการ .log-item หรือ .empty-state ที่นี่ -->
+                </div>
+            </section>
 
             <!-- เว้นระยะให้พ้นปุ่ม FAB ก่อนถึง bottom nav -->
             <div class="fab-spacer" aria-hidden="true"></div>
         </main>
 
-        <!-- ปุ่มลอยเพิ่มรายการอาหาร (ใช้เทคนิคจัดกึ่งกลางแบบเดียวกับ nav-pill-wrapper) -->
-        <div class="fab-wrapper" aria-hidden="false">
-            <button class="fab-add-btn" id="fabAddBtn" type="button" aria-label="เพิ่มรายการอาหาร">+</button>
+        <!-- ปุ่มลอยเพิ่มรายการอาหาร: กึ่งกลางจอ เหนือ bottom nav -->
+        <div class="fab-wrapper">
+            <button class="fab-add-btn" id="fabAddBtn" type="button" aria-label="เพิ่มรายการอาหาร"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
         </div>
 
         <nav id="app-nav-bar" class="nav-pill-wrapper">
             <ul class="nav-pill-container" id="horizontalNav">
                 <div class="nav-indicator" id="navIndicator"></div>
-                <li><a href="index.html" class="nav-icon-item" data-target="home"><span>🏠</span></a></li>
-                <li><a href="food-record.html" class="nav-icon-item active" data-target="food"><span>🥗</span></a></li>
-                <li><a href="activity-record.html" class="nav-icon-item" data-target="activity"><span>⚡</span></a></li>
-                <li><a href="sleep-record.html" class="nav-icon-item" data-target="sleep"><span>💤</span></a></li>
-                <li><a class="nav-icon-item is-disabled" data-target="report" aria-disabled="true" aria-label="รายงาน (เร็วๆ นี้)"><span>📊</span></a></li>
+                <li><a href="index.html" class="nav-icon-item" data-target="home"><i data-icon="home"></i></a></li>
+                <li><a href="food-record.html" class="nav-icon-item active" data-target="food"><i data-icon="food"></i></a></li>
+                <li><a href="activity-record.html" class="nav-icon-item" data-target="activity"><i data-icon="activity"></i></a></li>
+                <li><a href="sleep-record.html" class="nav-icon-item" data-target="sleep"><i data-icon="sleep"></i></a></li>
+                <li><a class="nav-icon-item is-disabled" data-target="report" aria-disabled="true" aria-label="รายงาน (เร็วๆ นี้)"><i data-icon="report"></i></a></li>
             </ul>
         </nav>
     </div>
 
+    <!-- ============== Modal: ดูรายละเอียดรายการอาหาร (แยกจากฟอร์มแก้ไข) ============== -->
+    <div class="modal-overlay" id="foodDetailOverlay">
+        <div class="food-detail-card" id="foodDetailCard" role="dialog" aria-modal="true" aria-labelledby="detailName">
+            <div class="detail-photo">
+                <span class="detail-photo-media" id="detailPhotoMedia"></span>
+                <button type="button" class="detail-close" id="detailCloseBtn" aria-label="ปิด"><i data-icon="x"></i></button>
+            </div>
+            <div class="detail-body">
+                <span class="cat-pill" id="detailCat"></span>
+                <h2 class="detail-name" id="detailName"></h2>
+                <div class="detail-grid">
+                    <div class="detail-tile">
+                        <span class="detail-tile-label" data-i18n="detail-meal">มื้ออาหาร</span>
+                        <span class="detail-tile-value" id="detailMeal"></span>
+                    </div>
+                    <div class="detail-tile">
+                        <span class="detail-tile-label" data-i18n="detail-time">เวลาที่กิน</span>
+                        <span class="detail-tile-value numeric" id="detailTime"></span>
+                    </div>
+                    <div class="detail-tile">
+                        <span class="detail-tile-label" data-i18n="detail-amount">ปริมาณ</span>
+                        <span class="detail-tile-value" id="detailAmount"></span>
+                    </div>
+                    <div class="detail-tile">
+                        <span class="detail-tile-label" data-i18n="detail-light">สถานะ</span>
+                        <span class="detail-tile-value" id="detailLight"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="detail-actions">
+                <button type="button" class="detail-delete-btn" id="detailDeleteBtn"><i data-icon="trash"></i><span data-i18n="detail-delete">ลบ</span></button>
+                <button type="button" class="detail-edit-btn" id="detailEditBtn"><i data-icon="edit"></i><span data-i18n="detail-edit">แก้ไขรายการ</span></button>
+            </div>
+        </div>
+    </div>
+
     <!-- ============== Modal: เพิ่ม/แก้ไขรายการอาหาร ============== -->
     <div class="modal-overlay" id="foodModalOverlay">
-        <div class="food-sheet-card">
+        <div class="food-sheet-card" role="dialog" aria-modal="true" aria-labelledby="foodModalTitle">
             <h2 class="sheet-title" id="foodModalTitle" data-i18n="modal-title-add">เพิ่มรายการอาหาร</h2>
 
-            <div class="form-field">
-                <span class="form-label" data-i18n="label-meal">มื้ออาหาร</span>
-                <div class="meal-pill-group" id="mealPillGroup">
-                    <button type="button" class="meal-pill" data-meal="1" data-i18n="meal-pill-1">🌅 เช้า</button>
-                    <button type="button" class="meal-pill" data-meal="2" data-i18n="meal-pill-2">☀️ กลางวัน</button>
-                    <button type="button" class="meal-pill" data-meal="3" data-i18n="meal-pill-3">🌙 เย็น</button>
-                    <button type="button" class="meal-pill" data-meal="4" data-i18n="meal-pill-4">🍪 ว่าง</button>
+            <div class="sheet-body">
+                <!-- แถวบน: รูปอาหาร (ซ้าย) + ชื่อ/ปริมาณ (ขวา) -->
+                <div class="food-top-row">
+                    <div class="food-photo-field">
+                        <button type="button" class="food-photo-drop" id="foodPhotoBtn" aria-label="เพิ่มรูปภาพ">
+                            <span class="food-photo-preview" id="foodPhotoPreview"></span>
+                        </button>
+                        <button type="button" class="food-photo-remove" id="foodPhotoRemoveBtn" hidden aria-label="ลบรูป"><i data-icon="x"></i></button>
+                        <input type="file" id="foodPhotoInput" accept="image/*" hidden>
+                    </div>
+                    <div class="food-top-fields">
+                        <label class="form-field">
+                            <span class="form-label" data-i18n="label-food-name">ชื่ออาหาร</span>
+                            <input type="text" class="form-input" id="foodNameInput" placeholder="เช่น ข้าวผัดกะเพรา" data-i18n-placeholder="placeholder-food-name" maxlength="100">
+                        </label>
+                        <label class="form-field">
+                            <span class="form-label" data-i18n="label-amount">ปริมาณ</span>
+                            <input type="text" class="form-input" id="foodAmountInput" placeholder="เช่น 1 จาน, 200 กรัม" data-i18n-placeholder="placeholder-amount" maxlength="50">
+                        </label>
+                    </div>
                 </div>
-            </div>
 
-            <div class="food-photo-row">
-                <div class="food-photo-preview" id="foodPhotoPreview"><span class="icon-emoji">📷</span></div>
-                <div class="food-photo-actions">
-                    <button type="button" class="avatar-edit-btn" id="foodPhotoBtn" data-i18n="btn-add-photo">เพิ่มรูปภาพ</button>
-                    <button type="button" class="form-link-btn" id="foodPhotoRemoveBtn" hidden data-i18n="btn-remove-photo">ลบรูป</button>
+                <div class="form-field">
+                    <span class="form-label" data-i18n="label-meal">มื้ออาหาร</span>
+                    <div class="meal-pill-group" id="mealPillGroup">
+                        <button type="button" class="meal-pill" data-meal="1"><i data-icon="sunrise"></i><span data-i18n="meal-pill-1">เช้า</span></button>
+                        <button type="button" class="meal-pill" data-meal="2"><i data-icon="sun"></i><span data-i18n="meal-pill-2">กลางวัน</span></button>
+                        <button type="button" class="meal-pill" data-meal="3"><i data-icon="moon"></i><span data-i18n="meal-pill-3">เย็น</span></button>
+                        <button type="button" class="meal-pill" data-meal="4"><i data-icon="snack"></i><span data-i18n="meal-pill-4">ว่าง</span></button>
+                    </div>
                 </div>
-                <input type="file" id="foodPhotoInput" accept="image/*" hidden>
+
+                <div class="form-field">
+                    <span class="form-label" data-i18n="label-category">ประเภทอาหาร</span>
+                    <div class="category-picker">
+                        <button type="button" class="category-trigger" id="categoryTrigger" aria-expanded="false" aria-controls="categoryChipGroup">
+                            <span class="category-trigger-value" id="categoryTriggerValue"></span>
+                            <span class="category-trigger-caret" aria-hidden="true"></span>
+                        </button>
+                        <div class="category-chip-group" id="categoryChipGroup" hidden></div>
+                    </div>
+                </div>
+
+                <label class="form-row-inline">
+                    <span class="form-label" data-i18n="label-time">เวลาที่กิน</span>
+                    <input type="time" class="form-input" id="foodTimeInput">
+                </label>
+
+                <div class="sheet-error" id="foodFormError" hidden></div>
             </div>
 
-            <label class="form-field">
-                <span class="form-label" data-i18n="label-food-name">ชื่ออาหาร</span>
-                <input type="text" class="form-input" id="foodNameInput" placeholder="เช่น ข้าวผัดกะเพราไก่ไข่ดาว" data-i18n-placeholder="placeholder-food-name">
-            </label>
-
-            <div class="form-field">
-                <span class="form-label" data-i18n="label-category">ประเภทอาหาร</span>
-                <div class="category-chip-group" id="categoryChipGroup"></div>
-            </div>
-
-            <label class="form-field">
-                <span class="form-label" data-i18n="label-amount">ปริมาณ</span>
-                <input type="text" class="form-input" id="foodAmountInput" placeholder="เช่น 1 จาน, 200 กรัม" data-i18n-placeholder="placeholder-amount" maxlength="50">
-            </label>
-
-            <label class="form-field">
-                <span class="form-label" data-i18n="label-time">เวลาที่กิน</span>
-                <input type="time" class="form-input" id="foodTimeInput">
-            </label>
-
-            <div class="sheet-error" id="foodFormError" hidden></div>
-
-            <div class="sheet-actions">
+            <div class="sheet-actions sheet-actions-row">
+                <button type="button" class="sheet-cancel-btn" id="foodCancelBtn" data-i18n="btn-cancel">ยกเลิก</button>
                 <button type="button" class="save-btn" id="foodSaveBtn" data-i18n="save-btn">บันทึกรายการ</button>
-                <button type="button" class="form-link-btn" id="foodCancelBtn" data-i18n="btn-cancel">ยกเลิก</button>
             </div>
         </div>
     </div>

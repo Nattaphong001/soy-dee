@@ -15,13 +15,14 @@ const ACTIVITY_I18N = {
         'today-btn': 'วันนี้',
         'stat-label-count': 'กิจกรรม',
         'stat-label-duration': 'เวลารวม',
-        'stat-label-energy': 'พลังงาน',
         'label-choose-activity': 'เลือกกิจกรรม',
         'duration-placeholder-text': 'แตะเลือกกิจกรรมด้านบนก่อน เพื่อบันทึกระยะเวลาที่ทำ',
         'label-selected-activity': 'กิจกรรมที่เลือก',
         'clear-activity-btn': 'เปลี่ยน',
         'label-hours': 'ชั่วโมง',
         'label-minutes': 'นาที',
+        'label-detail': 'รายละเอียด (ถ้ามี)',
+        'detail-placeholder': 'เช่น วิ่ง 5 กม.',
         'duration-error-text': 'กรุณาระบุระยะเวลาที่ทำกิจกรรมอย่างน้อย 1 นาที',
         'add-entry-btn': '+ เพิ่มลงบันทึก',
         'section-heading-today-log': 'บันทึกของวันนี้',
@@ -48,13 +49,14 @@ const ACTIVITY_I18N = {
         'today-btn': 'Today',
         'stat-label-count': 'Activities',
         'stat-label-duration': 'Total time',
-        'stat-label-energy': 'Energy',
         'label-choose-activity': 'Choose an activity',
         'duration-placeholder-text': 'Tap an activity above first to log the duration',
         'label-selected-activity': 'Selected activity',
         'clear-activity-btn': 'Change',
         'label-hours': 'Hours',
         'label-minutes': 'Minutes',
+        'label-detail': 'Details (optional)',
+        'detail-placeholder': 'e.g. Ran 5 km',
         'duration-error-text': 'Please enter a duration of at least 1 minute',
         'add-entry-btn': '+ Add entry',
         'section-heading-today-log': "Today's log",
@@ -82,8 +84,9 @@ const ACTIVITY_I18N = {
    1. State
    ============================================================================== */
 let selectedDate = startOfDay(new Date());     // วันที่กำลังดู/บันทึก (dact_date)
-let selectedActivityId = null;                  // act_id ที่เลือกอยู่ในฟอร์ม
-let editingDactId = null;                        // dact_id ที่กำลังแก้ไข (null = โหมดเพิ่มใหม่)
+let selectedActivityId = null;                  // act_id ที่เลือกอยู่ในฟอร์ม (สำหรับเพิ่มรายการใหม่เท่านั้น)
+let expandedDactId = null;                       // การ์ดที่กำลังกางดูรายละเอียดเต็ม
+let cardEditDactId = null;                       // การ์ดที่กำลังแก้ไขข้อมูลแบบ inline อยู่
 let mbId = null;
 let ACTIVITIES = [];                            // จาก GET /activities
 let ACTIVITIES_MAP = {};                        // act_id -> activity
@@ -221,37 +224,13 @@ function renderDurationForm() {
     iconWrap.className = 'stat-icon ' + colorClassFor(act.act_id);
     iconWrap.innerHTML = activityIconMarkup(act);
 
-    document.getElementById('addEntryBtn').textContent = I18N.t(ACTIVITY_I18N,
-        editingDactId ? 'save-edit-btn' : 'add-entry-btn');
-    document.getElementById('cancelEditBtn').hidden = !editingDactId;
+    document.getElementById('addEntryBtn').textContent = I18N.t(ACTIVITY_I18N, 'add-entry-btn');
 }
 
 function clearActivitySelection() {
     selectedActivityId = null;
     renderActivityChips();
     renderDurationForm();
-}
-
-function startEditEntry(dactId) {
-    const entry = currentEntries.find(e => e.dact_id === dactId);
-    if (!entry) return;
-
-    editingDactId = dactId;
-    selectedActivityId = entry.act_id;
-    document.getElementById('durationHours').value = Math.floor((entry.duration_minutes || 0) / 60);
-    document.getElementById('durationMinutes').value = (entry.duration_minutes || 0) % 60;
-    document.getElementById('durationError').hidden = true;
-
-    renderActivityChips();
-    renderDurationForm();
-    document.getElementById('durationCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
-}
-
-function cancelEdit() {
-    editingDactId = null;
-    document.getElementById('durationHours').value = 0;
-    document.getElementById('durationMinutes').value = 30;
-    clearActivitySelection();
 }
 
 async function addEntry() {
@@ -273,29 +252,81 @@ async function addEntry() {
     const addBtn = document.getElementById('addEntryBtn');
     addBtn.disabled = true;
 
-    const isEdit = !!editingDactId;
-    const body = { dact_date: dateKey(selectedDate), dact_duration_min: totalMinutes, act_id: act.act_id };
+    const detail = document.getElementById('activityDetail').value.trim();
+    const body = { dact_date: dateKey(selectedDate), dact_duration_min: totalMinutes, act_id: act.act_id, dact_detail: detail || null };
 
     try {
-        if (isEdit) {
-            await SoyDeeAPI.request(`/members/${mbId}/activity-records/${editingDactId}`, { method: 'PUT', body });
-        } else {
-            await SoyDeeAPI.request(`/members/${mbId}/activity-records`, { method: 'POST', body });
-        }
+        await SoyDeeAPI.request(`/members/${mbId}/activity-records`, { method: 'POST', body });
 
-        // รีเซ็ตฟอร์มกลับสู่ค่าเริ่มต้น พร้อมยกเลิกการเลือกกิจกรรม/โหมดแก้ไข
-        editingDactId = null;
         document.getElementById('durationHours').value = 0;
         document.getElementById('durationMinutes').value = 30;
+        document.getElementById('activityDetail').value = '';
         clearActivitySelection();
 
         await loadEntries();
-        showToast(I18N.t(ACTIVITY_I18N, isEdit ? 'toast-updated' : 'toast-added'), 'success');
+        showToast(I18N.t(ACTIVITY_I18N, 'toast-added'), 'success');
     } catch (err) {
-        errorEl.textContent = (err && err.message) || I18N.t(ACTIVITY_I18N, isEdit ? 'toast-update-failed' : 'duration-error-text');
+        errorEl.textContent = (err && err.message) || I18N.t(ACTIVITY_I18N, 'duration-error-text');
         errorEl.hidden = false;
     } finally {
         addBtn.disabled = false;
+    }
+}
+
+/* ==============================================================================
+   7b. การ์ด: ดูรายละเอียด / แก้ไขแบบ inline ในการ์ดโดยตรง
+   ============================================================================== */
+function toggleExpand(dactId) {
+    expandedDactId = expandedDactId === dactId ? null : dactId;
+    renderLogList();
+}
+
+function startCardEdit(dactId) {
+    cardEditDactId = dactId;
+    expandedDactId = null;
+    renderLogList();
+}
+
+function cancelCardEdit() {
+    cardEditDactId = null;
+    renderLogList();
+}
+
+async function saveCardEdit(dactId, itemEl) {
+    const entry = currentEntries.find(e => e.dact_id === dactId);
+    if (!entry) return;
+
+    const hoursInput = itemEl.querySelector('[data-field="hours"]');
+    const minutesInput = itemEl.querySelector('[data-field="minutes"]');
+    const detailInput = itemEl.querySelector('[data-field="detail"]');
+    const errorEl = itemEl.querySelector('.log-item-edit-error');
+
+    const hours = Math.max(0, parseInt(hoursInput.value, 10) || 0);
+    const minutes = Math.max(0, parseInt(minutesInput.value, 10) || 0);
+    const totalMinutes = hours * 60 + minutes;
+
+    if (totalMinutes <= 0) {
+        errorEl.textContent = I18N.t(ACTIVITY_I18N, 'duration-error-text');
+        errorEl.hidden = false;
+        return;
+    }
+    errorEl.hidden = true;
+
+    const saveBtn = itemEl.querySelector('.log-item-save-btn');
+    saveBtn.disabled = true;
+
+    const detail = detailInput.value.trim();
+    const body = { dact_date: dateKey(selectedDate), dact_duration_min: totalMinutes, act_id: entry.act_id, dact_detail: detail || null };
+
+    try {
+        await SoyDeeAPI.request(`/members/${mbId}/activity-records/${dactId}`, { method: 'PUT', body });
+        cardEditDactId = null;
+        await loadEntries();
+        showToast(I18N.t(ACTIVITY_I18N, 'toast-updated'), 'success');
+    } catch (err) {
+        errorEl.textContent = (err && err.message) || I18N.t(ACTIVITY_I18N, 'toast-update-failed');
+        errorEl.hidden = false;
+        saveBtn.disabled = false;
     }
 }
 
@@ -317,7 +348,8 @@ function deleteEntry(dactId) {
         onConfirm: async () => {
             try {
                 await SoyDeeAPI.request(`/members/${mbId}/activity-records/${dactId}`, { method: 'DELETE' });
-                if (editingDactId === dactId) cancelEdit();
+                if (cardEditDactId === dactId) cardEditDactId = null;
+                if (expandedDactId === dactId) expandedDactId = null;
                 await loadEntries();
                 showToast(I18N.t(ACTIVITY_I18N, 'toast-deleted'), 'success');
             } catch (err) {
@@ -336,8 +368,6 @@ function renderSummary() {
 
     document.getElementById('summaryCount').textContent = currentEntries.length;
     document.getElementById('summaryDuration').textContent = formatDuration(totalMinutes);
-    // ไม่มี field/สูตรพลังงานที่ใช้ไปสำหรับกิจกรรมใน API นี้ (ไม่ใช่ทั้งฝั่ง backend หรือ client) — แสดง placeholder แทนเลขมั่ว
-    document.getElementById('summaryKcal').textContent = '–';
 }
 
 /* ==============================================================================
@@ -367,11 +397,45 @@ function renderLogList() {
         const displayName = act ? act.act_name : '';
 
         const item = document.createElement('div');
-        item.className = 'log-item';
+
+        if (entry.dact_id === cardEditDactId) {
+            item.className = 'log-item is-editing';
+            item.innerHTML = `
+                <div class="log-item-edit-form">
+                    <div class="log-item-edit-header">
+                        <span class="log-item-icon ${colorClassFor(entry.act_id)}">${activityIconMarkup(act)}</span>
+                        <span class="log-item-edit-name">${displayName}</span>
+                    </div>
+                    <div class="log-item-edit-row">
+                        <label class="log-item-edit-field">
+                            <span>${I18N.t(ACTIVITY_I18N, 'label-hours')}</span>
+                            <input type="number" class="form-input" data-field="hours" value="${Math.floor((entry.duration_minutes || 0) / 60)}" min="0" max="12" inputmode="numeric">
+                        </label>
+                        <label class="log-item-edit-field">
+                            <span>${I18N.t(ACTIVITY_I18N, 'label-minutes')}</span>
+                            <input type="number" class="form-input" data-field="minutes" value="${(entry.duration_minutes || 0) % 60}" min="0" max="59" step="5" inputmode="numeric">
+                        </label>
+                    </div>
+                    <input type="text" class="form-input" data-field="detail" value="${entry.dact_detail || ''}" placeholder="${I18N.t(ACTIVITY_I18N, 'detail-placeholder')}" maxlength="255">
+                    <div class="duration-error log-item-edit-error" hidden></div>
+                    <div class="log-item-edit-actions">
+                        <button type="button" class="save-btn inline-save-btn log-item-save-btn">${I18N.t(ACTIVITY_I18N, 'save-edit-btn')}</button>
+                        <button type="button" class="form-link-btn log-item-cancel-btn">${I18N.t(ACTIVITY_I18N, 'cancel-edit-btn')}</button>
+                    </div>
+                </div>
+            `;
+            item.querySelector('.log-item-save-btn').addEventListener('click', () => saveCardEdit(entry.dact_id, item));
+            item.querySelector('.log-item-cancel-btn').addEventListener('click', cancelCardEdit);
+            list.appendChild(item);
+            return;
+        }
+
+        item.className = 'log-item' + (entry.dact_id === expandedDactId ? ' is-expanded' : '');
         item.innerHTML = `
             <span class="log-item-icon ${colorClassFor(entry.act_id)}">${activityIconMarkup(act)}</span>
             <div class="log-item-info">
                 <span class="log-item-name">${displayName}</span>
+                ${entry.dact_detail ? `<span class="log-item-detail">${entry.dact_detail}</span>` : ''}
                 <span class="log-item-meta">
                     <span>${formatDuration(entry.duration_minutes)}</span>
                     <span class="dot">•</span>
@@ -380,11 +444,21 @@ function renderLogList() {
             </div>
             <div class="log-item-actions">
                 <button type="button" class="log-item-edit" aria-label="แก้ไขรายการนี้">✏️</button>
-                <button type="button" class="log-item-delete" aria-label="ลบรายการนี้">✕</button>
+                <button type="button" class="log-item-delete" aria-label="ลบรายการนี้">🗑️</button>
             </div>
         `;
-        item.querySelector('.log-item-edit').addEventListener('click', () => startEditEntry(entry.dact_id));
-        item.querySelector('.log-item-delete').addEventListener('click', () => deleteEntry(entry.dact_id));
+        item.addEventListener('click', (e) => {
+            if (e.target.closest('.log-item-actions')) return;
+            toggleExpand(entry.dact_id);
+        });
+        item.querySelector('.log-item-edit').addEventListener('click', (e) => {
+            e.stopPropagation();
+            startCardEdit(entry.dact_id);
+        });
+        item.querySelector('.log-item-delete').addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteEntry(entry.dact_id);
+        });
         list.appendChild(item);
     });
 }
@@ -423,7 +497,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     document.getElementById('clearActivityBtn').addEventListener('click', clearActivitySelection);
     document.getElementById('addEntryBtn').addEventListener('click', addEntry);
-    document.getElementById('cancelEditBtn').addEventListener('click', cancelEdit);
 
     try {
         ACTIVITIES = await SoyDeeAPI.request('/activities');
@@ -437,4 +510,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderActivityChips();
     renderDurationForm();
     await loadEntries();
+
+    // กลับมาหน้านี้ผ่าน bfcache (ปุ่ม back ของเบราว์เซอร์) — DOMContentLoaded ไม่ยิงซ้ำ
+    // บันทึกที่เพิ่ง/แก้ไว้เลยค้างจนกว่าจะกด refresh เอง แก้โดยโหลดรายการใหม่ทุกครั้งที่ restore
+    window.addEventListener('pageshow', (e) => {
+        if (e.persisted) loadEntries();
+    });
 });

@@ -38,14 +38,12 @@
         <!-- ============== ส่วนหัว: ปุ่มย้อนกลับ + ชื่อหน้า + ตัวเลือกวันที่ ============== -->
         <div class="top-section">
             <header class="app-header">
-                <button class="back-btn" type="button" onclick="history.length > 1 ? history.back() : (window.location.href = 'index.html')" aria-label="ย้อนกลับ">🔙</button>
                 <h1 class="page-title" data-i18n="page-title">บันทึกกิจกรรม</h1>
-                <span class="header-spacer" aria-hidden="true"></span>
             </header>
 
             <div class="date-picker-wrapper">
                 <button class="edit-profile-btn today-btn" type="button" id="todayBtn" aria-label="กลับไปวันนี้">
-                    <span class="icon-inline"><span class="icon-emoji">📍</span></span>
+                    <span class="icon-inline"><span class="icon-emoji">↩️</span></span>
                     <span data-i18n="today-btn">วันนี้</span>
                 </button>
 
@@ -89,18 +87,6 @@
                     </div>
                 </div>
 
-                <div class="stat-card">
-                    <div class="stat-card-row">
-                        <span class="stat-icon icon-orange">
-                            <img src="/assets/icons/energy-bolt.png" alt="" class="icon-img" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
-                            <span class="icon-emoji" style="display:none">⚡</span>
-                        </span>
-                        <span class="stat-label" data-i18n="stat-label-energy">พลังงาน</span>
-                    </div>
-                    <div class="stat-value-wrap">
-                        <span class="stat-value numeric" id="summaryKcal">0 <small>kcal</small></span>
-                    </div>
-                </div>
             </section>
 
             <!-- ==========================================================
@@ -150,10 +136,14 @@
                         </label>
                     </div>
 
+                    <label class="form-field">
+                        <span class="form-label" data-i18n="label-detail">รายละเอียด (ถ้ามี)</span>
+                        <input type="text" class="form-input" id="activityDetail" maxlength="255" data-i18n-placeholder="detail-placeholder" placeholder="เช่น วิ่ง 5 กม.">
+                    </label>
+
                     <div class="duration-error" id="durationError" hidden data-i18n="duration-error-text">กรุณาระบุระยะเวลาที่ทำกิจกรรมอย่างน้อย 1 นาที</div>
 
                     <button type="button" class="save-btn inline-save-btn" id="addEntryBtn" data-i18n="add-entry-btn">+ เพิ่มลงบันทึก</button>
-                    <button type="button" class="form-link-btn" id="cancelEditBtn" data-i18n="cancel-edit-btn" hidden>ยกเลิกการแก้ไข</button>
                 </div>
             </section>
 

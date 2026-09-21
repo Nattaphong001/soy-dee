@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>soy dee - Health Dashboard</title>
+    <!-- ลิงก์ไฟล์ CSS -->
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <!-- นำเข้าฟอนต์สไตล์โมเดิร์น -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="mobile-app">
+        
+        <!-- 1. Header & Profile Link -->
+        <header class="app-header">
+            <h1 class="app-title">soy dee</h1>
+            <!-- รูปโปรไฟล์ลิงก์ไปหน้าตั้งค่า -->
+            <a href="#profile-settings" class="profile-link" aria-label="Profile Settings">
+                <div class="profile-avatar">
+                    <img src="https://ui-avatars.com/api/?name=User&background=0D8ABC&color=fff" alt="User Profile">
+                </div>
+            </a>
+        </header>
+
+        <!-- 2. Horizontal Navigation Bar (Pill Shape, Icons Only) -->
+        <nav class="nav-pill-wrapper">
+            <ul class="nav-pill-container" id="horizontalNav">
+                <li class="nav-icon-item active" data-target="home">
+                    <span>🏠</span>
+                </li>
+                <li class="nav-icon-item" data-target="food">
+                    <span>🥗</span>
+                </li>
+                <li class="nav-icon-item" data-target="activity">
+                    <span>⚡</span>
+                </li>
+                <li class="nav-icon-item" data-target="sleep">
+                    <span>💤</span>
+                </li>
+                <li class="nav-icon-item" data-target="report">
+                    <span>📊</span>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="content-area">
+            
+            <!-- 3.1 Personal Info Section -->
+            <section class="section-container">
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="info-header">
+                            <span class="info-icon">👤</span>
+                            <span class="info-label">Gender</span>
+                        </div>
+                        <span class="info-value">Male</span>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-header">
+                            <span class="info-icon">🎂</span>
+                            <span class="info-label">Age</span>
+                        </div>
+                        <span class="info-value">28 <small>yo</small></span>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-header">
+                            <span class="info-icon">📏</span>
+                            <span class="info-label">Height</span>
+                        </div>
+                        <span class="info-value">170 <small>cm</small></span>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-header">
+                            <span class="info-icon">⚖️</span>
+                            <span class="info-label">Weight</span>
+                        </div>
+                        <span class="info-value">65 <small>kg</small></span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3.2 BMI Section -->
+            <section class="section-container">
+                <h2 class="section-title">Body Mass Index</h2>
+                <div class="bmi-card">
+                    <div class="bmi-header">
+                        <span class="bmi-score" id="bmiValue">22.5</span>
+                        <span class="bmi-status" id="bmiStatus">Normal</span>
+                    </div>
+                    
+                    <!-- Modern Visual Gauge -->
+                    <div class="bmi-gauge-container">
+                        <div class="bmi-track">
+                            <div class="bmi-pointer" id="bmiPointer"></div>
+                        </div>
+                        <div class="bmi-labels">
+                            <span>Under</span>
+                            <span>Normal</span>
+                            <span>Over</span>
+                            <span>Obese</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3.3 Energy Expenditure Section -->
+            <section class="section-container">
+                <h2 class="section-title">Energy Expenditure</h2>
+                <div class="energy-summary-card">
+                    <div class="energy-row">
+                        <div class="energy-item">
+                            <span class="energy-label">BMR</span>
+                            <span class="energy-value">1,600 <small>kcal</small></span>
+                        </div>
+                        <div class="energy-divider"></div>
+                        <div class="energy-item">
+                            <span class="energy-label">TDEE</span>
+                            <span class="energy-value">2,100 <small>kcal</small></span>
+                        </div>
+                    </div>
+                    <div class="energy-target-box">
+                        <div class="target-icon">🎯</div>
+                        <div class="target-info">
+                            <span class="target-label">TDEE Target</span>
+                            <span class="target-value">2,000 <small>kcal / day</small></span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ลิงก์ไฟล์ JavaScript -->
+    <script src="../../assets/js/app.js"></script>
+</body>
+</html>

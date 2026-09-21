@@ -30,6 +30,7 @@ This project is split into two separate directories. Always execute commands and
 
 ## 5. Chat & Compact Workflow Rules
 - **New Chat Behavior:** Automatically load these rules. Never ask the user to re-define the stack or communication style.
+- **First Reply Recap (anti-wrong-project):** On first reply of each new chat, recap in one short block: (1) project = Soy-Dee; (2) where: frontend `d:\Soy-Dee`, backend `D:\Soy-Dee_API` (Section 4 OneDrive paths stale), DB `soydee` (MySQL via xampp); (3) current work in progress, from memory/git status/spec files; (4) NOT this project: `food_and_fit_api`, `food-and-fit`. Overrides "no intro" rule for that reply only.
 - **On `/compact` Execution:** 
   1. Retain active task status and modified files list.
   2. Preserve all rules in this `CLAUDE.md` file.

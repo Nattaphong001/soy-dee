@@ -32,7 +32,10 @@ const INDEX_I18N = {
         'energy-tooltip-mid': 'คือพลังงานขั้นต่ำที่ร่างกายใช้ขณะพักนิ่ง ส่วน',
         'energy-tooltip-end': 'คือพลังงานรวมที่ใช้ทั้งวันเมื่อรวมกิจกรรมต่างๆ เข้าไปด้วย ตัวเลขเหล่านี้เป็นการประมาณจากสูตรมาตรฐาน อาจคลาดเคลื่อนจากการเผาผลาญจริงของแต่ละบุคคลได้',
         'bmr-desc': 'พลังงานพื้นฐานที่ร่างกายใช้ต่อวัน',
-        'target-energy-label': 'เป้าหมายพลังงาน/วัน'
+        'target-energy-label': 'เป้าหมายพลังงาน/วัน',
+        'dashboard-empty-title': 'ยังไม่มีข้อมูลสุขภาพ',
+        'dashboard-empty-desc': 'กรอกข้อมูลร่างกายที่หน้าโปรไฟล์ เพื่อให้ระบบคำนวณ BMI/BMR/TDEE ให้คุณ',
+        'dashboard-empty-cta': 'ไปกรอกข้อมูลร่างกาย'
     },
     en: {
         'edit-profile-btn': 'Edit Info',
@@ -56,44 +59,15 @@ const INDEX_I18N = {
         'energy-tooltip-mid': 'is the minimum energy your body uses at rest, while',
         'energy-tooltip-end': 'is the total energy used per day including all activities. These numbers are estimates from standard formulas and may differ from your actual metabolism.',
         'bmr-desc': 'Base energy your body uses per day',
-        'target-energy-label': 'Daily Energy Target'
+        'target-energy-label': 'Daily Energy Target',
+        'dashboard-empty-title': 'No health data yet',
+        'dashboard-empty-desc': 'Fill in your body stats on the profile page so we can calculate your BMI/BMR/TDEE.',
+        'dashboard-empty-cta': 'Go fill in body stats'
     }
 };
 
-/* ==============================================================================
-   Date Pill — ใช้ปฏิทิน dropdown ร่วมกับหน้าอื่น (assets/js/shared/datepicker.js)
-   หน้านี้ยังไม่มีข้อมูลรายวันผูกอยู่ (สถิติเป็นข้อมูลรวม/ล่าสุดของผู้ใช้) จึงแค่
-   อัปเดตข้อความวันที่ให้ตรงกับที่เลือก — เมื่อเชื่อมข้อมูลรายวันจริงในอนาคต
-   ให้เพิ่ม onSelect ให้โหลดข้อมูลของวันนั้นต่อจากนี้ได้เลย
-   ============================================================================== */
-const THAI_MONTHS_SHORT = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
-    'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
-
-let selectedDate = new Date();
-
-function formatDateThai(date) {
-    if (I18N.getLang() === 'en') {
-        return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-    }
-    return `${date.getDate()} ${THAI_MONTHS_SHORT[date.getMonth()]} ${date.getFullYear() + 543}`;
-}
-
-function renderDate() {
-    document.getElementById('dateText').textContent = formatDateThai(selectedDate);
-}
-
 document.addEventListener('DOMContentLoaded', () => {
     I18N.apply(INDEX_I18N);
-    renderDate();
-
-    SoyDeeDatePicker.attach({
-        pillEl: document.getElementById('datePickerPill'),
-        getDate: () => selectedDate,
-        onSelect: (date) => {
-            selectedDate = date;
-            renderDate();
-        }
-    });
 
     const notificationBtn = document.querySelector('.notification-btn');
     if (notificationBtn) {
@@ -103,12 +77,61 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     loadDashboardData();
+
+    // กลับมาหน้านี้ผ่าน bfcache (ปุ่ม back ของเบราว์เซอร์) — DOMContentLoaded ไม่ยิงซ้ำ
+    // ค่าที่แก้จากหน้าโปรไฟล์เลยค้างจนกว่าจะกด refresh เอง แก้โดยโหลดข้อมูลใหม่ทุกครั้งที่ restore
+    window.addEventListener('pageshow', (e) => {
+        if (e.persisted) loadDashboardData();
+    });
+
+    // ซิงก์ชื่อ/รูป/เพศแบบเรียลไทม์ข้ามแท็บ — 'storage' event ยิงเฉพาะแท็บอื่นที่ไม่ได้เป็นคนเซฟ
+    window.addEventListener('storage', (e) => {
+        if (e.key !== 'soydee_user' || !e.newValue) return;
+        try {
+            const user = JSON.parse(e.newValue);
+            const nameEl = document.querySelector('.user-name');
+            if (nameEl && user.full_name) nameEl.textContent = user.full_name;
+            if (user.profile_pic) {
+                const avatarLink = document.querySelector('.profile-avatar');
+                if (avatarLink) avatarLink.innerHTML = `<img src="${SoyDeeAPI.assetUrl(user.profile_pic)}" alt="Profile">`;
+            }
+            if (user.gender != null) {
+                const genderValue = user.gender === 2 ? 'หญิง' : 'ชาย';
+                const genderEl = document.getElementById('statGender');
+                if (genderEl) genderEl.textContent = I18N.getLang() === 'en' ? (user.gender === 2 ? 'Female' : 'Male') : genderValue;
+                setGeckoGender(genderValue);
+            }
+        } catch (err) { /* malformed storage value — ข้าม */ }
+    });
+
+    // แก้น้ำหนัก/ส่วนสูง/ระดับกิจกรรม/เป้าหมาย/วันเกิดที่หน้าโปรไฟล์ (แท็บอื่น) แล้ว
+    // ตัวเลข BMI/BMR/TDEE ต้องอัปเดตทันทีที่นี่ โดยไม่ต้องรีเฟรชหน้า — ดู
+    // assets/js/shared/app.js (broadcastSync/onSync) และ profile.js (saveBodyTab)
+    if (typeof onSync === 'function') {
+        onSync((msg) => {
+            if (msg.type === 'bmr-updated') {
+                renderBmiEnergy({ latest_bmi: msg.payload.bmi, latest_bmr: msg.payload.bmr });
+            }
+        });
+    }
 });
 
 /* ==============================================================================
    เชื่อมข้อมูลจริง — โปรไฟล์ + ข้อมูลร่างกายล่าสุด + สรุปสุขภาพ (dashboard)
    ============================================================================== */
 const BMI_EVAL_KEY = { 1: 'gauge-underweight', 2: 'gauge-normal', 3: 'gauge-overweight', 4: 'gauge-obese' };
+// คลาสสี BMI ตาม mbh_eval_result จริง (ดู .c-thin/.c-normal/.c-over/.c-obese
+// ใน shared/style.css) — เดิม .bmi-number/.bmi-status ตรึงเป็นสีเขียวเสมอ
+// ไม่ว่า BMI จะอยู่ช่วงไหน ตอนนี้ต้องสลับคลาสตามค่าจริงทุกครั้งที่ render
+const BMI_EVAL_CLASS = { 1: 'eval-thin', 2: 'eval-normal', 3: 'eval-over', 4: 'eval-obese' };
+const ALL_BMI_EVAL_CLASSES = Object.values(BMI_EVAL_CLASS);
+
+function setBmiEvalClass(el, evalResult) {
+    if (!el) return;
+    el.classList.remove(...ALL_BMI_EVAL_CLASSES);
+    const cls = BMI_EVAL_CLASS[evalResult];
+    if (cls) el.classList.add(cls);
+}
 
 function calcAge(birthDateStr) {
     if (!birthDateStr) return null;
@@ -130,6 +153,9 @@ async function loadDashboardData() {
     const mbId = SoyDeeAPI.session.getUserId();
     if (!mbId) return;
 
+    const content = document.querySelector('.app-content');
+    if (content) content.classList.add('is-loading');
+
     try {
         const [profile, dashboard, bodyStatsLatest] = await Promise.all([
             SoyDeeAPI.request(`/members/${mbId}/profile`),
@@ -143,6 +169,8 @@ async function loadDashboardData() {
     } catch (err) {
         console.error('loadDashboardData failed', err);
         showToast(I18N.getLang() === 'en' ? 'Failed to load your data' : 'โหลดข้อมูลไม่สำเร็จ');
+    } finally {
+        if (content) content.classList.remove('is-loading');
     }
 }
 
@@ -184,6 +212,15 @@ function renderBmiEnergy(dashboard) {
     const bmi = dashboard.latest_bmi || {};
     const bmr = dashboard.latest_bmr || {};
 
+    // สมาชิกที่ยังไม่เคยมี member_bmr_history เลย (ปกติไม่ควรเจอหลังแก้ transaction
+    // ตอนสมัคร แต่กันไว้เผื่อบัญชีเก่า) — ซ่อนการ์ด BMI/พลังงาน แสดง empty state แทน
+    const dashboardCard = document.querySelector('.combined-dashboard-card');
+    const emptyState = document.getElementById('dashboardEmptyState');
+    const hasData = bmi.value != null || bmr.bmr != null;
+    if (emptyState) emptyState.hidden = hasData;
+    if (dashboardCard) dashboardCard.hidden = !hasData;
+    if (!hasData) return;
+
     const bmiValueEl = document.getElementById('bmiValue');
     const bmiStatusEl = document.getElementById('bmiStatusText');
     if (bmiValueEl) bmiValueEl.textContent = bmi.value != null ? bmi.value.toFixed(1) : '–';
@@ -191,7 +228,9 @@ function renderBmiEnergy(dashboard) {
         const key = BMI_EVAL_KEY[bmi.eval_result];
         bmiStatusEl.textContent = key ? I18N.t(INDEX_I18N, key) : '–';
     }
-    if (bmi.value != null && typeof animateBMIGauge === 'function') animateBMIGauge();
+    setBmiEvalClass(bmiValueEl, bmi.eval_result);
+    setBmiEvalClass(bmiStatusEl, bmi.eval_result);
+    if (bmi.value != null && typeof animateBMIGauge === 'function') animateBMIGauge(bmi.value);
 
     const bmrValueEl = document.querySelector('.energy-block .e-value');
     if (bmrValueEl) bmrValueEl.innerHTML = `${formatKcal(bmr.bmr)} <small>kcal</small>`;

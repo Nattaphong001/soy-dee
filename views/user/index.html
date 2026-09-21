@@ -6,7 +6,6 @@
     <title>soy dee - Health Dashboard</title>
     <link rel="stylesheet" href="/assets/css/shared/style.css">
     <link rel="stylesheet" href="/assets/css/shared/nav.css">
-    <link rel="stylesheet" href="/assets/css/shared/datepicker.css">
     <!-- ลบลิงก์ Noto Sans Thai เดิมออก แล้วใส่ Prompt เข้าไปแทน -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!--
@@ -84,11 +83,6 @@
                     </span>
                     <span data-i18n="edit-profile-btn">แก้ไขข้อมูล</span>
                 </a>
-                <div class="date-picker-pill" id="datePickerPill" role="button" tabindex="0" aria-label="เลือกวันที่">
-                    <span class="icon-calendar">📅</span>
-                    <span class="date-text" id="dateText">24 พ.ค. 2567</span>
-                    <span class="icon-chevron">⌄</span>
-                </div>
             </div>
         </div>
 
@@ -234,10 +228,10 @@
                     </div>
 
                     <div class="gauge-labels">
-                        <div class="g-col"><span>&lt; 18.5</span><span class="c-blue" data-i18n="gauge-underweight">ผอม</span></div>
-                        <div class="g-col"><span>18.5 - 22.9</span><span class="c-green" data-i18n="gauge-normal">ปกติ</span></div>
-                        <div class="g-col"><span>23.0 - 24.9</span><span class="c-yellow" data-i18n="gauge-overweight">ท้วม</span></div>
-                        <div class="g-col"><span>&ge; 25.0</span><span class="c-red" data-i18n="gauge-obese">อ้วน</span></div>
+                        <div class="g-col"><span>&lt; 18.5</span><span class="c-thin" data-i18n="gauge-underweight">ผอม</span></div>
+                        <div class="g-col"><span>18.5 - 22.9</span><span class="c-normal" data-i18n="gauge-normal">ปกติ</span></div>
+                        <div class="g-col"><span>23.0 - 24.9</span><span class="c-over" data-i18n="gauge-overweight">ท้วม</span></div>
+                        <div class="g-col"><span>&ge; 25.0</span><span class="c-obese" data-i18n="gauge-obese">อ้วน</span></div>
                     </div>
 
                     <div class="comparison-box" hidden>
@@ -302,6 +296,15 @@
                 </div>
             </section>
 
+            <!-- Empty state: สมาชิกใหม่ที่ยังไม่มีข้อมูลร่างกาย/BMR เลย (ปกติไม่ควรเจอ เพราะ
+                 สมัครสมาชิกคำนวณให้อัตโนมัติแล้ว แต่กันไว้เผื่อบัญชีเก่า/ข้อมูลไม่ครบ) -->
+            <section class="empty-state" id="dashboardEmptyState" hidden>
+                <div class="empty-state-icon" aria-hidden="true">📋</div>
+                <div class="empty-state-title" data-i18n="dashboard-empty-title">ยังไม่มีข้อมูลสุขภาพ</div>
+                <div class="empty-state-desc" data-i18n="dashboard-empty-desc">กรอกข้อมูลร่างกายที่หน้าโปรไฟล์ เพื่อให้ระบบคำนวณ BMI/BMR/TDEE ให้คุณ</div>
+                <a href="profile.html?tab=body" class="empty-state-cta" data-i18n="dashboard-empty-cta">ไปกรอกข้อมูลร่างกาย</a>
+            </section>
+
         </main>
         <!-- Bottom nav: markup static ในทุกหน้า (ต้องมีจริงตั้งแต่ raw HTML เพื่อให้
              Cross-Document View Transition จับคู่ element ข้ามหน้าได้ถูกต้อง —
@@ -321,7 +324,6 @@
     <script src="/assets/js/shared/i18n.js"></script>
     <script src="/assets/js/shared/nav.js"></script>
     <script src="/assets/js/shared/app.js"></script> <!-- ไฟล์ JS ใหม่ของหน้าแรก -->
-    <script src="/assets/js/shared/datepicker.js"></script>
     <script src="/assets/js/pages/index.js"></script>
 </body>
 </html>

@@ -23,7 +23,16 @@ window.I18N = (function () {
         return d[key] !== undefined ? d[key] : (dict.th[key] || key);
     }
 
+    let lastDict = null;
+
+    // ให้ผู้ฟัง cross-tab sync (ดู app.js broadcastSync/onSync) เรียกซ้ำได้โดยไม่ต้องรู้ว่า
+    // หน้านี้ใช้ dict ตัวไหน — apply() เก็บ dict ล่าสุดไว้เองทุกครั้งที่ถูกเรียก
+    function reapply() {
+        if (lastDict) apply(lastDict);
+    }
+
     function apply(dict) {
+        lastDict = dict;
         const d = dict[getLang()] || dict.th;
 
         document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -40,5 +49,5 @@ window.I18N = (function () {
         document.documentElement.lang = getLang() === 'en' ? 'en' : 'th';
     }
 
-    return { getLang, setLang, t, apply };
+    return { getLang, setLang, t, apply, reapply };
 })();

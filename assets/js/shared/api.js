@@ -7,7 +7,7 @@
 (function (global) {
     'use strict';
 
-    var API_BASE_URL = 'http://localhost:8080/api/v1';
+    var API_BASE_URL = 'http://' + window.location.hostname + ':8080/api/v1';
     var API_ORIGIN = API_BASE_URL.replace(/\/api\/v1\/?$/, '');
 
     /** ต่อ path ที่ backend คืนมา (เช่น "/uploads/avatars/12.jpg") ให้เป็น URL เต็มไปยัง API server */
@@ -235,12 +235,12 @@
         global.location.href = loginPathFromHere();
     }
 
-    // ตัวเลือกระดับกิจกรรมในฟอร์ม (low/mid/high) แปลงเป็นค่าตัวคูณ PAL มาตรฐาน
+    // ตัวเลือกระดับกิจกรรมในฟอร์ม แปลงเป็นค่าตัวคูณ PAL มาตรฐาน (5 ระดับตาม FORMULAS_AND_LOGIC.sql)
     // ใช้ทั้งหน้า register และหน้า profile (แท็บข้อมูลร่างกาย) ให้ตรงกัน
-    var ACTIVITY_LEVEL_MAP = { low: 1.2, mid: 1.55, high: 1.9 };
+    var ACTIVITY_LEVEL_MAP = { sedentary: 1.2, light: 1.375, moderate: 1.5, active: 1.725, very_active: 1.9 };
     function activityLevelToOption(level) {
-        if (level == null) return 'mid';
-        var closest = 'mid', closestDiff = Infinity;
+        if (level == null) return 'moderate';
+        var closest = 'moderate', closestDiff = Infinity;
         Object.keys(ACTIVITY_LEVEL_MAP).forEach(function (key) {
             var diff = Math.abs(ACTIVITY_LEVEL_MAP[key] - level);
             if (diff < closestDiff) { closestDiff = diff; closest = key; }

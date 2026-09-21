@@ -88,6 +88,45 @@ function showToast(message, type) {
 window.showToast = showToast;
 
 /* ==============================================================================
+   CROSS-TAB SYNC — แจ้งทุกแท็บที่เปิดแอพนี้อยู่เมื่อมีการเปลี่ยนรูปโปรไฟล์/ธีม/ภาษา/
+   ข้อมูลร่างกาย โดยไม่ต้อง reload หน้า (แก้ DOM ตรงจุดแทน)
+   ------------------------------------------------------------------------------
+   BroadcastChannel ใช้เป็นหลัก (แท็บของ origin เดียวกันคุยกันได้ทันที) ส่วน
+   localStorage เป็น fallback สำหรับเบราว์เซอร์ที่ไม่รองรับ BroadcastChannel —
+   การ set ค่าเดิมซ้ำจะไม่ยิง 'storage' event ในแท็บเดียวกัน จึงต่อ timestamp
+   ต่อท้ายให้ค่าเปลี่ยนทุกครั้งเพื่อบังคับให้ event ยิงจริง
+   ============================================================================== */
+const syncChannel = ('BroadcastChannel' in window) ? new BroadcastChannel('soydee_sync') : null;
+
+function broadcastSync(type, payload) {
+    const msg = { type, payload, ts: Date.now() };
+    if (syncChannel) syncChannel.postMessage(msg);
+    try { localStorage.setItem('soydee_sync_ping', JSON.stringify(msg)); } catch (e) { /* localStorage ใช้ไม่ได้ — ข้ามไป */ }
+}
+
+function onSync(callback) {
+    if (syncChannel) syncChannel.addEventListener('message', (e) => callback(e.data));
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'soydee_sync_ping' && e.newValue) {
+            try { callback(JSON.parse(e.newValue)); } catch (err) { /* ping เพี้ยน — ข้าม */ }
+        }
+    });
+}
+window.broadcastSync = broadcastSync;
+window.onSync = onSync;
+
+// ธีม/ภาษาใช้ได้ทุกหน้าเหมือนกันเป๊ะ จึงจัดการที่นี่ที่เดียว (กลไกกลาง) — ส่วน
+// avatar/bmr เป็นข้อมูลที่มีแค่บางหน้า ให้แต่ละหน้า subscribe เองใน index.js/profile.js
+onSync((msg) => {
+    if (msg.type === 'theme-updated') {
+        document.documentElement.classList.toggle('dark-theme', msg.payload.theme === 'dark');
+    }
+    if (msg.type === 'lang-updated' && window.I18N && typeof I18N.reapply === 'function') {
+        I18N.reapply();
+    }
+});
+
+/* ==============================================================================
    THEME SYSTEM — โครงสร้าง JS พื้นฐานสำหรับสลับ Light / Dark Mode
    ------------------------------------------------------------------------------
    - Default: Light Mode เสมอ (ไม่มีคลาส .dark-theme ที่ <html>)
@@ -109,6 +148,7 @@ function setTheme(theme) {
         // localStorage อาจใช้ไม่ได้ (เช่น เปิดไฟล์ตรงๆ ผ่าน file:// หรือโหมด Private Browsing)
         // ธีมยังคงสลับได้ตามปกติ เพียงแค่จะไม่ถูกจำไว้ข้ามเซสชัน
     }
+    broadcastSync('theme-updated', { theme: isDark ? 'dark' : 'light' });
 }
 
 /** สลับธีมปัจจุบัน (Light <-> Dark) */
@@ -152,12 +192,21 @@ const BMI_GAUGE = {
     gapDeg: 3     // ช่องว่างระหว่างแต่ละแท่งสี (องศา) ให้ดูเป็นเซกเมนต์แยกกันสวยงาม
 };
 
+/** อ่านค่าตัวแปรสีจาก CSS ตรงๆ (single source of truth เดียวกับ style.css)
+ *  แทนการ hardcode hex ซ้ำในนี้ — กันไม่ให้สองที่ไม่ตรงกันในอนาคต */
+function cssColorVar(name, fallback) {
+    const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    return v || fallback;
+}
+
 // เกณฑ์ BMI แต่ละช่วง แบ่งเท่าๆ กันช่วงละ 45deg บนครึ่งวงกลม (-90 ถึง 90)
+// สีอ้างอิงตัวแปร --bmi-* ใน style.css (แยกจากสี traffic light อาหารโดยเจตนา
+// — ก่อนหน้านี้ "ท้วม" ใช้สีเหลืองซ้ำกับ "อาหารกินได้แต่ควบคุม" ดู §2.4)
 const BMI_GAUGE_SEGMENTS = [
-    { label: 'ผอม', angleStart: -90, angleEnd: -45, color: '#3B82F6' },
-    { label: 'ปกติ', angleStart: -45, angleEnd: 0, color: '#10B981' },
-    { label: 'ท้วม', angleStart: 0, angleEnd: 45, color: '#F59E0B' },
-    { label: 'อ้วน', angleStart: 45, angleEnd: 90, color: '#EF4444' }
+    { label: 'ผอม', angleStart: -90, angleEnd: -45, color: cssColorVar('--bmi-thin', '#3B82F6') },
+    { label: 'ปกติ', angleStart: -45, angleEnd: 0, color: cssColorVar('--bmi-normal', '#10B981') },
+    { label: 'ท้วม', angleStart: 0, angleEnd: 45, color: cssColorVar('--bmi-over', '#F97316') },
+    { label: 'อ้วน', angleStart: 45, angleEnd: 90, color: cssColorVar('--bmi-obese', '#EF4444') }
 ];
 
 /** แปลงมุม (องศา, 0 = บน, ตามทิศ CSS rotate) เป็นพิกัด x,y บนวงกลมเกจ */
@@ -177,17 +226,21 @@ function describeBmiArc(angleStart, angleEnd) {
     return `M ${start.x.toFixed(2)} ${start.y.toFixed(2)} A ${BMI_GAUGE.r} ${BMI_GAUGE.r} 0 ${largeArcFlag} 1 ${end.x.toFixed(2)} ${end.y.toFixed(2)}`;
 }
 
-/** คำนวณองศาของเข็มจากค่า BMI — สูตรเดียวกับที่ใช้แบ่งเซกเมนต์สีด้านบน */
+/** คำนวณองศาของเข็มจากค่า BMI — สูตรเดียวกับที่ใช้แบ่งเซกเมนต์สีด้านบน
+ *  ขอบเขตต้องใช้ "<" ฝั่งบนเสมอ (§2.4) — เดิมใช้ <=22.9 / <=24.9 ทำให้ค่า
+ *  22.95 และ 24.95 ตกหล่นไม่เข้าเซกเมนต์ไหนเลย (เข็มไปอยู่กึ่งกลางของทั้งสอง
+ *  เซกเมนต์ที่ผิด) ตอนนี้เปลี่ยนเป็น <23.0 / <25.0 ให้ตรงกับ mbh_eval_result
+ *  ฝั่ง Go (bmiEvalResult ใน pkg/utils/bmr.go) เป๊ะ */
 function bmiToGaugeAngle(bmiValue) {
     if (bmiValue < 18.5) {
         const ratio = Math.max(bmiValue, 0) / 18.5;
         return -90 + ratio * 45;
     }
-    if (bmiValue <= 22.9) {
-        return -45 + ((bmiValue - 18.5) / (22.9 - 18.5)) * 45;
+    if (bmiValue < 23.0) {
+        return -45 + ((bmiValue - 18.5) / (23.0 - 18.5)) * 45;
     }
-    if (bmiValue <= 24.9) {
-        return ((bmiValue - 23.0) / (24.9 - 23.0)) * 45;
+    if (bmiValue < 25.0) {
+        return ((bmiValue - 23.0) / (25.0 - 23.0)) * 45;
     }
     const ratio = Math.min((bmiValue - 25.0) / 10, 1);
     return 45 + ratio * 45;
@@ -218,14 +271,13 @@ function renderBMIGauge() {
     });
 }
 
-/** หมุนเข็มเกจ BMI ไปยังตำแหน่งที่สอดคล้องกับค่า BMI ปัจจุบัน */
-function animateBMIGauge() {
-    const bmiValueEl = document.getElementById('bmiValue');
+/** หมุนเข็มเกจ BMI ไปยังตำแหน่งที่สอดคล้องกับค่า BMI ที่ส่งเข้ามา
+ *  รับค่าเป็น argument ตรงๆ จาก state ของหน้า (ไม่อ่านย้อนกลับจาก DOM
+ *  เหมือนเดิม — ตอน DOMContentLoaded ข้อความในจอยังเป็น placeholder "–"
+ *  อยู่ ค่าจริงมาถึงทีหลังผ่าน fetch async เท่านั้น) */
+function animateBMIGauge(bmiValue) {
     const needle = document.getElementById('gaugeNeedle');
-    if (!needle || !bmiValueEl) return;
-
-    const bmiValue = parseFloat(bmiValueEl.innerText);
-    if (isNaN(bmiValue)) return;
+    if (!needle || typeof bmiValue !== 'number' || isNaN(bmiValue)) return;
 
     const degrees = bmiToGaugeAngle(bmiValue);
 
@@ -279,7 +331,8 @@ function initInfoPopovers() {
 document.addEventListener("DOMContentLoaded", () => {
     initTheme();
     renderBMIGauge();
-    animateBMIGauge();
+    // animateBMIGauge(bmiValue) รันหลัง fetch ข้อมูลจริงเสร็จ (ดู index.js
+    // renderBmiEnergy) — ตอนนี้จอยังเป็น placeholder "–" ไม่มีค่าให้อ่าน
     initInfoPopovers();
     initGeckoWalker();
 });
@@ -304,7 +357,7 @@ const GECKO_CONFIG = {
     footprintGap: 22,     // ระยะห่างระหว่างรอยเท้าแต่ละรอย (พิกเซล)
     footprintLife: 2400,  // อายุรอยเท้าก่อนจางหาย (มิลลิวินาที)
     arriveThreshold: 1.5, // ระยะที่ถือว่า "ถึงจุดหมายแล้ว" (พิกเซล)
-    respectReducedMotion: true  // true = ถ้าเครื่องผู้ใช้ปิด Animation effects จะให้กิ้งก่ายืนนิ่ง
+    respectReducedMotion: false  // true = ถ้าเครื่องผู้ใช้ปิด Animation effects จะให้กิ้งก่ายืนนิ่ง
                                  // ตั้งเป็น false ชั่วคราวเวลา dev/เดโม่ เพื่อบังคับให้เดินเสมอ
 };
 

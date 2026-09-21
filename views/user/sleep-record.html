@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="/assets/css/shared/style.css">
     <link rel="stylesheet" href="/assets/css/shared/nav.css">
     <!-- profile.css: คอมโพเนนต์กลาง (form-field, form-input, save-btn ฯลฯ)
-         record-ui.css: hero / การ์ดสรุป / .log-item / FAB / modal รายละเอียด / bottom sheet ใช้ร่วมกับหน้าอาหารและกิจกรรม -->
+         record-ui.css: hero / การ์ดสรุป / .log-item / modal รายละเอียด / bottom sheet ใช้ร่วมกับหน้าอาหารและกิจกรรม -->
     <link rel="stylesheet" href="/assets/css/shared/profile.css">
     <link rel="stylesheet" href="/assets/css/shared/datepicker.css">
     <link rel="stylesheet" href="/assets/css/shared/record-ui.css">
@@ -70,7 +70,10 @@
                         <span class="icon-box purple-box"><i data-icon="sleep"></i></span>
                         <span id="summaryTitleText">สรุปการนอนวันนี้</span>
                     </div>
-                    <span class="cat-pill" id="summaryEval" hidden><span class="badge-dot" style="background:var(--lc)"></span><span id="summaryEvalText"></span></span>
+                    <div class="panel-side">
+                        <span class="cat-pill" id="summaryEval" hidden><span class="badge-dot" style="background:var(--lc)"></span><span id="summaryEvalText"></span></span>
+                        <span class="card-chevron" id="summaryChevron" aria-hidden="true" hidden></span>
+                    </div>
                 </div>
 
                 <div class="sleep-big">
@@ -106,28 +109,72 @@
                     </div>
                 </div>
                 <p class="summary-insight" id="summaryInsight"></p>
+                <!-- ปุ่มหลักของหน้า: ยังไม่มีบันทึก = "บันทึกการนอน" (เต็มสี), มีแล้ว = "แก้ไขบันทึก" (ขอบ) — 1 วัน 1 รายการ -->
+                <button type="button" class="summary-cta" id="summaryActionBtn"></button>
             </section>
 
-            <!-- 2. ประวัติการนอน 7 วันถึงวันที่เลือก — ใช้ข้อมูลชุดเดียวกับที่ป้อน Dashboard -->
-            <section class="log-section">
-                <div class="section-heading-row">
-                    <h2 class="section-heading" data-i18n="section-heading-history">ประวัติการนอน 7 วัน</h2>
-                    <span class="count-badge" id="logCountBadge">0 คืน</span>
+            <!-- 2. ภาพรวม 7 วันที่จบที่วันที่เลือก: กราฟแท่งชั่วโมงนอน + เส้นค่าเฉลี่ย กดการ์ดเพื่อดูประวัติเต็ม (ซ่อนเมื่อยังไม่มีบันทึกเลย) -->
+            <section class="summary-card week-card is-link" id="weekCard" role="button" tabindex="0" hidden>
+                <div class="panel-header">
+                    <div class="header-title">
+                        <span class="icon-box blue-box"><i data-icon="report"></i></span>
+                        <span data-i18n="week-title">ภาพรวม 7 วัน</span>
+                    </div>
+                    <span class="card-chevron" aria-hidden="true"></span>
                 </div>
-
-                <div class="log-list" id="logList" aria-live="polite">
-                    <!-- JS render รายการ .log-item หรือ .empty-state ที่นี่ -->
+                <div class="week-headline">
+                    <span class="week-avg-text"><span data-i18n="week-avg-prefix">เฉลี่ย</span> <strong class="numeric" id="weekAvg">–</strong></span>
+                    <span class="summary-total" id="weekTotal">บันทึก 0/7 คืน</span>
+                </div>
+                <div class="week-chart" id="weekChart" role="img" aria-label="ชั่วโมงการนอนรายวัน">
+                    <div class="week-plot">
+                        <span class="week-band" aria-hidden="true"></span>
+                        <span class="week-avg-line" id="weekAvgLine" aria-hidden="true"><span class="week-avg-tag" data-i18n="week-avg-tag">เฉลี่ย</span></span>
+                        <div class="week-bars" id="weekBars"></div>
+                    </div>
+                    <div class="week-labels" id="weekLabels"></div>
+                </div>
+                <div class="week-foot">
+                    <span class="week-band-note" data-i18n="week-band-note">แถบเขียวจาง = ช่วงแนะนำ 7–9 ชม.</span>
+                    <span class="cat-pill eval-ok" id="weekInRangePill"><span class="badge-dot" style="background:var(--lc)"></span><span id="weekInRange"></span></span>
                 </div>
             </section>
 
-            <!-- เว้นระยะให้พ้นปุ่ม FAB ก่อนถึง bottom nav -->
-            <div class="fab-spacer" aria-hidden="true"></div>
+            <!-- 3. ความสม่ำเสมอ: จุดต่อคืนของเวลาเข้านอน/ตื่น เทียบค่าเฉลี่ย 7 วัน (ต้องมีอย่างน้อย 3 คืนถึงจะประเมินระดับ) -->
+            <section class="summary-card regular-card is-link" id="regularCard" role="button" tabindex="0" hidden>
+                <div class="panel-header">
+                    <div class="header-title">
+                        <span class="icon-box purple-box"><i data-icon="moon"></i></span>
+                        <span data-i18n="regular-title">ความสม่ำเสมอของการนอน</span>
+                    </div>
+                    <span class="card-chevron" aria-hidden="true"></span>
+                </div>
+                <div class="week-headline">
+                    <span class="week-avg-text" id="regularSub">–</span>
+                    <span class="cat-pill" id="regularLevel" hidden><span class="badge-dot" style="background:var(--lc)"></span><span id="regularLevelText"></span></span>
+                </div>
+                <div class="regular-grid" id="regularGrid"></div>
+                <div class="regular-legend" aria-hidden="true">
+                    <span class="regular-legend-item"><i class="regular-dot is-near"></i><span data-i18n="legend-near">ใกล้ค่าเฉลี่ย (±1 ชม.)</span></span>
+                    <span class="regular-legend-item"><i class="regular-dot is-far"></i><span data-i18n="legend-far">ห่างจากค่าเฉลี่ย</span></span>
+                    <span class="regular-legend-item"><i class="regular-dot is-none"></i><span data-i18n="legend-none">ไม่ได้บันทึก</span></span>
+                </div>
+                <div class="summary-stats is-stacked">
+                    <div class="stat-chip">
+                        <span class="stat-chip-value numeric" id="weekAvgStart">–</span>
+                        <span class="stat-chip-label" data-i18n="week-avg-start">เข้านอนเฉลี่ย</span>
+                    </div>
+                    <div class="stat-chip">
+                        <span class="stat-chip-value numeric" id="weekAvgEnd">–</span>
+                        <span class="stat-chip-label" data-i18n="week-avg-end">ตื่นเฉลี่ย</span>
+                    </div>
+                </div>
+                <p class="summary-insight" id="weekRegularNote" hidden></p>
+            </section>
+
+            <!-- เว้นระยะให้พ้น bottom nav -->
+            <div class="nav-spacer" aria-hidden="true"></div>
         </main>
-
-        <!-- ปุ่มลอยบันทึกการนอน: กึ่งกลางจอ เหนือ bottom nav (วันที่มีบันทึกแล้วจะเปิดฟอร์มแก้ไข — 1 วัน 1 รายการ) -->
-        <div class="fab-wrapper">
-            <button class="fab-add-btn" id="fabAddBtn" type="button" aria-label="บันทึกการนอน"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
-        </div>
 
         <nav id="app-nav-bar" class="nav-pill-wrapper">
             <ul class="nav-pill-container" id="horizontalNav">
@@ -136,9 +183,26 @@
                 <li><a href="food-record.html" class="nav-icon-item" data-target="food"><i data-icon="food"></i></a></li>
                 <li><a href="activity-record.html" class="nav-icon-item" data-target="activity"><i data-icon="activity"></i></a></li>
                 <li><a href="sleep-record.html" class="nav-icon-item active" data-target="sleep"><i data-icon="sleep"></i></a></li>
-                <li><a class="nav-icon-item is-disabled" data-target="report" aria-disabled="true" aria-label="รายงาน (เร็วๆ นี้)"><i data-icon="report"></i></a></li>
+                <li><a href="report.html" class="nav-icon-item" data-target="report"><i data-icon="report"></i></a></li>
             </ul>
         </nav>
+    </div>
+
+    <!-- ============== หน้าประวัติการนอนเต็ม: เปิดจากการ์ดภาพรวม/ความสม่ำเสมอ แบ่งทีละ 7 วัน ดูย้อนหลังเพิ่มได้ ============== -->
+    <div class="history-overlay" id="historyOverlay" role="dialog" aria-modal="true" aria-labelledby="historyTitle" aria-hidden="true">
+        <div class="history-panel">
+            <header class="history-head">
+                <button type="button" class="history-back" id="historyBackBtn" aria-label="กลับ">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+                </button>
+                <h2 class="history-title" id="historyTitle" data-i18n="history-title">ประวัติการนอน</h2>
+                <span class="count-badge" id="historyCount">–</span>
+            </header>
+            <div class="history-body">
+                <div id="historyList" aria-live="polite"></div>
+                <button type="button" class="history-more" id="historyMoreBtn" data-i18n="history-more">ดูย้อนหลังเพิ่ม 7 วัน</button>
+            </div>
+        </div>
     </div>
 
     <!-- ============== Modal: ดูรายละเอียดการนอน (แยกจากฟอร์มแก้ไข) ============== -->
@@ -201,6 +265,10 @@
                     <span class="sleep-preview-value numeric" id="sleepPreviewValue">–</span>
                     <span class="sleep-preview-text" id="sleepPreviewText" data-i18n="eval-pending">กรอกเวลาเพื่อประเมิน</span>
                 </div>
+                <!-- เริ่มนอนหลังเวลาตื่น = เริ่มนอนคืนก่อนหน้า (ดู buildSleepDates) — บอกวันที่ให้ผู้ใช้เห็น -->
+                <div class="sleep-preview-note" id="sleepPreviewNote" hidden></div>
+                <!-- เตือนสด: เวลาตื่นยังมาไม่ถึง (บันทึกไม่ได้) / นอนนานผิดปกติ (บันทึกได้) -->
+                <div class="sleep-preview-note is-warn" id="sleepPreviewWarn" role="status" hidden></div>
 
                 <div class="form-field">
                     <span class="form-label" data-i18n="label-quality">คุณภาพการนอน (ประเมินด้วยตัวเอง)</span>

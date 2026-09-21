@@ -1,23 +1,23 @@
 /* ==============================================================================
    SLEEP RECORD PAGE — ใช้ token จาก style.css, คอมโพเนนต์ร่วมจาก profile.css
    (.form-field, .form-input, .save-btn, .sheet-error) และ record-ui.css
-   (hero, การ์ดสรุป, .stat-chip, .log-item, FAB, .detail-card, .sheet-card) โหลดคู่กันเสมอ
+   (hero, การ์ดสรุป, .stat-chip, .log-item, .detail-card, .sheet-card) โหลดคู่กันเสมอ
    ไฟล์นี้มีเฉพาะส่วนของหน้านอน: ฉาก hero กลางคืน, สี --lc ตามผลประเมิน,
    ตัวเลขใหญ่ + สเกลเทียบช่วงแนะนำ, พรีวิว/ปุ่มคุณภาพในฟอร์ม
    ============================================================================== */
 
-/* ---------- hero: ท้องฟ้ายามค่ำคืนด้วย CSS ล้วน (ดาวเป็น radial-gradient จุดเล็ก) ---------- */
+/* ---------- hero: ภาพท้องฟ้ายามค่ำคืน assets/images/sleep-banner.svg (วาดเอง เป็น vector คมทุกขนาดจอ) ---------- */
 .sleep-hero {
     background-color: #1b2150;
-    background-image:
-        radial-gradient(1.6px 1.6px at 12% 30%, rgba(255, 255, 255, 0.85), transparent 60%),
-        radial-gradient(1.2px 1.2px at 27% 68%, rgba(255, 255, 255, 0.6), transparent 60%),
-        radial-gradient(1.8px 1.8px at 46% 22%, rgba(255, 255, 255, 0.8), transparent 60%),
-        radial-gradient(1.2px 1.2px at 63% 74%, rgba(255, 255, 255, 0.55), transparent 60%),
-        radial-gradient(1.5px 1.5px at 74% 38%, rgba(255, 255, 255, 0.75), transparent 60%),
-        radial-gradient(1.2px 1.2px at 90% 60%, rgba(255, 255, 255, 0.6), transparent 60%),
-        radial-gradient(90px 90px at 86% 26%, rgba(196, 181, 253, 0.42), transparent 70%),
-        linear-gradient(160deg, #1b2150 0%, #2f2f7a 55%, #4b3a97 100%);
+    background-image: url('../../images/sleep-banner.svg');
+    background-position: center;
+}
+/* ภาพเป็นโทนมืดอยู่แล้ว — เบาเงาทับลง ให้พระจันทร์/ดาวสว่างชัด (โหมดมืดใช้ค่าจาก record-ui.css ต่อ) */
+.sleep-hero::before {
+    background: linear-gradient(180deg, rgba(8, 10, 30, 0.06) 0%, rgba(8, 10, 30, 0.14) 60%, rgba(8, 10, 30, 0.36) 100%);
+}
+.dark-theme .sleep-hero::before {
+    background: linear-gradient(180deg, rgba(4, 6, 20, 0.20) 0%, rgba(4, 6, 20, 0.34) 60%, rgba(4, 6, 20, 0.55) 100%);
 }
 
 /* ---------- สีประจำผลประเมิน: JS ใส่ .eval-low / .eval-ok / .eval-high (ไม่มีผล = เทา) ---------- */
@@ -97,7 +97,6 @@
 .log-item.is-current {
     border-color: color-mix(in srgb, var(--accent-1) 55%, var(--border-hairline));
 }
-.log-thumb.is-moon { font-size: 28px; }
 
 /* ชั่วโมงรวมชิดขวา ก่อนลูกศร */
 .log-item-hours {
@@ -193,4 +192,476 @@
     color: #FFFFFF;
     border-color: transparent;
     box-shadow: var(--shadow-card);
+}
+
+/* ---------- ปรับรอบ 2: สเกล / ลิสต์ / ภาพรวม 7 วัน ---------- */
+
+/* ช่วงแนะนำ 7–9 ชม. เป็นกรอบเส้นวางทับแถบสี เห็นชัดแม้แถบยาวเลยช่วงนี้ */
+.sleep-meter-zone {
+    z-index: 1;
+    box-sizing: border-box;
+    background: rgba(16, 185, 129, 0.10);
+    border: 1.5px solid rgba(16, 185, 129, 0.75);
+    border-radius: 3px;
+}
+
+/* ชั่วโมง + คุณภาพชิดขวาซ้อนกันสองบรรทัด */
+.log-item-side {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+.log-item-quality {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+/* คืนที่ยังไม่ได้บันทึก: แถวจางเส้นประ กดเพื่อเพิ่มของวันนั้น */
+.log-item.is-empty {
+    padding-top: 8px;
+    padding-bottom: 8px;
+    background: transparent;
+    border-style: dashed;
+    box-shadow: none;
+}
+.log-item.is-empty::before { opacity: 0.35; }
+.log-item.is-empty:hover { background: var(--card-bg); box-shadow: var(--shadow-card); }
+.log-item.is-empty .log-thumb {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: var(--card-inner);
+    color: var(--text-muted);
+    font-size: 20px;
+}
+.log-item.is-empty .log-item-name { font-size: 13.5px; }
+.log-item.is-empty .log-item-meta { color: var(--text-muted); }
+.log-item-add {
+    flex-shrink: 0;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent-1);
+}
+
+/* การ์ดกดได้ (ภาพรวม / ความสม่ำเสมอ / สรุปเมื่อมีบันทึก) + ลูกศรชี้ขวา */
+.summary-card.is-link {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.15s ease;
+}
+.summary-card.is-link:active { transform: scale(0.99); }
+.summary-card.is-link:focus-visible { outline: 2px solid var(--accent-1); outline-offset: 2px; }
+.summary-card[hidden] { display: none; }
+.panel-side {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.card-chevron {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    flex-shrink: 0;
+    margin-right: 3px;
+    border-top: 2px solid var(--text-muted);
+    border-right: 2px solid var(--text-muted);
+    transform: rotate(45deg);
+    opacity: 0.6;
+}
+.card-chevron[hidden] { display: none; }
+
+.week-headline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    margin-top: 10px;
+}
+.week-avg-text {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+.week-avg-text strong {
+    margin-left: 2px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+/* ภาพรวม 7 วัน: แท่งไล่สีมนเต็มความกว้าง + เส้นประค่าเฉลี่ยพร้อมป้าย (เว้นช่องขวาไว้ให้ป้าย) */
+.week-card,
+.regular-card { margin-top: 0; }
+.week-chart {
+    --gutter: 52px;
+    margin-top: 14px;
+}
+.week-plot {
+    position: relative;
+    height: 120px;
+}
+/* แถบช่วงแนะนำ 7–9 ชม. บนสเกล 0–12 ชม. (ตรงกับ METER_MAX_HOURS) */
+.week-band {
+    position: absolute;
+    left: 0;
+    right: var(--gutter);
+    bottom: 58.333%;
+    height: 16.667%;
+    border-radius: 6px;
+    background: rgba(16, 185, 129, 0.10);
+    pointer-events: none;
+}
+.week-avg-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 0;
+    border-top: 2px dotted color-mix(in srgb, var(--text-muted) 75%, transparent);
+    z-index: 2;
+    pointer-events: none;
+}
+.week-avg-tag {
+    position: absolute;
+    right: 0;
+    top: 0;
+    transform: translateY(-50%);
+    padding: 2px 8px;
+    border-radius: 8px;
+    border: 1.5px solid var(--text-muted);
+    background: var(--card-bg);
+    color: var(--text-main);
+    font-size: 10.5px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+.week-bars,
+.week-labels {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 6px;
+}
+.week-bars {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: var(--gutter);
+}
+.week-bar-wrap {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    height: 100%;
+}
+.week-bar {
+    width: 58%;
+    max-width: 20px;
+    min-height: 6px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, var(--lc), color-mix(in srgb, var(--lc) 42%, #fff));
+    transform-origin: bottom;
+    animation: week-bar-grow 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-delay: calc(var(--i, 0) * 50ms);
+}
+@keyframes week-bar-grow {
+    from { transform: scaleY(0); opacity: 0.4; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .week-bar { animation: none; }
+}
+.week-bar-wrap.is-selected .week-bar {
+    box-shadow: 0 0 0 2px var(--card-bg), 0 0 0 4px color-mix(in srgb, var(--lc) 60%, transparent);
+}
+.week-bar-wrap.is-none .week-bar {
+    width: 6px;
+    height: 6px !important;
+    min-height: 0;
+    border-radius: 50%;
+    background: var(--text-muted);
+    opacity: 0.35;
+    animation: none;
+}
+.week-labels {
+    margin-top: 8px;
+    margin-right: var(--gutter);
+}
+.week-label {
+    font-size: 10.5px;
+    font-weight: 600;
+    line-height: 1.25;
+    text-align: center;
+    color: var(--text-muted);
+}
+.week-label.is-current { color: var(--accent-1); font-weight: 700; }
+
+.week-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    margin-top: 12px;
+}
+.week-band-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-muted);
+}
+.week-band-note::before {
+    content: '';
+    width: 12px;
+    height: 8px;
+    border-radius: 3px;
+    background: rgba(16, 185, 129, 0.22);
+    border: 1px solid rgba(16, 185, 129, 0.55);
+}
+
+/* ความสม่ำเสมอ: 2 แถวจุด (เข้านอน / ตื่น) × 7 วัน */
+.regular-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 14px;
+}
+.regular-row {
+    display: grid;
+    grid-template-columns: 28px repeat(7, minmax(0, 1fr));
+    align-items: center;
+    justify-items: center;
+}
+.regular-row.is-days { align-items: start; margin-top: -2px; }
+.regular-ico {
+    justify-self: start;
+    display: inline-flex;
+    font-size: 20px;
+    color: var(--text-muted);
+}
+.regular-dot {
+    display: block;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--card-inner);
+}
+.regular-dot.is-near { background: var(--color-green); }
+.regular-dot.is-far { background: var(--color-yellow); }
+.regular-dot.is-logged { background: var(--accent-1); }
+.regular-dot.is-none { width: 10px; height: 10px; background: var(--text-muted); opacity: 0.3; }
+.regular-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    margin-top: 12px;
+    font-size: 10.5px;
+    color: var(--text-muted);
+}
+.regular-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+.regular-legend .regular-dot,
+.regular-legend .regular-dot.is-none { width: 9px; height: 9px; }
+.regular-card.is-unrated .regular-legend { display: none; }
+.regular-card .summary-stats { margin-top: 14px; }
+.regular-card .summary-insight[hidden] { display: none; }
+
+/* หน้าประวัติเต็ม: เลื่อนขึ้นมาคลุมทั้งจอ (อยู่ใต้ .modal-overlay ที่ z-index 999 เพื่อให้รายละเอียด/ฟอร์ม/ยืนยันลบซ้อนทับได้) */
+body.history-open { overflow: hidden; }
+.history-overlay {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 100%;
+    max-width: 414px;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-page);
+    box-shadow: 0 0 40px rgba(10, 12, 20, 0.25);
+    z-index: 900;
+    opacity: 0;
+    visibility: hidden;
+    transform: translate(-50%, 24px);
+    transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s ease;
+}
+.history-overlay.is-open {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, 0);
+}
+.history-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+}
+.history-head {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: calc(env(safe-area-inset-top, 0px) + 14px) 16px 12px;
+    border-bottom: 1px solid var(--border-hairline);
+}
+.history-back {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid var(--border-hairline);
+    background: var(--card-bg);
+    color: var(--text-main);
+    box-shadow: var(--shadow-card);
+    cursor: pointer;
+}
+.history-back:active { transform: scale(0.94); }
+.history-title {
+    flex: 1;
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+.history-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 14px 16px calc(env(safe-area-inset-bottom, 0px) + 28px);
+}
+#historyList {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+.history-week {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.history-week-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 0 4px;
+    font-size: 12.5px;
+}
+.history-week-range { font-weight: 700; color: var(--text-main); }
+.history-week-avg { font-weight: 500; color: var(--text-muted); }
+.history-more {
+    align-self: center;
+    padding: 11px 22px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border-hairline);
+    background: var(--card-bg);
+    box-shadow: var(--shadow-card);
+    color: var(--accent-1);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.history-more:disabled { opacity: 0.6; cursor: default; }
+.history-more[hidden] { display: none; }
+
+/* หมายเหตุใต้พรีวิว: เริ่มนอนคืนก่อนหน้า */
+.sleep-preview-note {
+    margin: -6px 2px 0;
+    font-size: 11.5px;
+    color: var(--text-muted);
+}
+.sleep-preview-note[hidden] { display: none; }
+
+/* เว้นท้ายหน้าให้พ้น bottom nav (หน้านี้ไม่มีปุ่มลอย — ปุ่มบันทึก/แก้ไขอยู่ในการ์ดสรุป) */
+.nav-spacer { height: 96px; }
+
+/* ปุ่มหลักในการ์ดสรุป: บันทึก (เต็มสี) / แก้ไข (ขอบ) */
+.summary-cta {
+    display: block;
+    width: 100%;
+    margin-top: 14px;
+    padding: 12px;
+    border: none;
+    border-radius: var(--radius-lg);
+    background: var(--accent-grad);
+    color: #FFFFFF;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: var(--shadow-soft);
+    transition: transform 0.15s ease;
+}
+.summary-cta:active { transform: scale(0.98); }
+.summary-cta.is-secondary {
+    background: transparent;
+    border: 1.5px solid color-mix(in srgb, var(--accent-1) 45%, var(--border-hairline));
+    color: var(--accent-1);
+    box-shadow: none;
+}
+
+/* ---------- ปรับรอบ 3–4: ชิปวันที่แบบกระจกฝ้า / เตือนสดในฟอร์ม ---------- */
+
+/* ชิปวันที่ + ปุ่มวันนี้: กระจกใสสไตล์ iOS (ฝ้า + ไฮไลต์ขอบบน) ลอยบนท้องฟ้ายามค่ำคืน */
+.sleep-hero .date-picker-pill,
+.sleep-hero .today-btn {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.30), rgba(255, 255, 255, 0.10));
+    -webkit-backdrop-filter: blur(18px) saturate(180%);
+    backdrop-filter: blur(18px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.38);
+    box-shadow: 0 8px 24px rgba(8, 10, 40, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+    color: #FFFFFF;
+}
+.sleep-hero .date-picker-pill:hover,
+.sleep-hero .date-picker-pill.is-active,
+.sleep-hero .today-btn:hover {
+    box-shadow: 0 10px 28px rgba(8, 10, 40, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.55), inset 0 -1px 0 rgba(255, 255, 255, 0.1);
+}
+.sleep-hero .today-btn.is-away { border-color: rgba(255, 255, 255, 0.7); }
+.sleep-hero .date-picker-pill .icon-calendar,
+.sleep-hero .today-btn .icon-inline { color: #FFFFFF; }
+.sleep-hero .date-picker-pill .icon-chevron { color: rgba(255, 255, 255, 0.75); }
+.sleep-hero .date-picker-pill .date-text,
+.sleep-hero .today-btn span:last-child {
+    font-weight: 600;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
+}
+
+/* เตือนสดในฟอร์ม (ตื่นล่วงหน้า / นอนนานผิดปกติ) */
+.sleep-preview-note.is-warn {
+    margin-top: -6px;
+    padding: 8px 12px;
+    border-radius: var(--radius-md);
+    background: color-mix(in srgb, var(--color-red) 10%, var(--card-inner));
+    color: var(--color-red);
+    font-weight: 600;
+}
+.sleep-preview-note.is-warn[hidden] { display: none; }
+
+/* แถวชิป 3 ช่อง: ค่าอยู่บน ป้ายอยู่ล่าง เรียงเท่ากันทุกช่อง (ไม่ให้ห่อบรรทัดต่างกัน) */
+.summary-stats.is-stacked .stat-chip {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+}
+.sleep-preview-note.is-warn.is-caution {
+    background: color-mix(in srgb, var(--color-yellow) 14%, var(--card-inner));
+    color: var(--color-yellow);
 }

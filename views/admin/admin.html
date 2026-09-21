@@ -131,7 +131,7 @@
                 <div class="item-table-head" aria-hidden="true">
                     <span></span>
                     <span data-i18n="table-col-name">ชื่อ</span>
-                    <span data-i18n="table-col-traffic">เกณฑ์สี</span>
+                    <span data-i18n="table-col-category">ประเภท</span>
                     <span data-i18n="table-col-usage">จำนวนที่ถูกใช้</span>
                     <span data-i18n="table-col-actions">จัดการ</span>
                 </div>
@@ -515,6 +515,16 @@
                 <input type="text" class="form-input" id="itemNameInput" placeholder="เช่น ผัก / สลัด" maxlength="100">
             </label>
 
+            <!-- เฉพาะโหมด "กิจกรรม" (JS สลับ style.display): ประเภทที่ใช้จัดกลุ่มในฟอร์มเพิ่มรายการ + ติ๊กว่าบันทึกระยะทางได้ -->
+            <div class="form-field" id="activityCategoryField" style="display:none">
+                <span class="form-label" data-i18n="label-activity-category">ประเภทกิจกรรม</span>
+                <select class="form-input" id="itemCategorySelect"></select>
+            </div>
+            <label class="check-row" id="activityDistanceField" style="display:none">
+                <input type="checkbox" id="itemHasDistanceInput">
+                <span data-i18n="label-has-distance">บันทึกระยะทางได้ (กม.)</span>
+            </label>
+
             <div class="form-field" id="trafficLightField">
                 <span class="form-label" data-i18n="label-traffic-light">เกณฑ์สีโภชนาการ</span>
                 <div class="traffic-pill-group">
@@ -557,6 +567,7 @@
     </div>
 
     <script src="/assets/js/shared/i18n.js"></script>
+    <script src="/assets/js/shared/activity-categories.js"></script>
     <script src="/assets/js/shared/app.js"></script>
     <script src="/assets/js/pages/admin.js"></script>
 </body>

@@ -52,6 +52,9 @@ const ADMIN_I18N = {
         'label-name-activity': 'ชื่อกิจกรรม',
         'placeholder-name-food': 'เช่น ผัก / สลัด',
         'placeholder-name-activity': 'เช่น วิ่ง / จ็อกกิ้ง',
+        'label-activity-category': 'ประเภทกิจกรรม',
+        'label-has-distance': 'บันทึกระยะทางได้ (กม.)',
+        'badge-has-distance': 'ระยะทาง',
 
         'err-image-type': 'กรุณาเลือกไฟล์รูปภาพเท่านั้น',
         'err-name-required-food': 'กรุณากรอกชื่อประเภทอาหาร',
@@ -83,6 +86,7 @@ const ADMIN_I18N = {
 
         'table-col-name': 'ชื่อ',
         'table-col-traffic': 'เกณฑ์สี',
+        'table-col-category': 'ประเภท',
         'table-col-usage': 'จำนวนที่ถูกใช้',
         'table-col-actions': 'จัดการ',
 
@@ -232,6 +236,9 @@ const ADMIN_I18N = {
         'label-name-activity': 'Activity Name',
         'placeholder-name-food': 'e.g. Vegetables / Salad',
         'placeholder-name-activity': 'e.g. Running / Jogging',
+        'label-activity-category': 'Activity category',
+        'label-has-distance': 'Can record distance (km)',
+        'badge-has-distance': 'Distance',
 
         'err-image-type': 'Please select an image file only',
         'err-name-required-food': 'Please enter a food type name',
@@ -263,6 +270,7 @@ const ADMIN_I18N = {
 
         'table-col-name': 'Name',
         'table-col-traffic': 'Traffic Light',
+        'table-col-category': 'Category',
         'table-col-usage': 'Usage Count',
         'table-col-actions': 'Actions',
 
@@ -397,7 +405,10 @@ document.addEventListener('DOMContentLoaded', () => {
         return { id: o.fd_id, name: o.fd_name, traffic: o.fd_traffic_light, image: o.fd_images || '', usage: o.usage_count || 0 };
     }
     function mapActivityFromApi(o) {
-        return { id: o.act_id, name: o.act_name, image: o.act_images || '', usage: o.usage_count || 0 };
+        return {
+            id: o.act_id, name: o.act_name, image: o.act_images || '', usage: o.usage_count || 0,
+            category: SoyDeeActivityCategories.normalize(o.act_category), hasDistance: !!o.act_has_distance
+        };
     }
 
     async function loadFoodCategories() {
@@ -552,6 +563,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // ป้ายในแถวกิจกรรม: "คาร์ดิโอ · ระยะทาง"
+    function categoryText(item) {
+        const cat = SoyDeeActivityCategories.label(item.category);
+        return item.hasDistance ? `${cat} · ${I18N.t(ADMIN_I18N, 'badge-has-distance')}` : cat;
+    }
+
     function renderActivityList(query) {
         const filtered = activityMaster.filter(item =>
             !query || item.name.toLowerCase().includes(query)
@@ -576,7 +593,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="item-thumb">${thumb}</div>
                     <div class="item-info">
                         <div class="item-name">${escapeHtml(item.name)}</div>
-                        <span class="traffic-badge traffic-badge-empty" aria-hidden="true"></span>
+                        <span class="traffic-badge category-badge" title="${escapeHtml(categoryText(item))}">${escapeHtml(categoryText(item))}</span>
                     </div>
                     <span class="item-usage">${item.usage}</span>
                     <div class="item-actions">
@@ -628,6 +645,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const itemNameLabel = document.getElementById('itemNameLabel');
     const itemNameInput = document.getElementById('itemNameInput');
     const trafficLightField = document.getElementById('trafficLightField');
+    const activityCategoryField = document.getElementById('activityCategoryField');
+    const activityDistanceField = document.getElementById('activityDistanceField');
+    const itemCategorySelect = document.getElementById('itemCategorySelect');
+    const itemHasDistanceInput = document.getElementById('itemHasDistanceInput');
     const trafficPills = document.querySelectorAll('.traffic-pill');
     const itemSheetError = document.getElementById('itemSheetError');
     const itemSaveBtn = document.getElementById('itemSaveBtn');
@@ -681,6 +702,8 @@ document.addEventListener('DOMContentLoaded', () => {
             itemNameLabel.textContent = I18N.t(ADMIN_I18N, 'label-name-food');
             itemNameInput.placeholder = I18N.t(ADMIN_I18N, 'placeholder-name-food');
             trafficLightField.style.display = '';
+            activityCategoryField.style.display = 'none';
+            activityDistanceField.style.display = 'none';
             setTrafficSelection(item ? item.traffic : null);
             itemSheetTitle.textContent = item
                 ? I18N.t(ADMIN_I18N, 'modal-title-edit-food')
@@ -690,6 +713,13 @@ document.addEventListener('DOMContentLoaded', () => {
             itemNameInput.placeholder = I18N.t(ADMIN_I18N, 'placeholder-name-activity');
             trafficLightField.style.display = 'none';
             setTrafficSelection(null);
+            // ตัวเลือกประเภทสร้างใหม่ทุกครั้งที่เปิด เพื่อให้ตรงภาษาปัจจุบัน
+            itemCategorySelect.innerHTML = SoyDeeActivityCategories.list.map(c =>
+                `<option value="${c.id}">${escapeHtml(SoyDeeActivityCategories.label(c.id))}</option>`).join('');
+            itemCategorySelect.value = String(item ? item.category : SoyDeeActivityCategories.defaultId);
+            itemHasDistanceInput.checked = item ? item.hasDistance : false;
+            activityCategoryField.style.display = '';
+            activityDistanceField.style.display = '';
             itemSheetTitle.textContent = item
                 ? I18N.t(ADMIN_I18N, 'modal-title-edit-activity')
                 : I18N.t(ADMIN_I18N, 'modal-title-add-activity');
@@ -771,6 +801,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // ไม่มี endpoint อัปโหลดรูป food-category/activity: แก้ไขและไม่ได้เปลี่ยนรูป -> ส่ง path เดิมกลับไป, กรณีอื่น (เพิ่มใหม่/เปลี่ยนรูปพรีวิว) -> ส่ง null
         const imageToSend = (editingId && !imageChanged) ? (originalImagePath || null) : null;
 
+        const activityCategory = Number(itemCategorySelect.value) || SoyDeeActivityCategories.defaultId;
+        const activityHasDistance = itemHasDistanceInput.checked;
+
         itemSaveBtn.disabled = true;
         try {
             if (editingId) {
@@ -784,10 +817,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     const updated = await SoyDeeAPI.request(`/admin/activities/${editingId}`, {
                         method: 'PUT',
-                        body: { act_name: name, act_images: imageToSend }
+                        body: { act_name: name, act_images: imageToSend, act_category: activityCategory, act_has_distance: activityHasDistance }
                     });
                     const target = list.find(item => item.id === editingId);
-                    Object.assign(target, mapActivityFromApi(updated));
+                    Object.assign(target, mapActivityFromApi(Object.assign({}, updated, { usage_count: target.usage })));
                 }
             } else {
                 if (editingKind === 'food') {
@@ -799,9 +832,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     const created = await SoyDeeAPI.request('/admin/activities', {
                         method: 'POST',
-                        body: { act_name: name, act_images: imageToSend }
+                        body: { act_name: name, act_images: imageToSend, act_category: activityCategory, act_has_distance: activityHasDistance }
                     });
-                    activityMaster.push(mapActivityFromApi({ act_id: created.act_id, act_name: name, act_images: imageToSend }));
+                    activityMaster.push(mapActivityFromApi({
+                        act_id: created.act_id, act_name: name, act_images: imageToSend,
+                        act_category: activityCategory, act_has_distance: activityHasDistance
+                    }));
                 }
             }
 

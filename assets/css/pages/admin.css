@@ -182,6 +182,35 @@ body.admin-page [hidden] { display: none !important; }
 .traffic-yellow { color: var(--color-yellow); background: rgba(245, 158, 11, 0.14); }
 .traffic-red    { color: var(--color-red);    background: rgba(239, 68, 68, 0.12); }
 
+/* ป้ายประเภทกิจกรรม (แถวในแท็บกิจกรรม) — โทนกลาง ไม่ใช้สีไฟจราจร */
+.category-badge {
+    max-width: 100%;
+    color: var(--accent-1);
+    background: var(--surface-alt);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+}
+
+/* checkbox แถวเดียวในฟอร์มกิจกรรม: "บันทึกระยะทางได้" */
+.check-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-main);
+    cursor: pointer;
+}
+.check-row input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    accent-color: var(--accent-1);
+    cursor: pointer;
+}
+
 /* placeholder cell กิจกรรม (ไม่มีเกณฑ์สี) + คอลัมน์ "จำนวนที่ถูกใช้" — เอาไว้จัดคอลัมน์ตาราง
    บนจอ ≥768px เท่านั้น, มือถือซ่อนไว้ไม่ให้กระทบการ์ดเดิม */
 .traffic-badge-empty,

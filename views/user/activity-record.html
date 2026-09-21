@@ -37,7 +37,7 @@
 
     <div class="mobile-app">
 
-        <!-- หัวหน้า: ภาพกิจกรรมเป็นพื้นหลัง (assets/images/activity-banner.jpg) + แถวเลือกวันที่ -->
+        <!-- หัวหน้า: ภาพนักวิ่งยามเช้าเป็นพื้นหลัง (assets/images/activity-banner.svg วาดเอง) + แถวเลือกวันที่ -->
         <div class="top-section record-hero activity-hero">
             <header class="app-header">
                 <div class="hero-text">
@@ -118,7 +118,7 @@
                 <li><a href="food-record.html" class="nav-icon-item" data-target="food"><i data-icon="food"></i></a></li>
                 <li><a href="activity-record.html" class="nav-icon-item active" data-target="activity"><i data-icon="activity"></i></a></li>
                 <li><a href="sleep-record.html" class="nav-icon-item" data-target="sleep"><i data-icon="sleep"></i></a></li>
-                <li><a class="nav-icon-item is-disabled" data-target="report" aria-disabled="true" aria-label="รายงาน (เร็วๆ นี้)"><i data-icon="report"></i></a></li>
+                <li><a href="report.html" class="nav-icon-item" data-target="report"><i data-icon="report"></i></a></li>
             </ul>
         </nav>
     </div>
@@ -148,6 +148,10 @@
                     <div class="detail-tile" id="detailPaceTile" hidden>
                         <span class="detail-tile-label" data-i18n="detail-pace">เพซเฉลี่ย</span>
                         <span class="detail-tile-value numeric" id="detailPace"></span>
+                    </div>
+                    <div class="detail-tile">
+                        <span class="detail-tile-label" data-i18n="detail-intensity">ความหนัก</span>
+                        <span class="detail-tile-value" id="detailIntensity"></span>
                     </div>
                     <div class="detail-tile">
                         <span class="detail-tile-label" data-i18n="detail-date">วันที่</span>
@@ -188,6 +192,11 @@
                         <div class="activity-filter" id="activityFilterBar" role="group" aria-label="กรองตามประเภท"></div>
                         <div class="activity-grid" id="activityChipList" role="listbox" aria-label="กิจกรรม">
                             <!-- JS สร้าง .activity-chip ที่นี่จาก GET /activities -->
+                        </div>
+                        <!-- สีของชิปตามระดับการใช้แรง (activity_master.act_intensity) -->
+                        <div class="activity-legend" aria-hidden="true">
+                            <span class="activity-legend-title" data-i18n="label-intensity">ความหนัก</span>
+                            <span class="activity-legend-items" id="activityLegendItems"></span>
                         </div>
                     </div>
                 </div>

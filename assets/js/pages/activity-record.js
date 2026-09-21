@@ -22,7 +22,6 @@ const ACTIVITY_I18N = {
         'stat-label-count': 'กิจกรรม',
         'stat-label-duration': 'เวลารวม',
         'stat-label-distance': 'ระยะทางรวม',
-        'legend-more': '+{n} อื่นๆ',
         'insight-goal-reached': 'ครบเป้าหมาย {goal} ต่อวันแล้ว ทำได้ดีมาก',
         'insight-goal-remaining': 'อีก {left} จะครบเป้าหมาย {goal} ต่อวัน',
         'section-heading-today-log': 'บันทึกของวันนี้',
@@ -55,6 +54,8 @@ const ACTIVITY_I18N = {
         'save-btn': 'บันทึกกิจกรรม',
         'detail-duration': 'ระยะเวลา',
         'detail-share': 'สัดส่วนของวัน',
+        'detail-intensity': 'ความหนัก',
+        'label-intensity': 'ความหนัก',
         'detail-distance': 'ระยะทาง',
         'detail-pace': 'เพซเฉลี่ย',
         'detail-date': 'วันที่',
@@ -86,7 +87,6 @@ const ACTIVITY_I18N = {
         'stat-label-count': 'Activities',
         'stat-label-duration': 'Total time',
         'stat-label-distance': 'Total distance',
-        'legend-more': '+{n} more',
         'insight-goal-reached': "You've reached the {goal} daily goal — well done",
         'insight-goal-remaining': '{left} left to reach the {goal} daily goal',
         'section-heading-today-log': "Today's log",
@@ -119,6 +119,8 @@ const ACTIVITY_I18N = {
         'save-btn': 'Save activity',
         'detail-duration': 'Duration',
         'detail-share': 'Share of the day',
+        'detail-intensity': 'Intensity',
+        'label-intensity': 'Effort',
         'detail-distance': 'Distance',
         'detail-pace': 'Avg pace',
         'detail-date': 'Date',
@@ -145,7 +147,6 @@ const ACTIVITY_I18N = {
    1. State
    ============================================================================== */
 const DAILY_GOAL_MIN = 30;                      // เป้าหมายกิจกรรมต่อวัน (นาที) ตามคำแนะนำทั่วไป
-const LEGEND_MAX = 4;                           // จำนวนกิจกรรมสูงสุดที่แสดงใน legend ของการ์ดสรุป
 
 let selectedDate = startOfDay(new Date());     // วันที่กำลังดู/บันทึก (dact_date)
 let mbId = null;
@@ -160,12 +161,14 @@ let detailId = null;                            // dact_id ที่เปิด
 let detailOpener = null;                        // element ที่กดเปิดรายละเอียด ไว้คืน focus ตอนปิด
 let activityDatePicker = null;
 
-// สีประจำกิจกรรมวนซ้ำ 6 สีตามลำดับกิจกรรมในรายการ (ตรงกับ .ac-1 … .ac-6 ใน CSS) ให้แยกแยะง่ายด้วยสายตา
-const ACT_COLOR_VARS = ['--color-blue', '--color-green', '--color-purple', '--color-orange', '--color-yellow', '--color-red'];
-let ACT_POSITION = {};                          // act_id -> ลำดับในรายการ (act_id ใน DB ไม่ต่อเนื่อง ใช้ลำดับแทนเพื่อให้สีไม่ซ้ำกัน)
-function colorIdx(actId) {
-    const pos = actId in ACT_POSITION ? ACT_POSITION[actId] : actId;
-    return (((pos % 6) + 6) % 6) + 1;   // 1..6
+// สีประจำกิจกรรมตามระดับการใช้แรง (activity_master.act_intensity): 1 เบา=เขียว 2 ปานกลาง=เหลือง 3 หนัก=ส้ม 4 หนักมาก=แดง
+// class .ac-1 … .ac-4 ใน CSS ตั้ง --lc ตามระดับ; API รุ่นเก่าที่ไม่ส่งระดับ ตกไประดับ 2
+function levelOf(actId) {
+    const act = ACTIVITIES_MAP[actId];
+    return SoyDeeActivityIntensity.normalize(act && act.act_intensity);
+}
+function levelVar(level) {
+    return SoyDeeActivityIntensity.list.filter(l => l.id === level)[0].color;
 }
 
 const THAI_MONTHS_SHORT = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
@@ -314,14 +317,13 @@ function summaryTitleText() {
         : tpl('summary-title-date-template', { date: formatThaiDate(selectedDate) });
 }
 
-// รวมนาทีต่อกิจกรรม เรียงจากมากไปน้อย — ใช้ทั้งแถบสัดส่วนและ legend
-function minutesByActivity() {
+// รวมนาทีต่อระดับการใช้แรง เรียงจากเบาไปหนัก — ใช้ทั้งแถบสัดส่วนและ legend
+function minutesByLevel() {
     const totals = {};
-    currentEntries.forEach(e => { totals[e.act_id] = (totals[e.act_id] || 0) + (e.duration_minutes || 0); });
-    return Object.keys(totals)
-        .map(id => ({ actId: Number(id), minutes: totals[id] }))
-        .filter(g => g.minutes > 0)
-        .sort((a, b) => b.minutes - a.minutes);
+    currentEntries.forEach(e => { const lv = levelOf(e.act_id); totals[lv] = (totals[lv] || 0) + (e.duration_minutes || 0); });
+    return SoyDeeActivityIntensity.list
+        .map(l => ({ level: l.id, minutes: totals[l.id] || 0 }))
+        .filter(g => g.minutes > 0);
 }
 
 function renderSummary() {
@@ -337,23 +339,19 @@ function renderSummary() {
     document.getElementById('summaryDistanceChip').hidden = totalKm <= 0;
     document.getElementById('summaryDistance').textContent = formatDistance(totalKm);
 
-    // แถบสัดส่วนเวลา — ความกว้างแต่ละช่วงตามจำนวนนาทีของกิจกรรมนั้น
-    const groups = minutesByActivity();
+    // แถบสัดส่วนเวลา — ความกว้างแต่ละช่วงตามจำนวนนาทีของระดับการใช้แรงนั้น
+    const groups = minutesByLevel();
     const bar = document.getElementById('summaryBar');
     bar.classList.toggle('is-empty', groups.length === 0);
     bar.innerHTML = groups.map(g =>
-        `<span class="bar-seg" style="flex-grow:${g.minutes};background:var(${ACT_COLOR_VARS[colorIdx(g.actId) - 1]})"></span>`
+        `<span class="bar-seg" style="flex-grow:${g.minutes};background:var(${levelVar(g.level)})"></span>`
     ).join('');
 
     const legend = document.getElementById('summaryLegend');
-    const shown = groups.slice(0, LEGEND_MAX);
-    legend.innerHTML = shown.map(g => {
-        const act = ACTIVITIES_MAP[g.actId];
-        const name = act ? act.act_name : '';
-        return `<span class="legend-item"><span class="badge-dot" style="background:var(${ACT_COLOR_VARS[colorIdx(g.actId) - 1]})"></span>`
-            + `<span class="legend-name">${escapeHtml(name)}</span><span class="numeric">${formatDuration(g.minutes)}</span></span>`;
-    }).join('') + (groups.length > LEGEND_MAX
-        ? `<span class="legend-item">${tpl('legend-more', { n: groups.length - LEGEND_MAX })}</span>` : '');
+    legend.innerHTML = groups.map(g =>
+        `<span class="legend-item"><span class="badge-dot" style="background:var(${levelVar(g.level)})"></span>`
+        + `<span class="legend-name">${SoyDeeActivityIntensity.label(g.level)}</span><span class="numeric">${formatDuration(g.minutes)}</span></span>`
+    ).join('');
 
     // เป้าหมายรายวัน: ซ่อนตอนยังไม่มีรายการ (เหมือนหน้าอาหาร)
     const insight = document.getElementById('summaryInsight');
@@ -375,11 +373,11 @@ function renderLogItemHtml(entry) {
     const label = tpl('open-item-label', { name: escapeHtml(name) });
     const km = Number(entry.dact_distance_km) || 0;
     return `
-        <div class="log-item ac-${colorIdx(entry.act_id)}" data-open-id="${entry.dact_id}" role="button" tabindex="0" aria-label="${label}">
+        <div class="log-item ac-${levelOf(entry.act_id)}" data-open-id="${entry.dact_id}" role="button" tabindex="0" aria-label="${label}">
             <span class="log-thumb">${activityIconMarkup(act)}</span>
             <div class="log-item-info">
                 <span class="log-item-name">${escapeHtml(name)}</span>
-                <span class="log-item-meta"><span class="numeric">${formatDuration(entry.duration_minutes)}</span>${km > 0 ? ` · <span class="numeric">${formatDistance(km)}</span>` : ''}</span>
+                <span class="log-item-meta"><span class="numeric">${formatDuration(entry.duration_minutes)}</span>${km > 0 ? ` · <span class="numeric">${formatDistance(km)}</span>` : ''}<span class="log-level"><i class="level-dot" aria-hidden="true"></i>${SoyDeeActivityIntensity.label(levelOf(entry.act_id))}</span></span>
                 ${entry.dact_detail ? `<span class="cat-pill">${escapeHtml(entry.dact_detail)}</span>` : ''}
             </div>
             <span class="log-item-time numeric">${timeLabel(entry.dact_created_at)}</span>
@@ -420,7 +418,7 @@ function openDetail(id, opener) {
     const act = ACTIVITIES_MAP[entry.act_id];
     const totalMinutes = currentEntries.reduce((sum, e) => sum + (e.duration_minutes || 0), 0);
 
-    document.getElementById('activityDetailCard').className = `detail-card ac-${colorIdx(entry.act_id)}`;
+    document.getElementById('activityDetailCard').className = `detail-card ac-${levelOf(entry.act_id)}`;
     document.getElementById('detailPhotoMedia').innerHTML = activityIconMarkup(act);
     document.getElementById('detailName').textContent = act ? act.act_name : '';
     document.getElementById('detailDuration').textContent = formatDuration(entry.duration_minutes);
@@ -433,6 +431,7 @@ function openDetail(id, opener) {
         document.getElementById('detailDistance').textContent = formatDistance(km);
         document.getElementById('detailPace').textContent = formatPace(entry.duration_minutes || 0, km);
     }
+    document.getElementById('detailIntensity').innerHTML = `<i class="level-dot" aria-hidden="true"></i>${SoyDeeActivityIntensity.label(levelOf(entry.act_id))}`;
     document.getElementById('detailDate').textContent = formatThaiDate(selectedDate);
     document.getElementById('detailLogged').textContent = timeLabel(entry.dact_created_at) || '—';
     document.getElementById('detailNoteTile').hidden = !entry.dact_detail;
@@ -459,6 +458,15 @@ function activitiesMatchingQuery() {
     return ACTIVITIES.filter(a =>
         String(a.act_name).toLowerCase().includes(activityQuery) ||
         cats.label(cats.normalize(a.act_category)).toLowerCase().includes(activityQuery));
+}
+
+// คำอธิบายสีตามระดับการใช้แรง ใต้รายการเลือกกิจกรรม (สร้างครั้งเดียว ภาษาไม่เปลี่ยนกลางหน้า)
+function renderIntensityLegend() {
+    const el = document.getElementById('activityLegendItems');
+    if (!el) return;
+    el.innerHTML = SoyDeeActivityIntensity.list.map(l =>
+        `<span class="level-key"><i class="level-dot" style="background:var(${l.color})" aria-hidden="true"></i>${SoyDeeActivityIntensity.label(l.id)}</span>`
+    ).join('');
 }
 
 // แถบกรองประเภท: "ทั้งหมด" + ประเภทที่มีกิจกรรม พร้อมจำนวนที่ตรงกับคำค้นตอนนี้
@@ -508,7 +516,7 @@ function renderActivityGrid() {
                 <div class="activity-group-head"><span>${title}</span><span class="activity-group-count numeric">${items.length}</span></div>
                 <div class="activity-group-grid">
                     ${items.map(act => `
-                        <button type="button" class="activity-chip ac-${colorIdx(act.act_id)}" role="option" aria-selected="false" data-act-id="${act.act_id}">
+                        <button type="button" class="activity-chip ac-${levelOf(act.act_id)}" role="option" aria-selected="false" data-act-id="${act.act_id}">
                             <span class="activity-chip-icon">${activityIconMarkup(act)}</span>
                             <span class="activity-chip-name">${escapeHtml(act.act_name)}</span>
                         </button>`).join('')}
@@ -746,9 +754,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error('load activities failed', err);
     }
     ACTIVITIES_MAP = {};
-    ACT_POSITION = {};
-    ACTIVITIES.forEach((a, i) => { ACTIVITIES_MAP[a.act_id] = a; ACT_POSITION[a.act_id] = i; });
+    ACTIVITIES.forEach(a => { ACTIVITIES_MAP[a.act_id] = a; });
 
+    renderIntensityLegend();
     renderActivityGrid();
     await loadEntries();
 

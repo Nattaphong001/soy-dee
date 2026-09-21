@@ -1,7 +1,8 @@
 /* ==============================================================================
-   ACTIVITY CATEGORIES — ประเภทกิจกรรม (คอลัมน์ activity_master.act_category)
-   ใช้ร่วมกันหน้าบันทึกกิจกรรม (จัดกลุ่มในฟอร์มเพิ่มรายการ) และหน้าแอดมิน (เลือกประเภทตอนเพิ่ม/แก้กิจกรรม)
+   ACTIVITY CATEGORIES — ประเภทกิจกรรม (activity_master.act_category) และระดับการใช้แรง (act_intensity)
+   ใช้ร่วมกันหน้าบันทึกกิจกรรม (จัดกลุ่มในฟอร์มเพิ่มรายการ / สีตามการใช้แรง) และหน้าแอดมิน (เลือกตอนเพิ่ม/แก้กิจกรรม)
    รหัสตรงกับ backend: models.ActCategory* (1=คาร์ดิโอ 2=ฟิตเนส 3=กีฬา 4=กิจวัตรประจำวัน 5=อื่นๆ)
+   และ models.ActIntensity* (1=เบา 2=ปานกลาง 3=หนัก 4=หนักมาก)
    โหลดหลัง i18n.js (ใช้ I18N.getLang() ตอนเรียก label)
    ============================================================================== */
 (function (global) {
@@ -29,4 +30,27 @@
     }
 
     global.SoyDeeActivityCategories = { list: LIST, defaultId: DEFAULT_ID, normalize: normalize, label: label };
+
+    // ระดับการใช้แรง: color = ชื่อ CSS token ของสีระดับนั้น (เขียว→เหลือง→ส้ม→แดง ยิ่งหนักยิ่งร้อน)
+    var LEVELS = [
+        { id: 1, th: 'เบา', en: 'Light', color: '--color-green' },
+        { id: 2, th: 'ปานกลาง', en: 'Moderate', color: '--color-yellow' },
+        { id: 3, th: 'หนัก', en: 'Vigorous', color: '--color-orange' },
+        { id: 4, th: 'หนักมาก', en: 'Max effort', color: '--color-red' }
+    ];
+    var DEFAULT_LEVEL = 2;
+
+    /** รหัสที่ไม่รู้จัก (หรือ API รุ่นเก่าที่ยังไม่ส่ง act_intensity) ตกไประดับ "ปานกลาง" */
+    function normalizeLevel(id) {
+        var n = Number(id);
+        return LEVELS.some(function (l) { return l.id === n; }) ? n : DEFAULT_LEVEL;
+    }
+
+    function levelLabel(id) {
+        var lang = (global.I18N && global.I18N.getLang && global.I18N.getLang() === 'en') ? 'en' : 'th';
+        var n = normalizeLevel(id);
+        return LEVELS.filter(function (l) { return l.id === n; })[0][lang];
+    }
+
+    global.SoyDeeActivityIntensity = { list: LEVELS, defaultId: DEFAULT_LEVEL, normalize: normalizeLevel, label: levelLabel };
 })(window);

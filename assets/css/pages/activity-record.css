@@ -6,19 +6,75 @@
    ตารางเลือกกิจกรรม และช่องระยะเวลา
    ============================================================================== */
 
-/* ---------- ภาพ hero: assets/images/activity-banner.jpg (Unsplash, ใช้ได้ฟรีตาม Unsplash License) ---------- */
+/* ---------- hero: ภาพนักวิ่งยามเช้า assets/images/activity-banner.svg (วาดเอง เป็น vector คมทุกขนาดจอ) ---------- */
 .activity-hero {
-    background-image: url('../../images/activity-banner.jpg');
-    background-position: center 58%;
+    background-color: #2a3f9f;
+    background-image: url('../../images/activity-banner.svg');
+    background-position: center;
+}
+/* ภาพสว่างพอแล้ว — เบาเงาทับลง เหลือไว้พอให้ตัวหนังสือสีขาวอ่านชัด (โหมดมืดเข้มขึ้น) */
+.activity-hero::before {
+    background: linear-gradient(180deg, rgba(10, 16, 56, 0.12) 0%, rgba(10, 16, 56, 0.16) 60%, rgba(10, 16, 56, 0.34) 100%);
+}
+.dark-theme .activity-hero::before {
+    background: linear-gradient(180deg, rgba(4, 8, 30, 0.34) 0%, rgba(4, 8, 30, 0.46) 60%, rgba(4, 8, 30, 0.64) 100%);
 }
 
-/* ---------- สีประจำกิจกรรม: วนซ้ำ 6 สีตามลำดับกิจกรรม (JS ใส่ class .ac-1 … .ac-6) ---------- */
-.ac-1 { --lc: var(--color-blue); }
-.ac-2 { --lc: var(--color-green); }
-.ac-3 { --lc: var(--color-purple); }
-.ac-4 { --lc: var(--color-orange); }
-.ac-5 { --lc: var(--color-yellow); }
-.ac-6 { --lc: var(--color-red); }
+/* ชิปวันที่ + ปุ่มวันนี้: กระจกใสสไตล์ iOS (ฝ้า + ไฮไลต์ขอบบน) ลอยบนท้องฟ้ายามเช้า — แบบเดียวกับหน้านอนหลับ */
+.activity-hero .date-picker-pill,
+.activity-hero .today-btn {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.30), rgba(255, 255, 255, 0.10));
+    -webkit-backdrop-filter: blur(18px) saturate(180%);
+    backdrop-filter: blur(18px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.38);
+    box-shadow: 0 8px 24px rgba(10, 16, 56, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+    color: #FFFFFF;
+}
+.activity-hero .date-picker-pill:hover,
+.activity-hero .date-picker-pill.is-active,
+.activity-hero .today-btn:hover {
+    box-shadow: 0 10px 28px rgba(10, 16, 56, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.55), inset 0 -1px 0 rgba(255, 255, 255, 0.1);
+}
+.activity-hero .today-btn.is-away { border-color: rgba(255, 255, 255, 0.7); }
+.activity-hero .date-picker-pill .icon-calendar,
+.activity-hero .today-btn .icon-inline { color: #FFFFFF; }
+.activity-hero .date-picker-pill .icon-chevron { color: rgba(255, 255, 255, 0.75); }
+.activity-hero .date-picker-pill .date-text,
+.activity-hero .today-btn span:last-child {
+    font-weight: 600;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
+}
+
+/* ---------- สีประจำกิจกรรมตามระดับการใช้แรง (JS ใส่ class .ac-1 … .ac-4 จาก act_intensity):
+   เบา = เขียว · ปานกลาง = เหลือง · หนัก = ส้ม · หนักมาก = แดง ---------- */
+.ac-1 { --lc: var(--color-green); }
+.ac-2 { --lc: var(--color-yellow); }
+.ac-3 { --lc: var(--color-orange); }
+.ac-4 { --lc: var(--color-red); }
+
+/* จุดสีบอกระดับ: ในรายการใช้สี --lc ของแถว, ในคำอธิบายใช้สีที่ JS ใส่ตรงๆ */
+.level-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--lc, var(--text-muted));
+}
+#detailIntensity {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+.log-level {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 8px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
 
 /* ---------- 1. การ์ดสรุป ---------- */
 .summary-bar.is-empty .bar-seg { display: none; }
@@ -157,6 +213,31 @@
     border-color: transparent;
 }
 .filter-chip.is-dim { opacity: 0.45; }
+
+/* คำอธิบายสีตามระดับการใช้แรง: แถบเล็กใต้รายการ */
+.activity-legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px 12px;
+    padding: 7px 12px;
+    border-top: 1px solid var(--border-hairline);
+    background: var(--surface-alt);
+    font-size: 11px;
+    color: var(--text-muted);
+}
+.activity-legend-title { font-weight: 700; }
+.activity-legend-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 12px;
+}
+.level-key {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 600;
+}
 
 .activity-empty {
     padding: 14px 8px;

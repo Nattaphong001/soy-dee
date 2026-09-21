@@ -53,6 +53,7 @@ const ADMIN_I18N = {
         'placeholder-name-food': 'เช่น ผัก / สลัด',
         'placeholder-name-activity': 'เช่น วิ่ง / จ็อกกิ้ง',
         'label-activity-category': 'ประเภทกิจกรรม',
+        'label-activity-intensity': 'ระดับการใช้แรง',
         'label-has-distance': 'บันทึกระยะทางได้ (กม.)',
         'badge-has-distance': 'ระยะทาง',
 
@@ -237,6 +238,7 @@ const ADMIN_I18N = {
         'placeholder-name-food': 'e.g. Vegetables / Salad',
         'placeholder-name-activity': 'e.g. Running / Jogging',
         'label-activity-category': 'Activity category',
+        'label-activity-intensity': 'Intensity',
         'label-has-distance': 'Can record distance (km)',
         'badge-has-distance': 'Distance',
 
@@ -407,7 +409,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function mapActivityFromApi(o) {
         return {
             id: o.act_id, name: o.act_name, image: o.act_images || '', usage: o.usage_count || 0,
-            category: SoyDeeActivityCategories.normalize(o.act_category), hasDistance: !!o.act_has_distance
+            category: SoyDeeActivityCategories.normalize(o.act_category), hasDistance: !!o.act_has_distance,
+            intensity: SoyDeeActivityIntensity.normalize(o.act_intensity)
         };
     }
 
@@ -563,10 +566,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // ป้ายในแถวกิจกรรม: "คาร์ดิโอ · ระยะทาง"
+    // ป้ายในแถวกิจกรรม: "คาร์ดิโอ · หนัก · ระยะทาง"
     function categoryText(item) {
-        const cat = SoyDeeActivityCategories.label(item.category);
-        return item.hasDistance ? `${cat} · ${I18N.t(ADMIN_I18N, 'badge-has-distance')}` : cat;
+        const text = `${SoyDeeActivityCategories.label(item.category)} · ${SoyDeeActivityIntensity.label(item.intensity)}`;
+        return item.hasDistance ? `${text} · ${I18N.t(ADMIN_I18N, 'badge-has-distance')}` : text;
     }
 
     function renderActivityList(query) {
@@ -647,6 +650,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const trafficLightField = document.getElementById('trafficLightField');
     const activityCategoryField = document.getElementById('activityCategoryField');
     const activityDistanceField = document.getElementById('activityDistanceField');
+    const activityIntensityField = document.getElementById('activityIntensityField');
+    const itemIntensitySelect = document.getElementById('itemIntensitySelect');
     const itemCategorySelect = document.getElementById('itemCategorySelect');
     const itemHasDistanceInput = document.getElementById('itemHasDistanceInput');
     const trafficPills = document.querySelectorAll('.traffic-pill');
@@ -704,6 +709,7 @@ document.addEventListener('DOMContentLoaded', () => {
             trafficLightField.style.display = '';
             activityCategoryField.style.display = 'none';
             activityDistanceField.style.display = 'none';
+            activityIntensityField.style.display = 'none';
             setTrafficSelection(item ? item.traffic : null);
             itemSheetTitle.textContent = item
                 ? I18N.t(ADMIN_I18N, 'modal-title-edit-food')
@@ -717,8 +723,12 @@ document.addEventListener('DOMContentLoaded', () => {
             itemCategorySelect.innerHTML = SoyDeeActivityCategories.list.map(c =>
                 `<option value="${c.id}">${escapeHtml(SoyDeeActivityCategories.label(c.id))}</option>`).join('');
             itemCategorySelect.value = String(item ? item.category : SoyDeeActivityCategories.defaultId);
+            itemIntensitySelect.innerHTML = SoyDeeActivityIntensity.list.map(l =>
+                `<option value="${l.id}">${escapeHtml(SoyDeeActivityIntensity.label(l.id))}</option>`).join('');
+            itemIntensitySelect.value = String(item ? item.intensity : SoyDeeActivityIntensity.defaultId);
             itemHasDistanceInput.checked = item ? item.hasDistance : false;
             activityCategoryField.style.display = '';
+            activityIntensityField.style.display = '';
             activityDistanceField.style.display = '';
             itemSheetTitle.textContent = item
                 ? I18N.t(ADMIN_I18N, 'modal-title-edit-activity')
@@ -803,6 +813,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const activityCategory = Number(itemCategorySelect.value) || SoyDeeActivityCategories.defaultId;
         const activityHasDistance = itemHasDistanceInput.checked;
+        const activityIntensity = Number(itemIntensitySelect.value) || SoyDeeActivityIntensity.defaultId;
 
         itemSaveBtn.disabled = true;
         try {
@@ -817,7 +828,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     const updated = await SoyDeeAPI.request(`/admin/activities/${editingId}`, {
                         method: 'PUT',
-                        body: { act_name: name, act_images: imageToSend, act_category: activityCategory, act_has_distance: activityHasDistance }
+                        body: { act_name: name, act_images: imageToSend, act_category: activityCategory, act_has_distance: activityHasDistance, act_intensity: activityIntensity }
                     });
                     const target = list.find(item => item.id === editingId);
                     Object.assign(target, mapActivityFromApi(Object.assign({}, updated, { usage_count: target.usage })));
@@ -832,11 +843,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     const created = await SoyDeeAPI.request('/admin/activities', {
                         method: 'POST',
-                        body: { act_name: name, act_images: imageToSend, act_category: activityCategory, act_has_distance: activityHasDistance }
+                        body: { act_name: name, act_images: imageToSend, act_category: activityCategory, act_has_distance: activityHasDistance, act_intensity: activityIntensity }
                     });
                     activityMaster.push(mapActivityFromApi({
                         act_id: created.act_id, act_name: name, act_images: imageToSend,
-                        act_category: activityCategory, act_has_distance: activityHasDistance
+                        act_category: activityCategory, act_has_distance: activityHasDistance, act_intensity: activityIntensity
                     }));
                 }
             }

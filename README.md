@@ -31,3 +31,11 @@ Uploaded avatars are served from `/uploads/avatars/...`.
 Standard `cmd/` + `internal/` layout: `config` → `database` → `models` → `repositories` →
 `services` → `handlers` → `routes` (`domain` holds pure business rules such as BMR; handlers never touch repositories directly). See `API_SPEC.md` for the endpoint contract each handler
 implements.
+
+## Frontend
+
+Web client: https://github.com/Nattaphong001/soy-dee
+
+## License
+
+MIT — see [LICENSE](LICENSE).

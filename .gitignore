@@ -12,3 +12,6 @@ uploads/food-images/*
 .vscode/
 *.code-workspace
 /bin/
+
+CLAUDE.md
+.claude/

@@ -1,0 +1,13 @@
+.env
+/soydee-api
+/soydee-api.exe
+/tmp/
+/logs/
+uploads/avatars/*
+uploads/food-images/*
+!uploads/avatars/.gitkeep
+!uploads/food-images/.gitkeep
+
+*.exe
+.vscode/
+*.code-workspace

@@ -24,6 +24,7 @@
 - **บันทึกอาหาร** — CRUD รายการอาหารต่อวัน พร้อมระบบ traffic-light (เขียว/เหลือง/แดง) ตามหมวดอาหาร
 - **บันทึกกิจกรรม** — CRUD กิจกรรม/การออกกำลังกายต่อวัน
 - **บันทึกการนอน** — CRUD ข้อมูลการนอน คำนวณคุณภาพการนอนฝั่ง server
+- **รายงานสรุป** — ดูสรุปอาหาร กิจกรรม การนอน และร่างกายตามช่วงวันที่ (report.html)
 - **โปรไฟล์** — แก้ไขข้อมูลส่วนตัว/ร่างกาย, เปลี่ยนรหัสผ่าน, สลับธีม, สลับภาษา
 - **แผงแอดมิน** — จัดการหมวดอาหารและประเภทกิจกรรมในระบบ (CRUD)
 
@@ -79,6 +80,12 @@ npx serve .
 ```
 
 > ต้องรัน backend ให้ทำงานอยู่ก่อน เพราะหน้าเว็บเรียก API ที่ `http://localhost:8080/api/v1` ตามที่ตั้งไว้ใน `frontend/assets/js/shared/config.js`
+
+## เอกสาร
+
+- [docs/PRODUCT_SPEC.md](docs/PRODUCT_SPEC.md) — สเปกผลิตภัณฑ์
+- [backend/docs/openapi.yaml](backend/docs/openapi.yaml) — รายการ endpoint ของ API
+- [backend/README.md](backend/README.md) — วิธีตั้งค่า migration และรัน API
 
 ## License
 

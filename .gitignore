@@ -12,3 +12,4 @@ uploads/food-images/*
 .vscode/
 *.code-workspace
 postman/
+/bin/

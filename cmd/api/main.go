@@ -1,8 +1,15 @@
 package main
 
 import (
+	"context"
+	"database/sql"
+	"errors"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"soydee-api/internal/config"
 	"soydee-api/internal/database"
@@ -72,7 +79,42 @@ func main() {
 	addr := ":" + cfg.AppPort
 	log.Printf("🚀 soydee-api listening on %s (env=%s) — watching every route below", addr, cfg.AppEnv)
 	log.Println("──────────────────────────────────────────────")
-	if err := http.ListenAndServe(addr, router); err != nil {
-		log.Fatalf("❌ server error: %v", err)
+	srv := &http.Server{
+		Addr:              addr,
+		Handler:           withHealth(db, router),
+		ReadHeaderTimeout: 10 * time.Second,
 	}
+
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Fatalf("❌ server error: %v", err)
+		}
+	}()
+
+	<-ctx.Done()
+	log.Println("🛑 shutting down...")
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(shutdownCtx); err != nil {
+		log.Printf("⚠️  graceful shutdown failed: %v", err)
+	}
+}
+
+// withHealth serves GET /healthz (liveness + DB ping) outside the /api/v1 tree.
+func withHealth(db *sql.DB, next http.Handler) http.Handler {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
+		ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+		defer cancel()
+		if err := db.PingContext(ctx); err != nil {
+			http.Error(w, "db unavailable", http.StatusServiceUnavailable)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"status":"ok"}`))
+	})
+	mux.Handle("/", next)
+	return mux
 }

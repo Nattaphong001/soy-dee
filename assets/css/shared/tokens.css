@@ -1,0 +1,104 @@
+/* ==============================================================================
+   THEME SYSTEM (CSS Custom Properties)
+   ------------------------------------------------------------------------------
+   :root         = ค่าเริ่มต้น (Light Mode) — ใช้เป็น Default เสมอ
+   .dark-theme   = ชุดสีสำหรับ Dark Mode (สลับคลาสนี้ที่ <body> หรือ <html>)
+   [data-theme="dark"] คงไว้เพื่อความเข้ากันได้ย้อนหลัง (backward compatible)
+
+   วิธีสลับธีมในอนาคต (จะไปทำปุ่ม Toggle ในหน้า Edit Profile):
+     document.body.classList.toggle('dark-theme');
+     localStorage.setItem('theme', isDark ? 'dark' : 'light');
+   ดู helper functions: setTheme() / toggleTheme() / initTheme() ใน app.js
+   ============================================================================== */
+:root {
+    color-scheme: light;
+
+    /* --- พื้นผิว (Surfaces) --- */
+    --bg-page: #F4F6FA;
+    --surface: #FFFFFF;
+    --surface-alt: #EDF0F6;
+    --card-bg: #FFFFFF;
+    --card-inner: #F5F7FB;
+
+    /* --- ตัวอักษร (Text) --- */
+    --text-main: #171B26;
+    --text-muted: #6B7280;
+
+    /* --- สีเน้น (Accent) --- */
+    --accent-1: #4F63E8;
+    --accent-2: #14B8A6;
+    --accent-grad: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+
+    /* --- เงาและเส้นขอบ (Depth) --- */
+    --shadow-soft: 0 10px 28px rgba(23, 27, 38, 0.07);
+    --shadow-card: 0 1px 2px rgba(23, 27, 38, 0.04), 0 6px 16px rgba(23, 27, 38, 0.04);
+    --border-hairline: rgba(23, 27, 38, 0.08);
+
+    /* --- ความโค้งมน (Radius) --- */
+    --radius-xl: 18px;
+    --radius-lg: 14px;
+    --radius-md: 12px;
+    --radius-full: 999px;
+    --radius-pill: 999px;
+
+    /* --- สีสถานะ/หมวดหมู่ (Status colors — ใช้ร่วมกันทั้ง Light/Dark) --- */
+    --color-blue: #3B82F6;
+    --color-green: #10B981;
+    --color-yellow: #F59E0B;
+    --color-red: #EF4444;
+    --color-purple: #A855F7;
+    --color-orange: #F97316;
+
+    /* --- สี BMI (แยกจากสี traffic light อาหารโดยเจตนา — "ท้วม" ห้ามใช้สี
+       เหลืองเดียวกับ "อาหารกินได้แต่ควบคุมปริมาณ" เพราะคนละความหมาย
+       ดู SOYDEE_AI_TASK.md §2.4/§6) --- */
+    --bmi-thin: var(--color-blue);
+    --bmi-normal: var(--color-green);
+    --bmi-over: var(--color-orange);
+    --bmi-obese: var(--color-red);
+
+    /* --- สีข้อความ BMI แบบเข้มขึ้น (light mode เท่านั้น) ---
+       ค่า --bmi-* ด้านบนออกแบบมาสำหรับ dot/badge บนพื้นเข้ม พอเอามาทำสี
+       ตัวอักษรบนพื้นขาว/สว่างแล้ว contrast ตก AA (เขียว/ส้มตกแม้แต่ large
+       text, ทุกสีตกที่ normal text) — โทเคนนี้ทำเฉพาะให้ตัวอักษรผ่าน AA
+       4.5:1 ทั้งบน --card-bg และ --card-inner โดยยังเป็นเฉดสีเดียวกัน
+       ใน dark mode ค่าเดิมผ่าน AA อยู่แล้วเลยชี้กลับไปที่ค่าเดิมตรงๆ
+       (override ใน .dark-theme ด้านล่าง) */
+    --bmi-thin-text: #2563EB;
+    --bmi-normal-text: #047857;
+    --bmi-over-text: #C2410C;
+    --bmi-obese-text: #DC2626;
+
+    /* --- สี traffic light อาหาร (ตั้งชื่อแยกให้ชัด ไม่ปนกับ BMI) --- */
+    --food-green: var(--color-green);
+    --food-yellow: var(--color-yellow);
+    --food-red: var(--color-red);
+}
+
+/* Dark Mode — ผูกกับคลาส .dark-theme (พร้อมรองรับ data-theme="dark" แบบเดิม) */
+.dark-theme,
+[data-theme="dark"] {
+    color-scheme: dark;
+
+    --bg-page: #0E1015;
+    --surface: #151923;
+    --surface-alt: #1E2331;
+    --card-bg: #171B27;
+    --card-inner: #202536;
+
+    --text-main: #F2F4F9;
+    --text-muted: #8A93A8;
+
+    --accent-1: #8B7CFF;
+    --accent-2: #21E6C7;
+
+    --shadow-soft: 0 16px 34px rgba(0, 0, 0, 0.38);
+    --shadow-card: 0 6px 18px rgba(0, 0, 0, 0.28);
+    --border-hairline: rgba(255, 255, 255, 0.08);
+
+    /* ค่า --bmi-* เดิม (เฉดสด) ผ่าน AA อยู่แล้วบนพื้นเข้ม — ไม่ต้องทำเฉดเข้มขึ้นซ้ำ */
+    --bmi-thin-text: var(--bmi-thin);
+    --bmi-normal-text: var(--bmi-normal);
+    --bmi-over-text: var(--bmi-over);
+    --bmi-obese-text: var(--bmi-obese);
+}

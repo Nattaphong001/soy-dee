@@ -1,0 +1,623 @@
+/* =========================================
+   2. Header & Top Navigation
+   ========================================= */
+
+/* โซนหัว (ทักทาย + header + date picker) — ให้พื้นผิว/เงาของตัวเอง
+   เพื่อแยกจากส่วน body อย่างชัดเจน แทนที่จะลอยรวมกับพื้นหลังเดียวกันหมด */
+.top-section {
+    position: relative;
+    z-index: 1;
+    background: var(--surface);
+    border-radius: 0 0 24px 24px;
+    box-shadow: var(--shadow-card);
+    border-bottom: 1px solid var(--border-hairline);
+    padding-bottom: 4px;
+    margin-bottom: 10px;
+}
+
+.top-greeting {
+    text-align: center;
+    padding: 18px 0 6px 0;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+    color: var(--text-muted);
+}
+
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+}
+
+.user-profile-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* -----------------------------------------------------------------------
+   Profile Avatar
+   -----------------------------------------------------------------------
+   - วงกลมสมบูรณ์ (border-radius: 50%) พร้อมกรอบบางและเงานุ่มเมื่อ hover
+   - ใช้ไอคอน User (SVG inline) เป็นค่าเริ่มต้น/placeholder แทนการพึ่งพา
+     บริการภายนอก (ui-avatars.com) — เมื่อผู้ใช้ตั้งรูปโปรไฟล์จริง สามารถ
+     แทนที่ด้วย <img> ที่มี object-fit: cover ได้โดยไม่กระทบ layout
+   - ครอบด้วย <a> เพื่อคลิกไปหน้าโปรไฟล์ พร้อม hover/focus effect
+   ----------------------------------------------------------------------- */
+.profile-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-alt);
+    border: 2px solid var(--surface);
+    box-shadow: 0 0 0 1px var(--border-hairline);
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.profile-avatar:hover,
+.profile-avatar:focus-visible {
+    transform: scale(1.06);
+    box-shadow: 0 0 0 2px var(--accent-1), var(--shadow-card);
+    outline: none;
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+}
+
+/* ไอคอน User แบบ SVG ที่ใช้เป็น Placeholder เริ่มต้น */
+.profile-avatar .avatar-icon-placeholder {
+    width: 60%;
+    height: 60%;
+    color: var(--text-muted);
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text-main);
+    line-height: 1.3;
+}
+
+.notification-btn {
+    width: 40px;
+    height: 40px;
+    background: var(--surface-alt);
+    border: none;
+    border-radius: 50%;
+    font-size: 20px;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.notification-btn:hover {
+    background: var(--surface);
+    box-shadow: var(--shadow-card);
+    transform: translateY(-1px);
+}
+
+/* =========================================
+   3. Date Picker (Pill Shape)
+   ========================================= */
+.date-picker-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 20px 16px 20px;
+    gap: 10px;
+}
+
+/* ปุ่มแก้ไขข้อมูลร่างกาย — ชิดซ้าย ระดับเดียวกับ date picker ฝั่งขวา */
+.edit-profile-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background-color: var(--surface);
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--radius-pill);
+    padding: 9px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-main);
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.edit-profile-btn:hover {
+    box-shadow: var(--shadow-soft);
+    transform: translateY(-1px);
+}
+
+.edit-profile-btn .icon-inline {
+    width: 15px; height: 15px;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--accent-1);
+    flex-shrink: 0;
+}
+.edit-profile-btn .icon-inline { font-size: 16px; }
+
+.date-picker-pill {
+    background-color: var(--surface);
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--radius-pill);
+    display: flex;
+    align-items: center;
+    padding: 9px 16px;
+    gap: 8px;
+    cursor: pointer;
+    color: var(--text-main);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.date-picker-pill:hover {
+    box-shadow: var(--shadow-soft);
+    transform: translateY(-1px);
+}
+
+.date-picker-pill .icon-calendar { font-size: 17px; color: var(--accent-1); display: inline-flex; }
+.date-picker-pill .date-text { font-size: 13px; font-weight: 500; }
+.date-picker-pill .icon-chevron { font-size: 12px; color: var(--text-muted); }
+
+/* =========================================
+   4. App Content, Mascot Stage & Stat Grid (2x2)
+   ========================================= */
+.app-content {
+    padding: 10px 10px; 
+    display: flex; flex-direction: column; gap: 10px; 
+}
+
+/* เวทีของมาสคอต — เป็นกรอบอ้างอิงตำแหน่ง (relative) ให้กิ้งก่าเดินอยู่ข้างใน
+   padding รอบๆ = "ทางเดิน" ที่กิ้งก่าใช้เดินวนรอบการ์ด ปรับค่านี้เพื่อขยาย/ลดทางเดิน */
+.mascot-stage {
+    position: relative;
+    padding: 8px 26px; /* ปรับทางเดินรอบๆ ให้กิ้งก่าเดินได้สะดวก */
+}
+
+/* Grid 2x2 — บนซ้าย=เพศ, บนขวา=อายุ, ล่างซ้าย=ส่วนสูง, ล่างขวา=น้ำหนัก
+   ช่องว่าง (gap) คือทางเดินกลางที่กิ้งก่าใช้ตัดผ่าน — ลดระยะห่างลงให้การ์ดดูเป็นกลุ่มก้อน */
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px 14px;
+}
+
+.stat-card {
+    position: relative;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-hairline);
+    border-radius: 18px;
+    padding: 14px 10px;
+    box-shadow: var(--shadow-card);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+    transition: box-shadow 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
+}
+
+.stat-card:hover {
+    box-shadow: var(--shadow-soft);
+    transform: translateY(-2px);
+}
+
+/* ไฮไลต์การ์ดที่กิ้งก่ากำลังแวะอยู่ (JS เพิ่ม/ถอดคลาสนี้) */
+.stat-card.is-visited {
+    border-color: var(--accent-1);
+    box-shadow: var(--shadow-soft), 0 0 0 2px rgba(79, 99, 232, 0.18);
+    transform: translateY(-3px);
+}
+
+/* แถวบนของการ์ด: ไอคอน (ซ้าย) + ชื่อช่อง (ขวา) อยู่ระดับเดียวกัน จัดกึ่งกลางทั้งแถว */
+.stat-card-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.stat-icon {
+    width: 30px; height: 30px;
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.icon-blue { background-color: rgba(59, 130, 246, 0.12); color: var(--color-blue); }
+.icon-green { background-color: rgba(16, 185, 129, 0.12); color: var(--color-green); }
+.icon-purple { background-color: rgba(168, 85, 247, 0.12); color: var(--color-purple); }
+.icon-orange { background-color: rgba(249, 115, 22, 0.12); color: var(--color-orange); }
+
+/* ==============================================================================
+   ICON SYSTEM — Phosphor Duotone (inline SVG จาก assets/js/shared/icons.js)
+   ------------------------------------------------------------------------------
+   ใช้ <i data-icon="ชื่อ"></i> — ขนาด = font-size ของตัวแม่ (1em), สี = color ของตัวแม่
+   แต่ละจุดกำหนดสีผ่านคลาสของตัวแม่ (.icon-blue, .green-box ฯลฯ) ให้ตามธีมสว่าง/มืดเอง
+   ============================================================================== */
+.ph {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-style: normal;
+    line-height: 0;
+    flex-shrink: 0;
+}
+.ph-icon {
+    width: 1em;
+    height: 1em;
+    display: block;
+}
+.icon-emoji {
+    line-height: 1;
+}
+
+.stat-label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+
+.stat-value-wrap { width: 100%; }
+.stat-value { font-size: 22px; font-weight: 700; color: var(--text-main); }
+.stat-value small { font-size: 12px; font-weight: 500; color: var(--text-muted); }
+
+/* =========================================
+   5. Combined BMI & Energy Card (ซ้าย-ขวา)
+   ========================================= */
+/* ตัวห่อการ์ด BMI + พลังงาน: แต่ละแผงเป็น .summary-card เต็มความกว้าง (record-ui.css) เรียงต่อกัน */
+.combined-dashboard-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.combined-dashboard-card[hidden] { display: none; }
+
+.panel-left, .panel-right {
+    display: flex;
+    flex-direction: column;
+}
+
+.combined-dashboard-card .panel-header { margin-bottom: 14px; }
+
+.header-title {
+    display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600;
+    color: var(--text-main);
+}
+
+.icon-box {
+    width: 24px; height: 24px; border-radius: 7px;
+    display: flex; align-items: center; justify-content: center; font-size: 15px;
+}
+.green-box { background-color: rgba(16, 185, 129, 0.12); color: var(--color-green); }
+.purple-box { background-color: rgba(168, 85, 247, 0.12); color: var(--color-purple); }
+.yellow-box { background-color: rgba(245, 158, 11, 0.12); color: var(--color-yellow); }
+.red-box { background-color: rgba(239, 68, 68, 0.12); color: var(--color-red); }
+.blue-box { background-color: rgba(59, 130, 246, 0.12); color: var(--color-blue); }
+
+/* ==============================================================================
+   INFO TOOLTIP / POPOVER — ปุ่ม info-icon ตอนนี้เป็นปุ่มจริง กดแล้วโชว์คำอธิบาย
+   ------------------------------------------------------------------------------
+   - .info-tooltip-wrap = ต้องมี position: relative เพื่อให้ popover ยึดตำแหน่งกับมัน
+   - .info-popover ซ่อนด้วย opacity/visibility (ไม่ใช้ display:none) เพื่อให้ทรานซิชันลื่น
+   - เปิด/ปิดด้วยคลาส .is-open ที่ควบคุมจาก JS (ดู initInfoPopovers ใน app.js)
+   - กดปุ่มอื่น, กดพื้นที่นอก popover, หรือกด Esc จะปิดของที่เปิดอยู่ทั้งหมด
+   ============================================================================== */
+.info-tooltip-wrap {
+    position: relative;
+}
+
+.info-icon {
+    font-size: 16px;
+    color: var(--text-muted);
+    display: inline-flex;
+    opacity: 0.8;
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    line-height: 1;
+    border-radius: 50%;
+    transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+
+.info-icon:hover,
+.info-icon[aria-expanded="true"] {
+    opacity: 1;
+    background-color: var(--surface-alt);
+}
+
+.info-popover {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 220px;
+    background-color: var(--surface);
+    border: 1px solid var(--border-hairline);
+    border-radius: 14px;
+    box-shadow: var(--shadow-soft);
+    padding: 12px 14px;
+    font-size: 11.5px;
+    line-height: 1.6;
+    color: var(--text-muted);
+    text-align: left;
+    z-index: 5;
+
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+}
+
+.info-popover strong {
+    color: var(--text-main);
+}
+
+.info-popover.is-open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* ==============================================================================
+   ตัวแปรทิศทาง: กางไปทางขวาแทนลงล่าง (ใช้กับ BMI ตามที่ขอ)
+   ------------------------------------------------------------------------------
+   วิธีสลับทิศอื่นๆ: ดูตารางเทียบ top/bottom, left/right, transform ที่คุยกันไว้ก่อนหน้า
+   ============================================================================== */
+.info-popover--right {
+    top: 50%;
+    left: calc(100% + 8px);
+    right: auto;
+    width: 190px;               /* แคบกว่าเวอร์ชันเดิมเล็กน้อย กันล้นขอบจอฝั่งขวา */
+    transform: translateY(-50%) translateX(-6px);
+}
+
+.info-popover--right.is-open {
+    transform: translateY(-50%) translateX(0);
+}
+
+/* ลูกศรของเวอร์ชันขวา: ย้ายไปขอบซ้ายของ popover กึ่งกลางแนวตั้ง แล้วหมุนให้ชี้ซ้ายแทนชี้ขึ้น */
+.info-popover--right::before {
+    top: 50%;
+    right: auto;
+    left: -5px;
+    transform: translateY(-50%) rotate(-45deg);
+}
+
+/* ==============================================================================
+   กระจกเงาของ --right: กางไปทางซ้ายแทน (ใช้กับพลังงาน)
+   ------------------------------------------------------------------------------
+   หลักการ: BMI อยู่ซ้าย เปิดไปทางขวา (โชว์คำอธิบายทับฝั่งพลังงาน)
+            พลังงานอยู่ขวา เปิดไปทางซ้าย (โชว์คำอธิบายทับฝั่ง BMI)
+   ผลคือตัวเลขของการ์ดตัวเอง (ฝั่งที่กำลังอ่านค่าอยู่) ไม่ถูก popover บังเลย
+   ============================================================================== */
+.info-popover--left {
+    top: 50%;
+    right: calc(100% + 8px);
+    left: auto;
+    width: 190px;
+    transform: translateY(-50%) translateX(6px);
+}
+
+.info-popover--left.is-open {
+    transform: translateY(-50%) translateX(0);
+}
+
+/* ลูกศรของเวอร์ชันซ้าย: ย้ายไปขอบขวาของ popover กึ่งกลางแนวตั้ง หมุนให้ชี้ขวากลับไปที่ปุ่ม */
+.info-popover--left::before {
+    top: 50%;
+    left: auto;
+    right: -5px;
+    transform: translateY(-50%) rotate(135deg);
+}
+
+/* ลูกศรเล็กๆ ชี้กลับไปที่ปุ่ม ให้รู้ว่า popover นี้ผูกกับไอคอนไหน */
+.info-popover::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    right: 10px;
+    width: 10px;
+    height: 10px;
+    background-color: var(--surface);
+    border-left: 1px solid var(--border-hairline);
+    border-top: 1px solid var(--border-hairline);
+    transform: rotate(45deg);
+}
+
+/* -- Left Panel: BMI -- */
+/* การ์ด BMI: ตัวเลขใหญ่ซ้าย + เกจขวา (แถวเดียวกัน) ใต้ลงมาเป็นคำอธิบายช่วงค่า 4 ระดับ */
+.panel-left {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 12px;
+    align-items: center;
+}
+.panel-left > .panel-header,
+.panel-left > .gauge-labels,
+.panel-left > .comparison-box { grid-column: 1 / -1; }
+
+.bmi-center-text { grid-column: 1; grid-row: 2; text-align: left; }
+.bmi-label { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
+/* สีต้องตาม eval_result จริง ไม่ตรึงเป็นเขียวเหมือนเดิม (JS เติมคลาส
+   eval-thin/normal/over/obese ให้ตาม mbh_eval_result — ดู index.js) */
+.bmi-number { font-size: 40px; font-weight: 700; line-height: 1.05; margin-bottom: 6px; color: var(--text-main); }
+.bmi-status { font-size: 14px; font-weight: 700; color: var(--text-main); }
+.bmi-number.eval-thin,   .bmi-status.eval-thin   { color: var(--bmi-thin-text); }
+.bmi-number.eval-normal, .bmi-status.eval-normal { color: var(--bmi-normal-text); }
+.bmi-number.eval-over,   .bmi-status.eval-over   { color: var(--bmi-over-text); }
+.bmi-number.eval-obese,  .bmi-status.eval-obese  { color: var(--bmi-obese-text); }
+
+/* เกจ 180×99 (สเกลจาก viewBox 200×110 ที่ 0.9 เท่า): จุดหมุนเข็มอยู่ที่ 90% ของความสูง = ห่างขอบล่าง 9px */
+.gauge-wrapper { grid-column: 2; grid-row: 2; position: relative; width: 180px; height: 99px; }
+.gauge-svg { display: block; width: 180px; height: 99px; }
+.gauge-needle-container {
+    position: absolute; bottom: 7px; left: 50%; width: 4px; height: 84px;
+    transform-origin: bottom center; transform: translateX(-50%) rotate(-45deg);
+    transition: transform 1.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.needle-line { width: 3px; height: 70px; background-color: var(--text-main); border-radius: 3px; box-shadow: 0 0 4px rgba(0, 0, 0, 0.25); }
+.needle-center {
+    position: absolute; bottom: -3px; left: 50%; transform: translateX(-50%);
+    width: 10px; height: 10px; background-color: var(--text-main); border-radius: 50%; border: 2px solid var(--card-bg);
+}
+
+.gauge-labels { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; text-align: center; margin: 16px 0 14px; }
+.g-col { --gc: var(--text-muted); display: flex; flex-direction: column; align-items: center; font-size: 10.5px; color: var(--text-muted); gap: 2px; }
+.g-col span:last-child { font-size: 12px; }
+/* แถบสีเล็กๆ เหนือแต่ละช่วง ให้จับคู่กับสีของเกจได้ทันที */
+.g-col::before { content: ''; width: 100%; max-width: 54px; height: 4px; margin-bottom: 4px; border-radius: var(--radius-pill); background: var(--gc); }
+.g-col:nth-child(1) { --gc: var(--bmi-thin-text); }
+.g-col:nth-child(2) { --gc: var(--bmi-normal-text); }
+.g-col:nth-child(3) { --gc: var(--bmi-over-text); }
+.g-col:nth-child(4) { --gc: var(--bmi-obese-text); }
+/* ป้ายกำกับเกจ BMI 4 ระดับ — ตั้งชื่อคลาสตามความหมาย BMI ไม่ใช่ชื่อสี
+   (เดิมใช้ .c-yellow ให้ "ท้วม" ซึ่งพอย้ายสีจริงเป็นส้มแล้วชื่อคลาสจะผิดความหมาย) */
+.c-thin   { color: var(--bmi-thin-text); font-weight: 600;}
+.c-normal { color: var(--bmi-normal-text); font-weight: 600;}
+.c-over   { color: var(--bmi-over-text); font-weight: 600;}
+.c-obese  { color: var(--bmi-obese-text); font-weight: 600;}
+
+.comparison-box {
+    display: flex; align-items: center; gap: 10px; background-color: var(--card-inner);
+    padding: 10px 12px; border-radius: 12px;
+}
+.comparison-box[hidden] { display: none; }
+.comp-icon { font-size: 20px; color: var(--color-green); display: inline-flex; }
+.comp-label { font-size: 11px; color: var(--text-muted); }
+.comp-value { font-size: 13px; color: var(--color-green); font-weight: 700; margin-top: 2px;}
+
+/* -- Right Panel: Energy -- */
+/* BMR: ชื่อ+คำอธิบายซ้าย ตัวเลขใหญ่ขวา */
+.energy-block {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 12px;
+    align-items: center;
+    margin-bottom: 14px;
+}
+.e-title { grid-column: 1; font-size: 13px; font-weight: 700; margin-bottom: 2px; color: var(--text-main); }
+.e-desc { grid-column: 1; font-size: 11px; line-height: 1.5; color: var(--text-muted); }
+.e-value { grid-column: 2; grid-row: 1 / span 2; font-size: 32px; font-weight: 700; line-height: 1.1; }
+.c-purple { color: var(--color-purple); }
+.c-purple small { color: rgba(168, 85, 247, 0.7); font-size: 13px; font-weight: 600; }
+
+/* TDEE + เป้าหมาย — การ์ดเดียว 2 แถว ไม่มีหลอด/เปอร์เซ็นต์การกินจริง
+   (ระบบนี้ไม่เก็บแคลอรีที่บริโภครายวัน จึงแสดงเป็นค่าคงที่ล้วนๆ) */
+.tdee-target-card {
+    background-color: var(--card-inner);
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: row;
+    gap: 14px;
+}
+
+/* TDEE (ซ้าย) | เป้าหมาย (ขวา): ไอคอนอยู่บน ป้ายและตัวเลขเรียงลงมา */
+.tt-row {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.tt-icon {
+    width: 30px; height: 30px;
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+.tt-icon-blue { background-color: rgba(59, 130, 246, 0.12); color: var(--color-blue); }
+.tt-icon-orange { background-color: rgba(249, 115, 22, 0.12); color: var(--color-orange); }
+
+.tt-info { display: flex; flex-direction: column; gap: 1px; }
+.tt-label { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+.tt-value { font-size: 20px; font-weight: 700; color: var(--color-blue); }
+.tt-value small { font-size: 11px; font-weight: 500; opacity: 0.75; }
+.tt-value-target { color: var(--color-orange); }
+
+.tt-divider {
+    width: 1px;
+    align-self: stretch;
+    background-color: var(--border-hairline);
+}
+
+/* =========================================
+   6. Disclaimer
+   ========================================= */
+.disclaimer {
+    display: flex; align-items: flex-start; gap: 8px; padding: 12px;
+    background-color: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.18); border-radius: 12px;
+}
+.check-icon { font-size: 14px; color: var(--color-green); }
+.disclaimer p { font-size: 10px; color: var(--text-muted); line-height: 1.5; }
+
+/* =========================================
+   6.1 Dashboard loading / empty state
+   ========================================= */
+@keyframes dashboard-pulse {
+    0%, 100% { opacity: 0.35; }
+    50% { opacity: 0.8; }
+}
+.app-content.is-loading .stat-value,
+.app-content.is-loading .bmi-number,
+.app-content.is-loading .e-value,
+.app-content.is-loading .tt-value {
+    animation: dashboard-pulse 1.2s ease-in-out infinite;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 8px;
+    padding: 34px 20px;
+    border: 1.5px dashed var(--border-hairline);
+    border-radius: var(--radius-xl);
+    color: var(--text-muted);
+}
+/* [hidden] ปกติชนะด้วย specificity ต่ำกว่า .empty-state{display:flex} ไม่ได้
+   (attribute selector ของ UA stylesheet แพ้ class selector ของเรา) — ต้อง
+   ประกาศทับตรงๆ ไม่งั้น #dashboardEmptyState โผล่มาซ้อนกับการ์ดข้อมูลจริง
+   ทั้งที่ set .hidden=true ไปแล้ว (เจอจริงตอนทดสอบ 390px) */
+.empty-state[hidden] { display: none; }
+.empty-state-icon { font-size: 36px; color: var(--accent-1); opacity: 0.75; display: inline-flex; }
+.empty-state-title { font-size: 14px; font-weight: 700; color: var(--text-main); }
+.empty-state-desc { font-size: 12px; line-height: 1.6; max-width: 240px; }
+.empty-state-cta {
+    margin-top: 6px;
+    padding: 8px 18px;
+    border-radius: 999px;
+    background: var(--accent-grad);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+}
+

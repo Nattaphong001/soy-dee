@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
    ============================================================================== */
 const BMI_EVAL_KEY = { 1: 'gauge-underweight', 2: 'gauge-normal', 3: 'gauge-overweight', 4: 'gauge-obese' };
 // คลาสสี BMI ตาม mbh_eval_result จริง (ดู .c-thin/.c-normal/.c-over/.c-obese
-// ใน shared/style.css) — เดิม .bmi-number/.bmi-status ตรึงเป็นสีเขียวเสมอ
+// ใน shared/components.css) — เดิม .bmi-number/.bmi-status ตรึงเป็นสีเขียวเสมอ
 // ไม่ว่า BMI จะอยู่ช่วงไหน ตอนนี้ต้องสลับคลาสตามค่าจริงทุกครั้งที่ render
 const BMI_EVAL_CLASS = { 1: 'eval-thin', 2: 'eval-normal', 3: 'eval-over', 4: 'eval-obese' };
 const ALL_BMI_EVAL_CLASSES = Object.values(BMI_EVAL_CLASS);

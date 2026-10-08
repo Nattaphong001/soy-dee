@@ -1,0 +1,293 @@
+/* ==============================================================================
+   7. GECKO MASCOT (CSS art ล้วน — ไม่ใช้ไฟล์รูป)
+   ------------------------------------------------------------------------------
+   โครงสร้าง:  .gecko > .gecko-inner > (หาง / ลำตัว / ขา / แขน / หัว / ฟองข้อความ)
+
+   การควบคุมจาก JS:
+     - ตำแหน่ง  : ตั้งค่า transform ที่ .gecko  → translate3d(x, y, 0)
+     - ทิศทาง   : คลาส .facing-left (พลิกตัวด้วย scaleX(-1))
+     - เดิน/หยุด : คลาส .is-walking
+     - ท่าทาง   : คลาส .pose-flex / .pose-cool / .pose-stretch / .pose-weigh
+     - เพศ      : คลาส .male / .female (ตัวเมียจะมีเสื้อ กระโปรง และขนตา)
+
+   ปรับความเร็ว: แก้ที่ตัวแปร --walk-cycle ด้านล่าง (ยิ่งน้อยยิ่งขยับเร็ว)
+   ความเร็วการ "เดินทาง" ระหว่างการ์ดตั้งค่าที่ GECKO_CONFIG.speed ใน app.js
+   ============================================================================== */
+.gecko {
+    --gecko-skin: #6FBF5B;
+    --gecko-skin-dark: #55A344;
+    --gecko-belly: #B7E0A4;
+    --gecko-outfit: #F0806A;
+    --walk-cycle: 0.5s;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 58px;
+    height: 74px;
+    z-index: 20;
+    pointer-events: none;
+    /* JS สั่ง transform (ตำแหน่ง) — ใส่ transition สั้นๆ ให้การเลี้ยวดูนุ่ม */
+    transition: opacity 0.18s linear;
+}
+
+.gecko-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-origin: bottom center;
+    transition: transform 0.45s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+/* พลิกตัวเมื่อเดินไปทางซ้าย */
+.gecko.facing-left .gecko-inner { transform: scaleX(-1); }
+
+/* ตัวกิ้งก่าตอนซ่อน (ใช้ตอน "ทะลุขอบจอ" เพื่อไปโผล่อีกฝั่ง) */
+.gecko.is-hidden { opacity: 0; }
+
+/* ---------- หาง: ใช้วงแหวนตัดครึ่งทำเป็นเส้นโค้ง ---------- */
+.g-tail {
+    position: absolute;
+    left: -16px;
+    bottom: 12px;
+    width: 34px;
+    height: 30px;
+    border: 8px solid var(--gecko-skin);
+    border-top-color: transparent;
+    border-right-color: transparent;
+    border-radius: 50%;
+    transform: rotate(-18deg);
+    transform-origin: right center;
+    z-index: 1;
+}
+.gecko.is-walking .g-tail { animation: tailSway var(--walk-cycle) ease-in-out infinite; }
+
+/* ---------- ลำตัว ---------- */
+.g-body {
+    position: absolute;
+    left: 16px;
+    bottom: 12px;
+    width: 27px;
+    height: 42px;
+    background: linear-gradient(105deg, var(--gecko-skin) 52%, var(--gecko-belly) 52%);
+    border-radius: 14px 14px 11px 11px;
+    z-index: 4;
+    overflow: hidden;
+}
+.gecko.is-walking .g-body { animation: bodyBob var(--walk-cycle) ease-in-out infinite; }
+
+/* เสื้อ + กระโปรง (แสดงเฉพาะตัวเมีย) */
+.g-top, .g-skirt { position: absolute; left: 0; width: 100%; background: var(--gecko-outfit); display: none; }
+.g-top { top: 9px; height: 10px; }
+.g-skirt { bottom: 0; height: 14px; border-radius: 0 0 4px 4px; }
+.gecko.female .g-top, .gecko.female .g-skirt { display: block; }
+
+/* ---------- ขาหลัง 2 ข้าง ---------- */
+.g-leg {
+    position: absolute;
+    bottom: 2px;
+    width: 7px;
+    height: 14px;
+    background: var(--gecko-skin-dark);
+    border-radius: 4px 4px 5px 5px;
+    transform-origin: top center;
+    z-index: 3;
+}
+.g-leg-back  { left: 19px; z-index: 2; background: var(--gecko-skin-dark); }
+.g-leg-front { left: 31px; z-index: 5; background: var(--gecko-skin); }
+.gecko.is-walking .g-leg-back  { animation: stepBack  var(--walk-cycle) ease-in-out infinite; }
+.gecko.is-walking .g-leg-front { animation: stepFront var(--walk-cycle) ease-in-out infinite; }
+
+/* ---------- แขนหน้า 2 ข้าง ---------- */
+.g-arm {
+    position: absolute;
+    top: 33px;
+    width: 6px;
+    height: 15px;
+    background: var(--gecko-skin);
+    border-radius: 3px 3px 4px 4px;
+    transform-origin: top center;
+    z-index: 6;
+    transition: transform 0.4s cubic-bezier(0.34, 1.4, 0.64, 1), top 0.4s ease;
+}
+.g-arm-back  { left: 15px; background: var(--gecko-skin-dark); z-index: 3; transform: rotate(14deg); }
+.g-arm-front { left: 36px; transform: rotate(-14deg); }
+.gecko.is-walking .g-arm-back  { animation: swingBack  var(--walk-cycle) ease-in-out infinite; }
+.gecko.is-walking .g-arm-front { animation: swingFront var(--walk-cycle) ease-in-out infinite; }
+
+/* ---------- หัว + ตาโต ---------- */
+.g-head {
+    position: absolute;
+    top: 6px;
+    left: 12px;
+    width: 35px;
+    height: 27px;
+    background: var(--gecko-skin);
+    border-radius: 52% 60% 44% 46%;
+    z-index: 7;
+}
+.gecko.is-walking .g-head { animation: headBob var(--walk-cycle) ease-in-out infinite; }
+
+.g-eye {
+    position: absolute;
+    top: -7px;
+    width: 16px;
+    height: 16px;
+    background: #FFFDF6;
+    border-radius: 50%;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.14);
+}
+.g-eye-back  { left: 6px;  z-index: 8; transform: scale(0.86); }
+.g-eye-front { left: 18px; z-index: 9; }
+
+.g-pupil {
+    position: absolute;
+    top: 4px; left: 5px;
+    width: 7px; height: 7px;
+    background: #16202B;
+    border-radius: 50%;
+    animation: blinkPupil 5.5s ease-in-out infinite;
+}
+
+/* ขนตา — ตัวเมียเท่านั้น */
+.g-lash {
+    display: none;
+    position: absolute;
+    top: -2px; left: 2px;
+    width: 11px; height: 6px;
+    border-top: 2px solid #16202B;
+    border-radius: 50% 50% 0 0;
+}
+.gecko.female .g-lash { display: block; }
+
+.g-nostril {
+    position: absolute;
+    top: 8px; right: 6px;
+    width: 3px; height: 3px;
+    background: var(--gecko-skin-dark);
+    border-radius: 50%;
+}
+.g-smile {
+    position: absolute;
+    top: 13px; right: 4px;
+    width: 13px; height: 7px;
+    border-bottom: 2px solid var(--gecko-skin-dark);
+    border-radius: 0 0 60% 60%;
+}
+
+/* ---------- ฟองข้อความตอนแวะการ์ด ---------- */
+.g-bubble {
+    position: absolute;
+    bottom: 78px;
+    left: 50%;
+    transform: translateX(-50%) scale(0.6);
+    padding: 5px 10px;
+    background: var(--surface);
+    border: 1px solid var(--border-hairline);
+    box-shadow: var(--shadow-card);
+    border-radius: var(--radius-pill);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-main);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.25s ease, transform 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+.g-bubble.is-visible { opacity: 1; transform: translateX(-50%) scale(1); }
+/* ข้อความในฟองไม่ต้องพลิกตามตัวกิ้งก่าเวลาหันซ้าย */
+.gecko.facing-left .g-bubble { transform: translateX(-50%) scaleX(-1) scale(0.6); }
+.gecko.facing-left .g-bubble.is-visible { transform: translateX(-50%) scaleX(-1) scale(1); }
+
+/* ==============================================================================
+   ท่าทางตอนแวะการ์ดแต่ละใบ (Poses)
+   ============================================================================== */
+
+/* การ์ดเพศ → เบ่งกล้าม: ยกแขนทั้งสองข้างงอขึ้น + ตัวสั่นเป็นจังหวะ */
+.gecko.pose-flex .g-arm-front { transform: rotate(-155deg) translateY(2px); }
+.gecko.pose-flex .g-arm-back  { transform: rotate(155deg) translateY(2px); }
+.gecko.pose-flex .gecko-inner { animation: flexPulse 0.55s ease-in-out infinite; }
+.gecko.pose-flex.facing-left .gecko-inner { animation: flexPulseFlipped 0.55s ease-in-out infinite; }
+
+/* การ์ดอายุ → โพสเท่: เอนตัวไปข้างหลัง เท้าสะเอวหนึ่งข้าง */
+.gecko.pose-cool .gecko-inner { transform: rotate(-9deg); }
+.gecko.pose-cool.facing-left .gecko-inner { transform: scaleX(-1) rotate(-9deg); }
+.gecko.pose-cool .g-arm-front { transform: rotate(-118deg) translateY(3px); }
+.gecko.pose-cool .g-arm-back  { transform: rotate(38deg); }
+.gecko.pose-cool .g-head { animation: coolNod 1.6s ease-in-out infinite; }
+
+/* การ์ดส่วนสูง → ยืดตัวสูงขึ้น: ยืดลำตัว ชูแขนตรงขึ้นฟ้า */
+.gecko.pose-stretch .gecko-inner { animation: stretchUp 1.5s ease-in-out infinite; }
+.gecko.pose-stretch.facing-left .gecko-inner { animation: stretchUpFlipped 1.5s ease-in-out infinite; }
+.gecko.pose-stretch .g-arm-front { transform: rotate(-172deg) translateY(3px); }
+.gecko.pose-stretch .g-arm-back  { transform: rotate(172deg) translateY(3px); }
+
+/* การ์ดน้ำหนัก → ตกใจน้ำหนัก: ตัวสั่นซ้ายขวา แขนกางออก */
+.gecko.pose-weigh .gecko-inner { animation: weighShake 0.35s ease-in-out infinite; }
+.gecko.pose-weigh.facing-left .gecko-inner { animation: weighShakeFlipped 0.35s ease-in-out infinite; }
+.gecko.pose-weigh .g-arm-front { transform: rotate(-58deg); }
+.gecko.pose-weigh .g-arm-back  { transform: rotate(58deg); }
+.gecko.pose-weigh .g-eye { animation: eyePop 0.35s ease-in-out infinite; }
+
+/* ==============================================================================
+   รอยเท้า (Footprints) — JS สร้าง element แล้วลบทิ้งอัตโนมัติ
+   ปรับอายุรอยเท้าได้ที่ GECKO_CONFIG.footprintLife ใน app.js
+   ============================================================================== */
+.footprint-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.footprint {
+    position: absolute;
+    width: 7px;
+    height: 9px;
+    border-radius: 50% 50% 45% 45%;
+    background: currentColor;
+    opacity: 0;
+    animation: footprintFade var(--footprint-life, 2.4s) ease-out forwards;
+}
+
+/* ==============================================================================
+   Keyframes
+   ============================================================================== */
+@keyframes bodyBob   { 0%, 100% { transform: translateY(0); }      50% { transform: translateY(-2.5px); } }
+@keyframes headBob   { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-2px) rotate(-3deg); } }
+@keyframes tailSway  { 0%, 100% { transform: rotate(-18deg); }     50% { transform: rotate(-31deg); } }
+@keyframes stepBack  { 0%, 100% { transform: rotate(24deg); }      50% { transform: rotate(-24deg); } }
+@keyframes stepFront { 0%, 100% { transform: rotate(-24deg); }     50% { transform: rotate(24deg); } }
+@keyframes swingBack { 0%, 100% { transform: rotate(-20deg); }     50% { transform: rotate(24deg); } }
+@keyframes swingFront{ 0%, 100% { transform: rotate(24deg); }      50% { transform: rotate(-20deg); } }
+
+@keyframes blinkPupil { 0%, 92%, 100% { transform: scaleY(1); } 96% { transform: scaleY(0.15); } }
+
+@keyframes flexPulse         { 0%, 100% { transform: scale(1); }            50% { transform: scale(1.09); } }
+@keyframes flexPulseFlipped  { 0%, 100% { transform: scaleX(-1) scale(1); } 50% { transform: scaleX(-1) scale(1.09); } }
+
+@keyframes coolNod { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-6deg); } }
+
+@keyframes stretchUp         { 0%, 100% { transform: scaleY(1) translateY(0); }            55% { transform: scaleY(1.2) translateY(-5px); } }
+@keyframes stretchUpFlipped  { 0%, 100% { transform: scaleX(-1) scaleY(1) translateY(0); } 55% { transform: scaleX(-1) scaleY(1.2) translateY(-5px); } }
+
+@keyframes weighShake        { 0%, 100% { transform: translateX(-2.5px) rotate(-3deg); } 50% { transform: translateX(2.5px) rotate(3deg); } }
+@keyframes weighShakeFlipped { 0%, 100% { transform: scaleX(-1) translateX(-2.5px) rotate(-3deg); } 50% { transform: scaleX(-1) translateX(2.5px) rotate(3deg); } }
+@keyframes eyePop            { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.16); } }
+
+@keyframes footprintFade {
+    0%   { opacity: 0.75; transform: scale(0.7); }
+    25%  { opacity: 0.6;  transform: scale(1); }
+    100% { opacity: 0;    transform: scale(1); }
+}
+
+/* เคารพการตั้งค่า Reduced Motion — หยุดแอนิเมชันทั้งหมดของมาสคอต
+   (JS จะตรวจค่านี้ด้วย แล้วให้กิ้งก่ายืนนิ่งอยู่มุมเดียว ไม่เดินวน) */
+@media (prefers-reduced-motion: reduce) {
+    .gecko *,
+    .gecko-inner,
+    .footprint {
+        animation: none !important;
+    }
+    .footprint { display: none; }
+}
+

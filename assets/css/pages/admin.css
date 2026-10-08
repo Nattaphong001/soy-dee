@@ -1,6 +1,6 @@
 /* ==============================================================================
    ADMIN PANEL — เรียบง่าย ใช้งานง่าย, แนวนอนเต็มจอบน PC, ย่อเป็นการ์ด/เมนูแนวนอนบนมือถือ
-   ใช้ token สี/รัศมี/เงาจาก assets/css/shared/style.css (โหลดก่อนไฟล์นี้) — ไม่พึ่ง profile.css
+   ใช้ token สี/รัศมี/เงาจาก assets/css/shared/*.css (โหลดก่อนไฟล์นี้) — ไม่พึ่ง profile.css
    โครงหน้า: .adm-shell > .adm-side (เมนู) + .adm-main > .adm-top (หัวข้อ) + .adm-content (เนื้อหาต่อแท็บ)
    ============================================================================== */
 
@@ -333,7 +333,7 @@ body.admin-page.mobile-body { display: block; background: var(--bg-page); }
 .adm-loading { text-align: center; padding: 30px; font-size: 13px; color: var(--text-muted); }
 
 /* ==============================================================================
-   Dialog (ต่อยอด .modal-overlay / .app-toast / .confirm-card ใน shared/style.css)
+   Dialog (ต่อยอด .modal-overlay / .app-toast / .confirm-card ใน shared/components.css)
    ============================================================================== */
 .adm-dialog {
     width: 100%;

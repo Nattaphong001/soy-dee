@@ -1,0 +1,110 @@
+/* ==============================================================================
+   ฟอนต์หลัก: ใช้ 'Prompt' (โหลดจาก Google Fonts ใน index.html) เป็นฟอนต์หลัก
+   เนื่องจากอ่านง่ายกว่าและรองรับภาษาไทยได้ดีกว่า KBank (local font) จึงย้ายมาไว้เป็น
+   ตัวเลือกแรก แต่ยังคง @font-face ของ KBank ไว้เผื่อมีไฟล์ฟอนต์ในโปรเจกต์จริง
+   ============================================================================== */
+@font-face {
+    font-family: 'KBank';
+    src: url('/assets/fonts/KBank.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Prompt', 'KBank', 'Noto Sans Thai', 'Inter', sans-serif;
+}
+
+.numeric {
+    font-family: 'Manrope', 'Inter', sans-serif;
+    font-variant-numeric: tabular-nums;
+}
+
+body.mobile-body {
+    background-color: var(--bg-page);
+    display: flex;
+    justify-content: center;
+    color: var(--text-main);
+    transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* ==============================================================================
+   BACKGROUND DECORATION — เพิ่มมิติให้พื้นหลัง แทนสีเรียบทึบเดิม
+   ------------------------------------------------------------------------------
+   - .bg-blob-a / .bg-blob-b = วงกลมไล่สีเบลอขนาดใหญ่ ลอยอยู่มุมบน/ล่าง (fixed
+     กับ viewport เพื่อให้ยังเห็นได้แม้เลื่อนหน้าจอ)
+   - .bg-dot-grid = ลายจุดจางๆ ให้พื้นผิวมีเท็กซ์เจอร์ ไม่โล่งจนเกินไป
+   - ทั้งหมด pointer-events: none และ z-index ต่ำกว่า .mobile-app เพื่อไม่บัง
+     หรือกันคลิก content จริง
+   - ปรับสี/ตำแหน่ง/ความเบลอได้ที่ตัวแปรด้านล่างนี้
+   ============================================================================== */
+.bg-blob-a,
+.bg-blob-b,
+.bg-dot-grid {
+    display: none; /* Clean Health-Tech: พื้นหลังเรียบ ไม่มีลวดลายตกแต่ง */
+}
+
+.bg-blob-a,
+.bg-blob-b {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(60px);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.bg-blob-a {
+    width: 320px;
+    height: 320px;
+    top: -120px;
+    left: -80px;
+    background: radial-gradient(circle, var(--accent-1) 0%, transparent 70%);
+    opacity: 0.16;
+}
+
+.bg-blob-b {
+    width: 380px;
+    height: 380px;
+    bottom: -140px;
+    right: -100px;
+    background: radial-gradient(circle, var(--accent-2) 0%, transparent 70%);
+    opacity: 0.14;
+}
+
+.dark-theme .bg-blob-a,
+.dark-theme .bg-blob-b {
+    opacity: 0.22;
+    filter: blur(70px);
+}
+
+.bg-dot-grid {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: radial-gradient(var(--text-muted) 1px, transparent 1px);
+    background-size: 22px 22px;
+    opacity: 0.06;
+}
+
+.mobile-app {
+    width: 100%;
+    max-width: 414px;
+    min-height: 100vh;
+    background-color: transparent;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 1;
+    padding: 0 0 110px 0;
+}
+

@@ -2,7 +2,7 @@
 
 ระบบติดตามและประเมินพฤติกรรมสุขภาพส่วนบุคคล — mobile web app ให้ผู้ใช้บันทึกอาหาร กิจกรรม และการนอน แล้วดูสรุปผลผ่านแดชบอร์ดที่มี "กิ้งก่า" (gecko) เป็น mascot เดินไปมาตามการ์ดสถิติต่างๆ
 
-> โปรเจคนี้เป็นฝั่ง **Frontend** เท่านั้น พัฒนาเป็น Vanilla HTML/CSS/JS ล้วน ไม่ใช้ framework คู่กับ Backend REST API แยกคนละ repository (Go + MySQL)
+> โปรเจคนี้เป็นฝั่ง **Frontend** เท่านั้น พัฒนาเป็น Vanilla HTML/CSS/JS ล้วน ไม่ใช้ framework คู่กับ Backend REST API แยกคนละ repository ([soy-dee-api](https://github.com/Nattaphong001/soy-dee-api), Go + MySQL)
 
 ## Tech Stack
 
@@ -49,7 +49,7 @@ MySQL
 
 ## วิธีรันโปรเจค
 
-**1) Backend** (repo แยก — ดู README ของ Soy-Dee_API)
+**1) Backend** (repo แยก — [Nattaphong001/soy-dee-api](https://github.com/Nattaphong001/soy-dee-api))
 
 ```bash
 go run ./cmd/api
@@ -66,3 +66,7 @@ npx serve .
 ```
 
 > ต้องรัน backend ให้ทำงานอยู่ก่อน เพราะหน้าเว็บเรียก API ที่ `http://localhost:8080/api/v1` ตรงตามที่ตั้งไว้ใน `assets/js/shared/api.js`
+
+## License
+
+MIT — ดูไฟล์ [LICENSE](LICENSE)

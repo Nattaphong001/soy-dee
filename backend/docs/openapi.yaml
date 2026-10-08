@@ -4,7 +4,7 @@ info:
   version: 1.0.0
   description: |
     Route inventory generated from internal/routes/router.go. Per-endpoint request/response
-    body schemas are not yet specified (see uploads/API_SPEC.md and internal/dto) — fill them
+    body schemas are not yet specified (see docs/API_SPEC.md and internal/dto) — fill them
     in per operation as the contract is formalised.
     Auth: `bearer` = JWT access token. `owner` = caller's mb_id must equal {id}, or caller is admin.
 servers:

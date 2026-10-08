@@ -1,6 +1,6 @@
 # Soy-Dee API
 
-RESTful JSON API for the Health Tracking Web App, per `API_SPEC.md`. Go + MySQL, chi router.
+RESTful JSON API for the Health Tracking Web App, per [`docs/API_SPEC.md`](docs/API_SPEC.md). Go + MySQL, chi router.
 
 ## Setup
 

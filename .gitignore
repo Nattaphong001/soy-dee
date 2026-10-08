@@ -11,3 +11,6 @@ testsprite_tests/tmp/config.json
 
 _archive/
 *.code-workspace
+
+CLAUDE.md
+.claude/

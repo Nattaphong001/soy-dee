@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 
+	"soydee-api/internal/domain"
 	"soydee-api/internal/models"
 	"soydee-api/pkg/utils"
 )
@@ -116,7 +117,7 @@ func (r *MemberRepository) CreateWithBodyStats(ctx context.Context, m *models.Me
 	}
 
 	recordDate := utils.Today()
-	result := utils.ComputeBMR(*m.MbGender, *m.MbBirthDate, recordDate,
+	result := domain.ComputeBMR(*m.MbGender, *m.MbBirthDate, recordDate,
 		*bs.MbsWeight, *bs.MbsHeight, *bs.MbsActivityLevel, *bs.MbsTarget)
 
 	const insertBmr = `

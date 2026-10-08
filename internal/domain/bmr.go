@@ -1,8 +1,9 @@
-package utils
+package domain
 
 import (
-	"math"
 	"time"
+
+	"soydee-api/pkg/utils"
 )
 
 // BMI evaluation enum values — mirrors models.BMIEval* (kept independent
@@ -31,7 +32,7 @@ func ComputeBMR(gender int, birthDate, recordDate time.Time, weightKg, heightCM,
 	age := AgeAt(birthDate, recordDate)
 	heightM := heightCM / 100
 
-	bmi := Round2(weightKg / (heightM * heightM))
+	bmi := utils.Round2(weightKg / (heightM * heightM))
 
 	var bmr float64
 	if gender == 1 {
@@ -39,9 +40,9 @@ func ComputeBMR(gender int, birthDate, recordDate time.Time, weightKg, heightCM,
 	} else {
 		bmr = 10*weightKg + 6.25*heightCM - 5*float64(age) - 161
 	}
-	bmr = Round2(bmr)
+	bmr = utils.Round2(bmr)
 
-	tdee := Round2(bmr * activityLevel)
+	tdee := utils.Round2(bmr * activityLevel)
 
 	var tdeeTarget float64
 	switch target {
@@ -55,7 +56,7 @@ func ComputeBMR(gender int, birthDate, recordDate time.Time, weightKg, heightCM,
 	default: // maintain
 		tdeeTarget = tdee
 	}
-	tdeeTarget = Round2(tdeeTarget)
+	tdeeTarget = utils.Round2(tdeeTarget)
 
 	return BMRResult{
 		BMI:        bmi,
@@ -89,9 +90,4 @@ func bmiEvalResult(bmi float64) int {
 	default:
 		return BMIEvalObese
 	}
-}
-
-// Round2 rounds to 2 decimal places (half away from zero).
-func Round2(v float64) float64 {
-	return math.Round(v*100) / 100
 }

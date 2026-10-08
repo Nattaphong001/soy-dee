@@ -10,3 +10,5 @@
 -- ==============================================================================
 -- ALTER TABLE daily_food_record
 --     ADD COLUMN dfd_amount VARCHAR(50) NULL COMMENT 'ปริมาณ/จำนวนที่กิน เช่น 1 จาน, 200 กรัม' AFTER dfd_food_name;
+
+SELECT 1; -- no-op marker so the file is never an empty query

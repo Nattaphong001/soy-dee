@@ -1,8 +1,8 @@
 -- ==============================================================================
 -- ระดับการใช้แรงของกิจกรรม (act_intensity) — หน้าบันทึกกิจกรรมใช้กำหนดสีของแต่ละกิจกรรม
 -- 1=เบา (เขียว) 2=ปานกลาง (เหลือง) 3=หนัก (ส้ม) 4=หนักมาก (แดง); กิจกรรมที่แอดมินเพิ่มใหม่ = 2
--- รันครั้งเดียวด้วยมือ (ไม่มี migration runner):
---   mysql -u root soydee --default-character-set=utf8mb4 < internal/database/migrations/0005_add_activity_intensity.sql
+-- รันผ่าน migration runner:
+--   (ใช้ go run ./cmd/migrate up แทนการรันมือ)
 -- ==============================================================================
 ALTER TABLE activity_master
     ADD COLUMN act_intensity TINYINT NOT NULL DEFAULT 2

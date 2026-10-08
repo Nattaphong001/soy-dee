@@ -1,8 +1,8 @@
 -- ==============================================================================
 -- แยกประเภทกิจกรรม (act_category) + ระยะทาง (เฉพาะกิจกรรมที่วัดระยะทางได้)
 -- หน้าเพิ่มรายการกิจกรรม: จัดกลุ่มตามประเภท และแสดงช่อง "ระยะทาง (กม.)" เฉพาะ act_has_distance = 1
--- รันครั้งเดียวด้วยมือ (ไม่มี migration runner):
---   mysql -u root soydee --default-character-set=utf8mb4 < internal/database/migrations/0004_add_activity_category_and_distance.sql
+-- รันผ่าน migration runner:
+--   (ใช้ go run ./cmd/migrate up แทนการรันมือ)
 -- ==============================================================================
 ALTER TABLE activity_master
     ADD COLUMN act_category TINYINT NOT NULL DEFAULT 5

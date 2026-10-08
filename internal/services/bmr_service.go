@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"time"
 
+	"soydee-api/internal/domain"
 	"soydee-api/internal/models"
 	"soydee-api/internal/repositories"
-	"soydee-api/pkg/utils"
 )
 
 // ErrIncompleteBodyData covers every precondition failure for BMR
@@ -61,7 +61,7 @@ func (s *BMRService) Calculate(ctx context.Context, mbID int, mbsID *int, record
 		return nil, ErrIncompleteBodyData
 	}
 
-	result := utils.ComputeBMR(*member.MbGender, *member.MbBirthDate, recordDate,
+	result := domain.ComputeBMR(*member.MbGender, *member.MbBirthDate, recordDate,
 		*bs.MbsWeight, *bs.MbsHeight, *bs.MbsActivityLevel, *bs.MbsTarget)
 
 	history := &models.MemberBmrHistory{

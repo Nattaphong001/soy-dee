@@ -1,8 +1,10 @@
-package utils
+package domain
 
 import (
 	"testing"
 	"time"
+
+	"soydee-api/pkg/utils"
 )
 
 func date(y int, m time.Month, d int) time.Time {
@@ -81,14 +83,14 @@ func TestComputeBMR_AgeRegression(t *testing.T) {
 func TestComputeBMR_TargetLoseWeight(t *testing.T) {
 	got := ComputeBMR(2, date(1995, time.January, 1), date(2026, time.January, 1), 60, 160, 1.375, 1)
 	wantBMR := 10*60.0 + 6.25*160 - 5*31 - 161
-	if got.BMR != Round2(wantBMR) {
-		t.Fatalf("BMR = %v, want %v", got.BMR, Round2(wantBMR))
+	if got.BMR != utils.Round2(wantBMR) {
+		t.Fatalf("BMR = %v, want %v", got.BMR, utils.Round2(wantBMR))
 	}
-	wantTDEE := Round2(got.BMR * 1.375)
+	wantTDEE := utils.Round2(got.BMR * 1.375)
 	if got.TDEE != wantTDEE {
 		t.Fatalf("TDEE = %v, want %v", got.TDEE, wantTDEE)
 	}
-	wantTarget := Round2(wantTDEE * 0.85)
+	wantTarget := utils.Round2(wantTDEE * 0.85)
 	if got.TDEETarget != wantTarget {
 		t.Errorf("TDEETarget (lose weight) = %v, want %v", got.TDEETarget, wantTarget)
 	}
@@ -105,7 +107,7 @@ func TestComputeBMR_TargetLoseWeight_FloorAtBMR(t *testing.T) {
 
 func TestComputeBMR_TargetGainMuscle(t *testing.T) {
 	got := ComputeBMR(1, date(2000, time.March, 3), date(2026, time.March, 3), 70, 175, 1.55, 2)
-	want := Round2(got.TDEE * 1.15)
+	want := utils.Round2(got.TDEE * 1.15)
 	if got.TDEETarget != want {
 		t.Errorf("TDEETarget (gain muscle) = %v, want %v", got.TDEETarget, want)
 	}

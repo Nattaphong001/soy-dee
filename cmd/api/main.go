@@ -55,7 +55,7 @@ func main() {
 
 	authService := services.NewAuthService(cfg, memberRepo, systemRepo)
 	bmrService := services.NewBMRService(memberRepo, bodyStatsRepo, bmrRepo)
-	reportService := services.NewReportService(db, bodyStatsRepo, bmrRepo)
+	reportService := services.NewReportService(repositories.NewReportRepository(db, bodyStatsRepo, bmrRepo))
 
 	masterImages := handlers.NewMasterImageStore("uploads")
 

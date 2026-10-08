@@ -1,4 +1,4 @@
-package services
+package repositories
 
 import (
 	"context"
@@ -62,7 +62,7 @@ func avgClock(minutes []int) *string {
 // MemberReport implements GET /members/{id}/report — one aggregated payload
 // (overview + body/food/activity/sleep breakdowns) for the member's own
 // report page over [from, to] (both local-midnight dates, inclusive).
-func (s *ReportService) MemberReport(ctx context.Context, mbID int, from, to time.Time) (*dto.MemberReportResponse, error) {
+func (s *ReportRepository) MemberReport(ctx context.Context, mbID int, from, to time.Time) (*dto.MemberReportResponse, error) {
 	days := int(math.Round(to.Sub(from).Hours()/24)) + 1
 	resp := &dto.MemberReportResponse{
 		Range: dto.MemberReportRange{From: from.Format(dateLayout), To: to.Format(dateLayout), Days: days},
@@ -123,7 +123,7 @@ func (s *ReportService) MemberReport(ctx context.Context, mbID int, from, to tim
 
 // loggedDates returns the set of dates in [from, to] on which the member
 // logged at least one food / activity / sleep record.
-func (s *ReportService) loggedDates(ctx context.Context, mbID int, from, to time.Time) (map[string]bool, error) {
+func (s *ReportRepository) loggedDates(ctx context.Context, mbID int, from, to time.Time) (map[string]bool, error) {
 	rows, err := s.db.QueryContext(ctx, `
 		SELECT d FROM (
 			SELECT dfd_date AS d FROM daily_food_record WHERE mb_id = ? AND dfd_date BETWEEN ? AND ?
@@ -148,7 +148,7 @@ func (s *ReportService) loggedDates(ctx context.Context, mbID int, from, to time
 	return set, rows.Err()
 }
 
-func (s *ReportService) reportBody(ctx context.Context, mbID int, from, to time.Time) (dto.MemberReportBody, error) {
+func (s *ReportRepository) reportBody(ctx context.Context, mbID int, from, to time.Time) (dto.MemberReportBody, error) {
 	out := dto.MemberReportBody{History: []dto.ReportBodyPoint{}}
 
 	const base = `
@@ -210,7 +210,7 @@ func (s *ReportService) reportBody(ctx context.Context, mbID int, from, to time.
 	return out, nil
 }
 
-func (s *ReportService) reportFood(ctx context.Context, mbID int, from, to time.Time) (dto.MemberReportFood, error) {
+func (s *ReportRepository) reportFood(ctx context.Context, mbID int, from, to time.Time) (dto.MemberReportFood, error) {
 	out := dto.MemberReportFood{
 		TopCategories: []dto.ReportFoodCategory{},
 		ByMeal:        []dto.ReportMealCount{{MealType: 1}, {MealType: 2}, {MealType: 3}, {MealType: 4}},
@@ -316,7 +316,7 @@ func (s *ReportService) reportFood(ctx context.Context, mbID int, from, to time.
 	return out, nil
 }
 
-func (s *ReportService) reportActivity(ctx context.Context, mbID int, from, to time.Time) (dto.MemberReportActivity, error) {
+func (s *ReportRepository) reportActivity(ctx context.Context, mbID int, from, to time.Time) (dto.MemberReportActivity, error) {
 	out := dto.MemberReportActivity{
 		Daily:         []dto.ReportActivityDay{},
 		ByCategory:    []dto.ReportActivityGroup{},
@@ -433,7 +433,7 @@ func (s *ReportService) reportActivity(ctx context.Context, mbID int, from, to t
 	return out, nil
 }
 
-func (s *ReportService) reportSleep(ctx context.Context, mbID int, from, to time.Time) (dto.MemberReportSleep, error) {
+func (s *ReportRepository) reportSleep(ctx context.Context, mbID int, from, to time.Time) (dto.MemberReportSleep, error) {
 	out := dto.MemberReportSleep{
 		ByEval:    make([]int, 3),
 		ByQuality: make([]int, 3),

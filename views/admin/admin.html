@@ -3,576 +3,408 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>จัดการข้อมูลพื้นฐาน - soy dee (Admin)</title>
+    <title>ระบบผู้ดูแล - soy dee</title>
     <link rel="stylesheet" href="/assets/css/shared/style.css">
-    <link rel="stylesheet" href="/assets/css/shared/profile.css">
     <link rel="stylesheet" href="/assets/css/pages/admin.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Theme init: เหมือนหน้าอื่นๆ เป๊ะ ป้องกันหน้าจอกระพริบตอนโหลด -->
+    <!-- Theme init: เหมือนหน้าอื่นๆ ป้องกันหน้าจอกระพริบตอนโหลด -->
     <script>
         (function () {
             try {
-                var saved = localStorage.getItem('theme');
-                if (saved === 'dark') {
-                    document.documentElement.classList.add('dark-theme');
-                }
+                if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark-theme');
             } catch (e) {}
         })();
     </script>
     <script src="/assets/js/shared/api.js"></script>
-    <script>
-        SoyDeeAPI.guardAdmin();
-    </script>
+    <script>SoyDeeAPI.guardAdmin();</script>
 </head>
-<body class="mobile-body admin-page">
-    <div class="bg-blob-a" aria-hidden="true"></div>
-    <div class="bg-blob-b" aria-hidden="true"></div>
-    <div class="bg-dot-grid" aria-hidden="true"></div>
+<body class="admin-page">
 
-    <!-- Sidebar: จอ ≥768px เท่านั้น (ซ่อนบนมือถือด้วย CSS) — ทำหน้าที่แทน .profile-tabs บนจอกว้าง -->
-    <aside class="admin-sidebar" id="adminSidebar">
-        <div class="sidebar-brand">
-            <span class="sidebar-brand-icon" aria-hidden="true">🦎</span>
-            <span class="sidebar-brand-text">soy dee</span>
-        </div>
-        <nav class="sidebar-nav" role="navigation">
-            <button type="button" class="sidebar-nav-item" data-sidebar-target="overview">
-                <span class="sidebar-nav-icon" aria-hidden="true">📊</span>
-                <span class="sidebar-nav-label" data-i18n="sidebar-overview">ภาพรวมระบบ</span>
-            </button>
-            <button type="button" class="sidebar-nav-item" data-sidebar-target="food">
-                <span class="sidebar-nav-icon" aria-hidden="true">🍽️</span>
-                <span class="sidebar-nav-label" data-i18n="sidebar-food">ประเภทอาหาร</span>
-            </button>
-            <button type="button" class="sidebar-nav-item" data-sidebar-target="activity">
-                <span class="sidebar-nav-icon" aria-hidden="true">⚡</span>
-                <span class="sidebar-nav-label" data-i18n="sidebar-activity">ประเภทกิจกรรม</span>
-            </button>
-            <button type="button" class="sidebar-nav-item" data-sidebar-target="members">
-                <span class="sidebar-nav-icon" aria-hidden="true">👥</span>
-                <span class="sidebar-nav-label" data-i18n="sidebar-members">ข้อมูลสมาชิก</span>
-            </button>
-            <button type="button" class="sidebar-nav-item" data-sidebar-target="reports">
-                <span class="sidebar-nav-icon" aria-hidden="true">📈</span>
-                <span class="sidebar-nav-label" data-i18n="sidebar-reports">รายงาน</span>
-            </button>
-            <button type="button" class="sidebar-nav-item" data-sidebar-target="account">
-                <span class="sidebar-nav-icon" aria-hidden="true">👤</span>
-                <span class="sidebar-nav-label" data-i18n="sidebar-account">บัญชีของฉัน</span>
-            </button>
-        </nav>
-        <button type="button" class="sidebar-nav-item sidebar-logout-btn" id="sidebarLogoutBtn">
-            <span class="sidebar-nav-icon" aria-hidden="true">🚪</span>
-            <span class="sidebar-nav-label" data-i18n="sidebar-logout">ออกจากระบบ</span>
-        </button>
-    </aside>
+    <!-- ไอคอนแบบเส้น (stroke) ใช้ร่วมทั้งหน้า: <svg class="ico"><use href="#i-xxx"/></svg> -->
+    <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+        <defs>
+            <symbol id="i-overview" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></symbol>
+            <symbol id="i-food" viewBox="0 0 24 24"><path d="M7 3v7a2 2 0 0 0 2 2v9"/><path d="M11 3v7a2 2 0 0 1-2 2"/><path d="M3 3v7a2 2 0 0 0 2 2"/><path d="M17 21V3c-2.5 1-4 3.5-4 7 0 2 1 3 2.5 3H17"/></symbol>
+            <symbol id="i-activity" viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></symbol>
+            <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.5 2.9-6 6.5-6s6.5 2.5 6.5 6"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8"/><path d="M18 14.3c2.3.7 3.5 2.6 3.5 5.7"/></symbol>
+            <symbol id="i-report" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 17v-3"/><path d="M12 17v-6"/><path d="M16 17v-2"/></symbol>
+            <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></symbol>
+            <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></symbol>
+            <symbol id="i-edit" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
+            <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></symbol>
+            <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></symbol>
+            <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></symbol>
+            <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></symbol>
+            <symbol id="i-pdf" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h2a1.5 1.5 0 0 1 0 3H8v-3z"/><path d="M8 16v2"/></symbol>
+            <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></symbol>
+            <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></symbol>
+            <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></symbol>
+            <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></symbol>
+            <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><path d="M12 16.5v.01"/></symbol>
+            <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+            <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+            <symbol id="i-empty" viewBox="0 0 24 24"><path d="M3 7l2-4h14l2 4"/><path d="M3 7v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7"/><path d="M3 7h5a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2h5"/></symbol>
+        </defs>
+    </svg>
 
-    <div class="mobile-app admin-app">
+    <div class="adm-shell">
 
-        <div class="top-section">
-            <header class="app-header">
-                <button class="back-btn" type="button" onclick="if (history.length > 1) history.back();" aria-label="ย้อนกลับ">🔙</button>
-                <div class="admin-title-block">
-                    <h1 class="page-title" data-i18n="page-title">จัดการข้อมูลพื้นฐาน</h1>
-                    <span class="admin-role-badge" data-i18n="role-badge">ผู้ดูแลระบบ</span>
+        <!-- เมนูหลัก: จอกว้าง = แถบด้านซ้าย / จอแคบ = แถบเลื่อนแนวนอนติดขอบบน -->
+        <aside class="adm-side">
+            <div class="adm-brand">
+                <span class="adm-brand-mark" aria-hidden="true">S</span>
+                <span class="adm-brand-text">soy dee <small data-i18n="role-badge">ผู้ดูแลระบบ</small></span>
+            </div>
+            <nav class="adm-nav" role="tablist" aria-label="เมนูผู้ดูแลระบบ">
+                <button type="button" class="adm-nav-item" role="tab" data-tab="overview">
+                    <svg class="ico" aria-hidden="true"><use href="#i-overview"/></svg><span data-i18n="nav-overview">ภาพรวม</span>
+                </button>
+                <button type="button" class="adm-nav-item" role="tab" data-tab="food">
+                    <svg class="ico" aria-hidden="true"><use href="#i-food"/></svg><span data-i18n="nav-food">ประเภทอาหาร</span>
+                </button>
+                <button type="button" class="adm-nav-item" role="tab" data-tab="activity">
+                    <svg class="ico" aria-hidden="true"><use href="#i-activity"/></svg><span data-i18n="nav-activity">ประเภทกิจกรรม</span>
+                </button>
+                <button type="button" class="adm-nav-item" role="tab" data-tab="members">
+                    <svg class="ico" aria-hidden="true"><use href="#i-users"/></svg><span data-i18n="nav-members">สมาชิก</span>
+                </button>
+                <button type="button" class="adm-nav-item" role="tab" data-tab="reports">
+                    <svg class="ico" aria-hidden="true"><use href="#i-report"/></svg><span data-i18n="nav-reports">รายงาน</span>
+                </button>
+                <button type="button" class="adm-nav-item" role="tab" data-tab="account">
+                    <svg class="ico" aria-hidden="true"><use href="#i-user"/></svg><span data-i18n="nav-account">บัญชีของฉัน</span>
+                </button>
+            </nav>
+        </aside>
+
+        <div class="adm-main">
+            <header class="adm-top">
+                <div class="adm-top-title">
+                    <h1 id="pageTitle">ภาพรวม</h1>
+                    <p id="pageSubtitle"></p>
                 </div>
-                <button class="back-btn" type="button" id="adminLogoutBtn" aria-label="ออกจากระบบ">🚪</button>
+                <div class="adm-top-actions">
+                    <span class="adm-whoami" id="whoami"></span>
+                    <button type="button" class="adm-btn adm-btn-ghost" id="adminLogoutBtn">
+                        <svg class="ico" aria-hidden="true"><use href="#i-logout"/></svg><span class="adm-hide-sm" data-i18n="btn-logout">ออกจากระบบ</span>
+                    </button>
+                </div>
             </header>
 
-            <!-- แท็บ: ประเภทอาหาร / ประเภทกิจกรรม -->
-            <div class="profile-tabs" role="tablist">
-                <button class="profile-tab active" data-tab="food" role="tab" aria-selected="true" data-i18n="tab-food">🍽️ ประเภทอาหาร</button>
-                <button class="profile-tab" data-tab="activity" role="tab" aria-selected="false" data-i18n="tab-activity">⚡ ประเภทกิจกรรม</button>
+            <div class="adm-alert" id="admAlert" role="alert" hidden>
+                <svg class="ico" aria-hidden="true"><use href="#i-alert"/></svg>
+                <span id="admAlertText"></span>
+                <button type="button" class="adm-alert-close" id="admAlertClose" aria-label="ปิด"><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></button>
             </div>
 
-            <!-- แถบค้นหา + ปุ่มเพิ่ม (ซ่อนตอนอยู่แท็บ "ข้อมูลสมาชิก" — อ่านอย่างเดียว ไม่มีปุ่มเพิ่ม/แก้ไข) -->
-            <div class="admin-toolbar" id="adminToolbar">
-                <div class="search-box">
-                    <span class="search-icon" aria-hidden="true">🔍</span>
-                    <input type="text" class="search-input" id="searchInput" placeholder="ค้นหาชื่อ..." data-i18n-placeholder="placeholder-search">
-                </div>
-                <button class="add-item-btn" type="button" id="addItemBtn">
-                    <span aria-hidden="true">＋</span> <span data-i18n="btn-add">เพิ่ม</span>
-                </button>
-            </div>
+            <main class="adm-content">
 
-            <!-- ข้อผิดพลาดจากการลบ (เช่น 409 CONFLICT ยังมีข้อมูลอ้างอิงอยู่) -->
-            <div class="sheet-error" id="listActionError" style="padding: 0 20px 8px 20px;" hidden></div>
-        </div>
-
-        <main class="app-content">
-
-            <!-- ============== แท็บ 1: ประเภทอาหาร ============== -->
-            <section class="tab-panel" id="tab-food" data-tab-panel="food">
-                <div class="list-summary" id="foodSummary">ทั้งหมด 0 รายการ</div>
-                <div class="item-table-head" aria-hidden="true">
-                    <span></span>
-                    <span data-i18n="table-col-name">ชื่อ</span>
-                    <span data-i18n="table-col-traffic">เกณฑ์สี</span>
-                    <span data-i18n="table-col-usage">จำนวนที่ถูกใช้</span>
-                    <span data-i18n="table-col-actions">จัดการ</span>
-                </div>
-                <div class="item-list" id="foodList"></div>
-                <div class="pagination-bar" id="foodPagination" hidden>
-                    <button type="button" class="page-btn" id="foodPrevBtn" aria-label="ก่อนหน้า">‹</button>
-                    <span class="page-info" id="foodPageInfo"></span>
-                    <button type="button" class="page-btn" id="foodNextBtn" aria-label="ถัดไป">›</button>
-                </div>
-                <div class="empty-state" id="foodEmpty" hidden>
-                    <div class="empty-icon">🍽️</div>
-                    <p class="empty-title">ยังไม่มีประเภทอาหารในระบบ</p>
-                    <p class="empty-desc">กดปุ่ม “+ เพิ่ม” ด้านบนเพื่อเริ่มเพิ่มประเภทอาหาร</p>
-                </div>
-            </section>
-
-            <!-- ============== แท็บ 2: ประเภทกิจกรรม ============== -->
-            <section class="tab-panel" id="tab-activity" data-tab-panel="activity" hidden>
-                <div class="list-summary" id="activitySummary">ทั้งหมด 0 รายการ</div>
-                <div class="item-table-head" aria-hidden="true">
-                    <span></span>
-                    <span data-i18n="table-col-name">ชื่อ</span>
-                    <span data-i18n="table-col-category">ประเภท</span>
-                    <span data-i18n="table-col-usage">จำนวนที่ถูกใช้</span>
-                    <span data-i18n="table-col-actions">จัดการ</span>
-                </div>
-                <div class="item-list" id="activityList"></div>
-                <div class="pagination-bar" id="activityPagination" hidden>
-                    <button type="button" class="page-btn" id="activityPrevBtn" aria-label="ก่อนหน้า">‹</button>
-                    <span class="page-info" id="activityPageInfo"></span>
-                    <button type="button" class="page-btn" id="activityNextBtn" aria-label="ถัดไป">›</button>
-                </div>
-                <div class="empty-state" id="activityEmpty" hidden>
-                    <div class="empty-icon">⚡</div>
-                    <p class="empty-title">ยังไม่มีประเภทกิจกรรมในระบบ</p>
-                    <p class="empty-desc">กดปุ่ม “+ เพิ่ม” ด้านบนเพื่อเริ่มเพิ่มประเภทกิจกรรม</p>
-                </div>
-            </section>
-
-            <!-- ============== แท็บ 3: ข้อมูลสมาชิก (อ่านอย่างเดียว) ============== -->
-            <section class="tab-panel" id="tab-members" data-tab-panel="members" hidden>
-                <div class="member-filter-bar">
-                    <div class="search-box">
-                        <span class="search-icon" aria-hidden="true">🔍</span>
-                        <input type="text" class="search-input" id="memberSearchInput" placeholder="ค้นหาชื่อ..." data-i18n-placeholder="placeholder-search">
-                    </div>
-                    <select class="filter-select" id="memberFilterGender">
-                        <option value="" data-i18n="filter-gender-all">เพศทั้งหมด</option>
-                        <option value="1" data-i18n="filter-gender-male">ชาย</option>
-                        <option value="2" data-i18n="filter-gender-female">หญิง</option>
-                    </select>
-                    <select class="filter-select" id="memberFilterBmi">
-                        <option value="" data-i18n="filter-bmi-all">BMI ทั้งหมด</option>
-                        <option value="1" data-i18n="bmi-eval-1">ผอม</option>
-                        <option value="2" data-i18n="bmi-eval-2">ปกติ</option>
-                        <option value="3" data-i18n="bmi-eval-3">ท้วม</option>
-                        <option value="4" data-i18n="bmi-eval-4">อ้วน</option>
-                    </select>
-                    <input type="date" class="filter-date" id="memberFilterDateFrom" aria-label="วันที่สมัครตั้งแต่">
-                    <span class="filter-date-sep" aria-hidden="true">–</span>
-                    <input type="date" class="filter-date" id="memberFilterDateTo" aria-label="วันที่สมัครถึง">
-                </div>
-
-                <div class="list-summary" id="memberSummary">ทั้งหมด 0 คน</div>
-
-                <div class="member-table-wrap" id="memberTableWrap">
-                    <table class="member-table">
-                        <thead>
-                            <tr>
-                                <th data-i18n="member-col-name">ชื่อ</th>
-                                <th data-i18n="member-col-username">Username</th>
-                                <th data-i18n="member-col-gender">เพศ</th>
-                                <th data-i18n="member-col-age">อายุ</th>
-                                <th data-i18n="member-col-weight-height">น้ำหนัก/ส่วนสูง</th>
-                                <th data-i18n="member-col-bmi">BMI</th>
-                                <th data-i18n="member-col-target">เป้าหมาย</th>
-                                <th data-i18n="member-col-created">วันสมัคร</th>
-                            </tr>
-                        </thead>
-                        <tbody id="memberTableBody"></tbody>
-                    </table>
-                </div>
-
-                <div class="pagination-bar" id="memberPagination" hidden>
-                    <button type="button" class="page-btn" id="memberPrevBtn" aria-label="ก่อนหน้า">‹</button>
-                    <span class="page-info" id="memberPageInfo"></span>
-                    <button type="button" class="page-btn" id="memberNextBtn" aria-label="ถัดไป">›</button>
-                </div>
-
-                <div class="empty-state" id="memberEmpty" hidden>
-                    <div class="empty-icon">👥</div>
-                    <p class="empty-title" data-i18n="empty-members-title">ไม่พบข้อมูลสมาชิกที่ตรงกับตัวกรอง</p>
-                </div>
-            </section>
-
-            <!-- ============== แท็บ 4: รายงานตามเงื่อนไข ============== -->
-            <section class="tab-panel" id="tab-reports" data-tab-panel="reports" hidden>
-                <div class="report-type-bar">
-                    <select class="filter-select" id="reportTypeSelect">
-                        <option value="nutrition" data-i18n="report-type-nutrition">ภาวะโภชนาการ (BMI)</option>
-                        <option value="food" data-i18n="report-type-food">พฤติกรรมการบริโภค</option>
-                        <option value="activity" data-i18n="report-type-activity">กิจกรรม</option>
-                        <option value="sleep" data-i18n="report-type-sleep">การนอน</option>
-                    </select>
-                </div>
-
-                <!-- รายงานภาวะโภชนาการ (BMI) -->
-                <div class="report-body" id="reportBodyNutrition">
-                    <div class="member-filter-bar">
-                        <select class="filter-select" id="reportNutritionGender">
-                            <option value="" data-i18n="filter-gender-all">เพศทั้งหมด</option>
-                            <option value="1" data-i18n="filter-gender-male">ชาย</option>
-                            <option value="2" data-i18n="filter-gender-female">หญิง</option>
-                        </select>
-                        <select class="filter-select" id="reportNutritionEval">
-                            <option value="" data-i18n="filter-bmi-all">BMI ทั้งหมด</option>
-                            <option value="1" data-i18n="bmi-eval-1">ผอม</option>
-                            <option value="2" data-i18n="bmi-eval-2">ปกติ</option>
-                            <option value="3" data-i18n="bmi-eval-3">ท้วม</option>
-                            <option value="4" data-i18n="bmi-eval-4">อ้วน</option>
-                        </select>
-                        <input type="date" class="filter-date" id="reportNutritionDateFrom" aria-label="จากวันที่">
-                        <span class="filter-date-sep" aria-hidden="true">–</span>
-                        <input type="date" class="filter-date" id="reportNutritionDateTo" aria-label="ถึงวันที่">
-                    </div>
-
-                    <div class="report-actions">
-                        <button type="button" class="page-btn report-action-btn" id="reportNutritionExportCsvBtn" data-i18n="btn-export-csv">ส่งออก CSV</button>
-                        <button type="button" class="page-btn report-action-btn" id="reportNutritionPrintBtn" data-i18n="btn-print">พิมพ์</button>
-                    </div>
-
-                    <div class="report-summary-cards" id="reportNutritionSummaryCards"></div>
-
-                    <div class="report-chart-wrap">
-                        <svg id="reportNutritionChartSvg" class="report-chart" viewBox="0 0 460 200" preserveAspectRatio="xMidYMid meet" role="img" aria-label="กราฟแท่งสัดส่วนภาวะโภชนาการ"></svg>
-                    </div>
-
-                    <div class="member-table-wrap" id="reportNutritionTableWrap">
-                        <table class="member-table">
-                            <thead>
-                                <tr>
-                                    <th data-i18n="report-col-category">เกณฑ์ BMI</th>
-                                    <th data-i18n="report-col-count">จำนวน</th>
-                                    <th data-i18n="report-col-percent">%</th>
-                                </tr>
-                            </thead>
-                            <tbody id="reportNutritionTableBody"></tbody>
-                        </table>
-                    </div>
-
-                    <div class="empty-state" id="reportNutritionEmpty" hidden>
-                        <div class="empty-icon">📈</div>
-                        <p class="empty-title" data-i18n="report-empty-title">ไม่มีข้อมูลในช่วงที่เลือก</p>
-                    </div>
-                </div>
-
-                <!-- รายงานพฤติกรรมการบริโภค -->
-                <div class="report-body" id="reportBodyFood" hidden>
-                    <div class="member-filter-bar">
-                        <select class="filter-select" id="reportFoodMealType">
-                            <option value="" data-i18n="filter-meal-all">มื้อทั้งหมด</option>
-                            <option value="1" data-i18n="filter-meal-breakfast">เช้า</option>
-                            <option value="2" data-i18n="filter-meal-lunch">กลางวัน</option>
-                            <option value="3" data-i18n="filter-meal-dinner">เย็น</option>
-                            <option value="4" data-i18n="filter-meal-snack">ของว่าง</option>
-                        </select>
-                        <select class="filter-select" id="reportFoodTrafficLight">
-                            <option value="" data-i18n="filter-traffic-all">สีทั้งหมด</option>
-                            <option value="1" data-i18n="traffic-green">🟢 เขียว</option>
-                            <option value="2" data-i18n="traffic-yellow">🟡 เหลือง</option>
-                            <option value="3" data-i18n="traffic-red">🔴 แดง</option>
-                        </select>
-                        <input type="date" class="filter-date" id="reportFoodDateFrom" aria-label="จากวันที่">
-                        <span class="filter-date-sep" aria-hidden="true">–</span>
-                        <input type="date" class="filter-date" id="reportFoodDateTo" aria-label="ถึงวันที่">
-                    </div>
-
-                    <div class="report-actions">
-                        <button type="button" class="page-btn report-action-btn" id="reportFoodExportCsvBtn" data-i18n="btn-export-csv">ส่งออก CSV</button>
-                        <button type="button" class="page-btn report-action-btn" id="reportFoodPrintBtn" data-i18n="btn-print">พิมพ์</button>
-                    </div>
-
-                    <div class="report-summary-cards" id="reportFoodSummaryCards"></div>
-
-                    <div class="report-chart-wrap">
-                        <svg id="reportFoodChartSvg" class="report-chart" viewBox="0 0 460 200" preserveAspectRatio="xMidYMid meet" role="img" aria-label="กราฟแท่งสัดส่วนสีโภชนาการ"></svg>
-                    </div>
-
-                    <div class="list-summary" id="reportFoodTopTitle" data-i18n="report-top-food-title">ท็อป 5 ประเภทอาหารที่บันทึกบ่อยที่สุด</div>
-                    <div class="member-table-wrap" id="reportFoodTableWrap">
-                        <table class="member-table">
-                            <thead>
-                                <tr>
-                                    <th data-i18n="report-col-food-category">ประเภทอาหาร</th>
-                                    <th data-i18n="report-col-record-count">จำนวนครั้งที่บันทึก</th>
-                                </tr>
-                            </thead>
-                            <tbody id="reportFoodTableBody"></tbody>
-                        </table>
-                    </div>
-
-                    <div class="empty-state" id="reportFoodEmpty" hidden>
-                        <div class="empty-icon">📈</div>
-                        <p class="empty-title" data-i18n="report-empty-title">ไม่มีข้อมูลในช่วงที่เลือก</p>
-                    </div>
-                </div>
-
-                <!-- รายงานกิจกรรม/ออกกำลังกาย -->
-                <div class="report-body" id="reportBodyActivity" hidden>
-                    <div class="member-filter-bar">
-                        <select class="filter-select" id="reportActivityId">
-                            <option value="" data-i18n="filter-activity-all">กิจกรรมทั้งหมด</option>
-                        </select>
-                        <input type="date" class="filter-date" id="reportActivityDateFrom" aria-label="จากวันที่">
-                        <span class="filter-date-sep" aria-hidden="true">–</span>
-                        <input type="date" class="filter-date" id="reportActivityDateTo" aria-label="ถึงวันที่">
-                    </div>
-
-                    <div class="report-actions">
-                        <button type="button" class="page-btn report-action-btn" id="reportActivityExportCsvBtn" data-i18n="btn-export-csv">ส่งออก CSV</button>
-                        <button type="button" class="page-btn report-action-btn" id="reportActivityPrintBtn" data-i18n="btn-print">พิมพ์</button>
-                    </div>
-
-                    <div class="report-summary-cards" id="reportActivitySummaryCards"></div>
-
-                    <div class="report-chart-wrap">
-                        <svg id="reportActivityChartSvg" class="report-chart" viewBox="0 0 460 200" preserveAspectRatio="xMidYMid meet" role="img" aria-label="กราฟแท่งท็อปกิจกรรม"></svg>
-                    </div>
-
-                    <div class="member-table-wrap" id="reportActivityTableWrap">
-                        <table class="member-table">
-                            <thead>
-                                <tr>
-                                    <th data-i18n="report-col-activity">กิจกรรม</th>
-                                    <th data-i18n="report-col-record-count">จำนวนครั้งที่บันทึก</th>
-                                </tr>
-                            </thead>
-                            <tbody id="reportActivityTableBody"></tbody>
-                        </table>
-                    </div>
-
-                    <div class="empty-state" id="reportActivityEmpty" hidden>
-                        <div class="empty-icon">📈</div>
-                        <p class="empty-title" data-i18n="report-empty-title">ไม่มีข้อมูลในช่วงที่เลือก</p>
-                    </div>
-                </div>
-
-                <!-- รายงานพฤติกรรมการนอน -->
-                <div class="report-body" id="reportBodySleep" hidden>
-                    <div class="member-filter-bar">
-                        <select class="filter-select" id="reportSleepEval">
-                            <option value="" data-i18n="filter-sleep-eval-all">ผลประเมินทั้งหมด</option>
-                            <option value="1" data-i18n="filter-sleep-eval-low">น้อยเกินไป</option>
-                            <option value="2" data-i18n="filter-sleep-eval-ok">พอดี</option>
-                            <option value="3" data-i18n="filter-sleep-eval-high">มากเกินไป</option>
-                        </select>
-                        <input type="date" class="filter-date" id="reportSleepDateFrom" aria-label="จากวันที่">
-                        <span class="filter-date-sep" aria-hidden="true">–</span>
-                        <input type="date" class="filter-date" id="reportSleepDateTo" aria-label="ถึงวันที่">
-                    </div>
-
-                    <div class="report-actions">
-                        <button type="button" class="page-btn report-action-btn" id="reportSleepExportCsvBtn" data-i18n="btn-export-csv">ส่งออก CSV</button>
-                        <button type="button" class="page-btn report-action-btn" id="reportSleepPrintBtn" data-i18n="btn-print">พิมพ์</button>
-                    </div>
-
-                    <div class="report-summary-cards" id="reportSleepSummaryCards"></div>
-
-                    <div class="report-chart-wrap">
-                        <svg id="reportSleepChartSvg" class="report-chart" viewBox="0 0 460 200" preserveAspectRatio="xMidYMid meet" role="img" aria-label="กราฟแท่งสัดส่วนคุณภาพการนอน"></svg>
-                    </div>
-
-                    <div class="member-table-wrap" id="reportSleepTableWrap">
-                        <table class="member-table">
-                            <thead>
-                                <tr>
-                                    <th data-i18n="report-col-sleep-quality">คุณภาพการนอน</th>
-                                    <th data-i18n="report-col-count">จำนวน</th>
-                                    <th data-i18n="report-col-percent">%</th>
-                                </tr>
-                            </thead>
-                            <tbody id="reportSleepTableBody"></tbody>
-                        </table>
-                    </div>
-
-                    <div class="empty-state" id="reportSleepEmpty" hidden>
-                        <div class="empty-icon">📈</div>
-                        <p class="empty-title" data-i18n="report-empty-title">ไม่มีข้อมูลในช่วงที่เลือก</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ============== แท็บ 5: ภาพรวมระบบ ============== -->
-            <section class="tab-panel" id="tab-overview" data-tab-panel="overview" hidden>
-                <div class="report-summary-cards" id="overviewStatCards"></div>
-
-                <div class="report-chart-wrap">
-                    <div class="report-chart-legend" id="overviewChartLegend"></div>
-                    <svg id="overviewChartSvg" class="report-chart" viewBox="0 0 460 220" preserveAspectRatio="xMidYMid meet" role="img" aria-label="กราฟแท่งกลุ่มจำนวนบันทึก 7 วันล่าสุด"></svg>
-                </div>
-            </section>
-
-            <!-- ============== แท็บ 6: บัญชีของฉัน (แอดมิน) ==============
-                 โครงเดียวกับแท็บ "บัญชี" ที่ views/user/profile.html — ไม่มีแท็บ
-                 "ข้อมูลร่างกาย" เพราะ system_data ไม่มีเพศ/วันเกิด/BMI (SOYDEE_AI_TASK.md ข้อ 5) -->
-            <section class="tab-panel" id="tab-account" data-tab-panel="account" hidden>
-
-                <div class="profile-avatar-edit">
-                    <div class="profile-avatar-lg" id="adminAvatarBox">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <circle cx="12" cy="8" r="4"></circle>
-                            <path d="M4 20c0-3.9 3.6-7 8-7s8 3.1 8 7"></path>
-                        </svg>
-                    </div>
-                    <button class="avatar-edit-btn" type="button" id="adminAvatarEditBtn" data-i18n="avatar-edit-btn">เปลี่ยนรูปโปรไฟล์</button>
-                    <input type="file" id="adminAvatarFileInput" accept="image/jpeg,image/jpg,image/png,image/webp" hidden>
-                </div>
-
-                <div class="form-card">
-                    <label class="form-field">
-                        <span class="form-label" data-i18n="label-display-name">ชื่อที่แสดง</span>
-                        <input type="text" class="form-input" id="adminDisplayName" value="" placeholder="ชื่อของคุณ" data-i18n-placeholder="placeholder-display-name">
-                    </label>
-                    <label class="form-field">
-                        <span class="form-label" data-i18n="label-username">ชื่อผู้ใช้ (Username)</span>
-                        <input type="text" class="form-input" id="adminUsername" value="" placeholder="username" data-i18n-placeholder="placeholder-username" disabled title="เปลี่ยนชื่อผู้ใช้ไม่ได้">
-                    </label>
-                    <button class="form-link-btn" type="button" id="adminChangePasswordBtn" data-i18n="link-change-password">เปลี่ยนรหัสผ่าน</button>
-                </div>
-
-                <div class="sheet-error" id="adminAccountError" hidden></div>
-
-                <div class="form-card">
-                    <div class="settings-row">
-                        <div>
-                            <div class="settings-row-title" data-i18n="settings-dark-title">โหมดมืด</div>
-                            <div class="settings-row-desc" data-i18n="settings-dark-desc">ปรับหน้าจอให้สบายตาในที่มืด</div>
+                <!-- ============== ภาพรวม ============== -->
+                <section class="adm-panel" data-tab-panel="overview" hidden>
+                    <div class="kpi-grid" id="overviewKpis"></div>
+                    <div class="adm-card">
+                        <div class="adm-card-head">
+                            <h2 data-i18n="overview-chart-title">บันทึกของสมาชิก 7 วันล่าสุด</h2>
+                            <div class="legend" id="overviewLegend"></div>
                         </div>
-                        <button class="switch" id="adminThemeSwitch" type="button" role="switch" aria-checked="false" aria-label="สลับโหมดมืด">
-                            <span class="switch-knob"></span>
+                        <div class="col-chart" id="overviewChart"></div>
+                    </div>
+                </section>
+
+                <!-- ============== ประเภทอาหาร ============== -->
+                <section class="adm-panel" data-tab-panel="food" hidden>
+                    <div class="adm-toolbar">
+                        <div class="adm-search">
+                            <svg class="ico" aria-hidden="true"><use href="#i-search"/></svg>
+                            <input type="search" id="foodSearch" placeholder="ค้นหาชื่อ..." data-i18n-placeholder="placeholder-search" autocomplete="off">
+                        </div>
+                        <select class="adm-select" id="foodFilter" aria-label="เกณฑ์สี"></select>
+                        <button type="button" class="adm-btn adm-btn-primary" id="foodAddBtn">
+                            <svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg><span data-i18n="btn-add-food">เพิ่มประเภทอาหาร</span>
                         </button>
                     </div>
-                    <div class="settings-row">
-                        <div>
-                            <div class="settings-row-title" data-i18n="settings-lang-title">ภาษา</div>
-                            <div class="settings-row-desc" data-i18n="settings-lang-desc">เลือกภาษาที่ใช้ในแอป</div>
+                    <div class="adm-card">
+                        <div class="adm-table-wrap">
+                            <table class="adm-table adm-stack" id="foodTable">
+                                <thead>
+                                    <tr>
+                                        <th class="c-img"></th>
+                                        <th class="c-name" data-i18n="col-name">ชื่อ</th>
+                                        <th class="c-tag" data-i18n="col-traffic">เกณฑ์สี</th>
+                                        <th class="c-use num" data-i18n="col-usage">ถูกใช้ (ครั้ง)</th>
+                                        <th class="c-act" data-i18n="col-actions">จัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="foodBody"></tbody>
+                            </table>
                         </div>
-                        <button class="lang-select" id="adminLangToggle" type="button" aria-label="สลับภาษา">TH</button>
+                        <div class="adm-empty" id="foodEmpty" hidden></div>
+                        <div class="adm-pager" id="foodPager"></div>
                     </div>
-                </div>
+                </section>
 
-                <button class="save-btn" type="button" id="adminSaveProfileBtn" data-i18n="save-btn">บันทึกการเปลี่ยนแปลง</button>
-            </section>
+                <!-- ============== ประเภทกิจกรรม ============== -->
+                <section class="adm-panel" data-tab-panel="activity" hidden>
+                    <div class="adm-toolbar">
+                        <div class="adm-search">
+                            <svg class="ico" aria-hidden="true"><use href="#i-search"/></svg>
+                            <input type="search" id="activitySearch" placeholder="ค้นหาชื่อ..." data-i18n-placeholder="placeholder-search" autocomplete="off">
+                        </div>
+                        <select class="adm-select" id="activityFilter" aria-label="ประเภทกิจกรรม"></select>
+                        <button type="button" class="adm-btn adm-btn-primary" id="activityAddBtn">
+                            <svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg><span data-i18n="btn-add-activity">เพิ่มประเภทกิจกรรม</span>
+                        </button>
+                    </div>
+                    <div class="adm-card">
+                        <div class="adm-table-wrap">
+                            <table class="adm-table adm-stack" id="activityTable">
+                                <thead>
+                                    <tr>
+                                        <th class="c-img"></th>
+                                        <th class="c-name" data-i18n="col-name">ชื่อ</th>
+                                        <th class="c-cat" data-i18n="col-category">ประเภท</th>
+                                        <th class="c-lvl" data-i18n="col-intensity">ระดับการใช้แรง</th>
+                                        <th class="c-dist" data-i18n="col-distance">ระยะทาง</th>
+                                        <th class="c-use num" data-i18n="col-usage">ถูกใช้ (ครั้ง)</th>
+                                        <th class="c-act" data-i18n="col-actions">จัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="activityBody"></tbody>
+                            </table>
+                        </div>
+                        <div class="adm-empty" id="activityEmpty" hidden></div>
+                        <div class="adm-pager" id="activityPager"></div>
+                    </div>
+                </section>
 
-        </main>
-    </div>
+                <!-- ============== สมาชิก (อ่านอย่างเดียว) ============== -->
+                <section class="adm-panel" data-tab-panel="members" hidden>
+                    <div class="adm-toolbar adm-toolbar-wrap">
+                        <div class="adm-search">
+                            <svg class="ico" aria-hidden="true"><use href="#i-search"/></svg>
+                            <input type="search" id="memberSearch" placeholder="ค้นหาชื่อ / username..." data-i18n-placeholder="placeholder-search-member" autocomplete="off">
+                        </div>
+                        <select class="adm-select" id="memberGender" aria-label="เพศ"></select>
+                        <select class="adm-select" id="memberBmi" aria-label="BMI"></select>
+                        <div class="adm-daterange">
+                            <label class="adm-field-inline"><span data-i18n="filter-joined-from">สมัครตั้งแต่</span><input type="date" class="adm-input" id="memberFrom"></label>
+                            <label class="adm-field-inline"><span data-i18n="filter-to">ถึง</span><input type="date" class="adm-input" id="memberTo"></label>
+                        </div>
+                        <button type="button" class="adm-btn adm-btn-ghost" id="memberReset" data-i18n="btn-reset">ล้างตัวกรอง</button>
+                    </div>
+                    <div class="adm-card">
+                        <div class="adm-table-wrap">
+                            <table class="adm-table adm-stack adm-clickable" id="memberTable">
+                                <thead>
+                                    <tr>
+                                        <th class="c-name" data-i18n="col-name">ชื่อ</th>
+                                        <th class="c-gender" data-i18n="col-gender">เพศ</th>
+                                        <th class="c-age num" data-i18n="col-age">อายุ</th>
+                                        <th class="c-body num" data-i18n="col-body">น้ำหนัก / ส่วนสูง</th>
+                                        <th class="c-bmi" data-i18n="col-bmi">BMI</th>
+                                        <th class="c-target" data-i18n="col-target">เป้าหมาย</th>
+                                        <th class="c-date" data-i18n="col-joined">วันที่สมัคร</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="memberBody"></tbody>
+                            </table>
+                        </div>
+                        <div class="adm-empty" id="memberEmpty" hidden></div>
+                        <div class="adm-pager" id="memberPager"></div>
+                    </div>
+                </section>
 
-    <!-- ============== Modal: เปลี่ยนรหัสผ่านแอดมิน ============== -->
-    <div class="modal-overlay" id="adminPasswordModalOverlay">
-        <div class="password-sheet-card">
-            <h2 class="sheet-title" data-i18n="pwd-title">เปลี่ยนรหัสผ่าน</h2>
+                <!-- ============== รายงาน ============== -->
+                <section class="adm-panel" data-tab-panel="reports" hidden>
+                    <div class="adm-toolbar adm-no-print">
+                        <div class="seg" id="reportSeg" role="tablist" aria-label="ประเภทรายงาน"></div>
+                        <div class="adm-toolbar-spacer"></div>
+                        <button type="button" class="adm-btn adm-btn-primary" id="reportPdfBtn">
+                            <svg class="ico" aria-hidden="true"><use href="#i-pdf"/></svg><span data-i18n="btn-pdf">ส่งออก PDF</span>
+                        </button>
+                    </div>
 
-            <label class="form-field">
-                <span class="form-label" data-i18n="pwd-current">รหัสผ่านปัจจุบัน</span>
-                <input type="password" class="form-input" id="adminPwdCurrent" autocomplete="current-password">
-            </label>
-            <label class="form-field">
-                <span class="form-label" data-i18n="pwd-new">รหัสผ่านใหม่</span>
-                <input type="password" class="form-input" id="adminPwdNew" autocomplete="new-password">
-            </label>
-            <label class="form-field">
-                <span class="form-label" data-i18n="pwd-confirm">ยืนยันรหัสผ่านใหม่</span>
-                <input type="password" class="form-input" id="adminPwdConfirmNew" autocomplete="new-password">
-            </label>
+                    <div class="adm-card adm-filters adm-no-print" id="reportFilters"></div>
 
-            <div class="sheet-error" id="adminPwdError" hidden></div>
+                    <!-- พื้นที่ที่ถูกพิมพ์/บันทึกเป็น PDF -->
+                    <article class="rp-doc" id="reportDoc">
+                        <header class="rp-print-head">
+                            <div class="rp-print-brand"><span class="adm-brand-mark" aria-hidden="true">S</span><strong>soy dee</strong></div>
+                            <h1 id="rpTitle"></h1>
+                            <dl class="rp-meta" id="rpMeta"></dl>
+                        </header>
+                        <div id="reportBody"></div>
+                        <footer class="rp-print-foot" id="rpFoot"></footer>
+                    </article>
+                </section>
 
-            <div class="sheet-actions">
-                <button type="button" class="save-btn" id="adminPwdSaveBtn" data-i18n="pwd-save">บันทึกรหัสผ่านใหม่</button>
-                <button type="button" class="form-link-btn" id="adminPwdCancelBtn" data-i18n="pwd-cancel">ยกเลิก</button>
-            </div>
+                <!-- ============== บัญชีของฉัน ============== -->
+                <section class="adm-panel" data-tab-panel="account" hidden>
+                    <div class="acct-grid">
+                        <div class="adm-card acct-card">
+                            <div class="acct-avatar-row">
+                                <div class="acct-avatar" id="adminAvatarBox"><svg class="ico" aria-hidden="true"><use href="#i-user"/></svg></div>
+                                <div>
+                                    <button type="button" class="adm-btn adm-btn-ghost" id="adminAvatarEditBtn" data-i18n="btn-change-photo">เปลี่ยนรูปโปรไฟล์</button>
+                                    <p class="adm-hint" data-i18n="hint-photo">jpg, png หรือ webp ไม่เกิน 5MB</p>
+                                    <input type="file" id="adminAvatarFileInput" accept="image/jpeg,image/png,image/webp" hidden>
+                                </div>
+                            </div>
+                            <label class="adm-field">
+                                <span data-i18n="label-display-name">ชื่อที่แสดง</span>
+                                <input type="text" class="adm-input" id="adminDisplayName" maxlength="100" data-i18n-placeholder="placeholder-display-name" placeholder="ชื่อของคุณ">
+                            </label>
+                            <label class="adm-field">
+                                <span data-i18n="label-username">ชื่อผู้ใช้ (Username)</span>
+                                <input type="text" class="adm-input" id="adminUsername" maxlength="100" placeholder="username">
+                            </label>
+                            <div class="adm-inline-error" id="adminAccountError" hidden></div>
+                            <div class="acct-actions">
+                                <button type="button" class="adm-btn adm-btn-primary" id="adminSaveProfileBtn" data-i18n="btn-save-changes">บันทึกการเปลี่ยนแปลง</button>
+                                <button type="button" class="adm-btn adm-btn-ghost" id="adminChangePasswordBtn">
+                                    <svg class="ico" aria-hidden="true"><use href="#i-lock"/></svg><span data-i18n="btn-change-password">เปลี่ยนรหัสผ่าน</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="adm-card acct-card">
+                            <h2 class="adm-card-title" data-i18n="settings-title">การแสดงผล</h2>
+                            <div class="setting-row">
+                                <div>
+                                    <strong data-i18n="settings-dark-title">โหมดมืด</strong>
+                                    <p class="adm-hint" data-i18n="settings-dark-desc">ปรับหน้าจอให้สบายตาในที่มืด</p>
+                                </div>
+                                <button type="button" class="switch" id="adminThemeSwitch" role="switch" aria-checked="false" aria-label="โหมดมืด"><span class="switch-knob"></span></button>
+                            </div>
+                            <div class="setting-row">
+                                <div>
+                                    <strong data-i18n="settings-lang-title">ภาษา</strong>
+                                    <p class="adm-hint" data-i18n="settings-lang-desc">เลือกภาษาที่ใช้ในหน้าผู้ดูแล</p>
+                                </div>
+                                <button type="button" class="adm-btn adm-btn-ghost lang-btn" id="adminLangToggle" aria-label="สลับภาษา">TH</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
         </div>
     </div>
 
-    <!-- ============== Modal: เพิ่ม/แก้ไขประเภทอาหาร หรือ กิจกรรม (ใช้ร่วมกัน) ============== -->
+    <!-- ============== Dialog: เพิ่ม/แก้ไข ประเภทอาหาร หรือ กิจกรรม ============== -->
     <div class="modal-overlay" id="itemModalOverlay">
-        <div class="admin-sheet-card">
-            <h2 class="sheet-title" id="itemSheetTitle">เพิ่มประเภทอาหาร</h2>
-
-            <div class="image-upload-row">
-                <div class="image-upload-box" id="itemImagePreview">
-                    <span class="upload-placeholder-icon" id="itemImagePlaceholder">🖼️</span>
-                    <img id="itemImagePreviewImg" alt="" hidden>
+        <form class="adm-dialog" id="itemForm" novalidate role="dialog" aria-modal="true" aria-labelledby="itemDialogTitle">
+            <div class="adm-dialog-head">
+                <h2 id="itemDialogTitle">เพิ่มประเภทอาหาร</h2>
+                <button type="button" class="adm-icon-btn" id="itemCloseBtn" aria-label="ปิด"><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></button>
+            </div>
+            <div class="adm-dialog-body">
+                <div class="img-upload">
+                    <div class="img-box" id="itemImageBox">
+                        <svg class="ico" aria-hidden="true"><use href="#i-image"/></svg>
+                        <img id="itemImageImg" alt="" hidden>
+                    </div>
+                    <div class="img-actions">
+                        <button type="button" class="adm-btn adm-btn-ghost adm-btn-sm" id="itemImageBtn" data-i18n="btn-select-image">เลือกรูปภาพ</button>
+                        <button type="button" class="adm-btn adm-btn-text adm-btn-sm" id="itemImageRemoveBtn" data-i18n="btn-remove-image" hidden>ลบรูปภาพ</button>
+                        <p class="adm-hint" data-i18n="hint-image">ไม่บังคับ · jpg, png หรือ webp ไม่เกิน 5MB</p>
+                    </div>
+                    <input type="file" id="itemImageInput" accept="image/jpeg,image/png,image/webp" hidden>
                 </div>
-                <div class="image-upload-actions">
-                    <button class="avatar-edit-btn" type="button" id="itemImageBtn" data-i18n="btn-select-image">เลือกรูปภาพ</button>
-                    <button class="form-link-btn" type="button" id="itemImageRemoveBtn" hidden data-i18n="btn-remove-image">ลบรูปภาพ</button>
+
+                <label class="adm-field">
+                    <span id="itemNameLabel">ชื่อ</span>
+                    <input type="text" class="adm-input" id="itemNameInput" maxlength="100" autocomplete="off">
+                </label>
+
+                <div class="adm-field" id="trafficField">
+                    <span data-i18n="label-traffic">เกณฑ์สีโภชนาการ</span>
+                    <div class="pill-group" id="trafficPills" role="radiogroup" aria-label="เกณฑ์สีโภชนาการ">
+                        <button type="button" class="pill pill-green" role="radio" aria-checked="false" data-value="1"><i></i><span data-i18n="traffic-green">เขียว</span></button>
+                        <button type="button" class="pill pill-yellow" role="radio" aria-checked="false" data-value="2"><i></i><span data-i18n="traffic-yellow">เหลือง</span></button>
+                        <button type="button" class="pill pill-red" role="radio" aria-checked="false" data-value="3"><i></i><span data-i18n="traffic-red">แดง</span></button>
+                    </div>
+                    <p class="adm-hint" data-i18n="traffic-hint">เขียว = กินได้บ่อย · เหลือง = กินได้แต่พอดี · แดง = ควรจำกัด</p>
                 </div>
-                <input type="file" id="itemImageInput" accept="image/*" hidden>
-            </div>
 
-            <label class="form-field">
-                <span class="form-label" id="itemNameLabel">ชื่อประเภทอาหาร</span>
-                <input type="text" class="form-input" id="itemNameInput" placeholder="เช่น ผัก / สลัด" maxlength="100">
-            </label>
-
-            <!-- เฉพาะโหมด "กิจกรรม" (JS สลับ style.display): ประเภทที่ใช้จัดกลุ่มในฟอร์มเพิ่มรายการ + ติ๊กว่าบันทึกระยะทางได้ -->
-            <div class="form-field" id="activityCategoryField" style="display:none">
-                <span class="form-label" data-i18n="label-activity-category">ประเภทกิจกรรม</span>
-                <select class="form-input" id="itemCategorySelect"></select>
-            </div>
-            <div class="form-field" id="activityIntensityField" style="display:none">
-                <span class="form-label" data-i18n="label-activity-intensity">ระดับการใช้แรง</span>
-                <select class="form-input" id="itemIntensitySelect"></select>
-            </div>
-            <label class="check-row" id="activityDistanceField" style="display:none">
-                <input type="checkbox" id="itemHasDistanceInput">
-                <span data-i18n="label-has-distance">บันทึกระยะทางได้ (กม.)</span>
-            </label>
-
-            <div class="form-field" id="trafficLightField">
-                <span class="form-label" data-i18n="label-traffic-light">เกณฑ์สีโภชนาการ</span>
-                <div class="traffic-pill-group">
-                    <button type="button" class="traffic-pill traffic-pill-green" data-value="1" data-i18n="traffic-green">🟢 เขียว</button>
-                    <button type="button" class="traffic-pill traffic-pill-yellow" data-value="2" data-i18n="traffic-yellow">🟡 เหลือง</button>
-                    <button type="button" class="traffic-pill traffic-pill-red" data-value="3" data-i18n="traffic-red">🔴 แดง</button>
+                <div class="adm-field-row" id="activityFields" hidden>
+                    <label class="adm-field">
+                        <span data-i18n="label-category">ประเภทกิจกรรม</span>
+                        <select class="adm-select" id="itemCategory"></select>
+                    </label>
+                    <label class="adm-field">
+                        <span data-i18n="label-intensity">ระดับการใช้แรง</span>
+                        <select class="adm-select" id="itemIntensity"></select>
+                    </label>
+                    <label class="adm-check">
+                        <input type="checkbox" id="itemHasDistance">
+                        <span data-i18n="label-has-distance">บันทึกระยะทางได้ (กม.)</span>
+                    </label>
                 </div>
-                <p class="field-hint" data-i18n="traffic-hint">เขียว = กินได้บ่อย · เหลือง = กินได้แต่พอดี · แดง = ควรจำกัด</p>
+
+                <div class="adm-inline-error" id="itemError" hidden></div>
             </div>
+            <div class="adm-dialog-foot">
+                <button type="button" class="adm-btn adm-btn-ghost" id="itemCancelBtn" data-i18n="btn-cancel">ยกเลิก</button>
+                <button type="submit" class="adm-btn adm-btn-primary" id="itemSaveBtn" data-i18n="btn-save">บันทึก</button>
+            </div>
+        </form>
+    </div>
 
-            <div class="sheet-error" id="itemSheetError" hidden></div>
-
-            <div class="sheet-actions">
-                <button type="button" class="save-btn" id="itemSaveBtn" data-i18n="btn-save">บันทึก</button>
-                <button type="button" class="form-link-btn" id="itemCancelBtn" data-i18n="btn-cancel">ยกเลิก</button>
+    <!-- ============== Dialog: รายละเอียดสมาชิก (อ่านอย่างเดียว) ============== -->
+    <div class="modal-overlay" id="memberOverlay">
+        <div class="adm-dialog adm-dialog-wide" role="dialog" aria-modal="true" aria-labelledby="memberName">
+            <div class="adm-dialog-head">
+                <h2 id="memberName">—</h2>
+                <button type="button" class="adm-icon-btn" id="memberCloseBtn" aria-label="ปิด"><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></button>
+            </div>
+            <div class="adm-dialog-body">
+                <div class="member-meta" id="memberMeta"></div>
+                <div class="member-cols">
+                    <section>
+                        <h3 data-i18n="detail-bodystats">ประวัติสัดส่วนร่างกาย</h3>
+                        <div class="mini-list" id="memberBodyStats"></div>
+                    </section>
+                    <section>
+                        <h3 data-i18n="detail-bmi">ประวัติ BMI</h3>
+                        <div class="mini-list" id="memberBmrList"></div>
+                    </section>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- ============== Modal: รายละเอียดสมาชิก (อ่านอย่างเดียว) ============== -->
-    <div class="modal-overlay" id="memberDetailOverlay">
-        <div class="admin-sheet-card member-detail-card">
-            <h2 class="sheet-title" id="memberDetailName">—</h2>
-            <div class="member-detail-meta" id="memberDetailMeta"></div>
-
-            <div class="member-detail-section">
-                <h3 data-i18n="member-detail-bodystats">ประวัติสัดส่วนร่างกาย</h3>
-                <div class="member-detail-list" id="memberDetailBodyStats"></div>
+    <!-- ============== Dialog: เปลี่ยนรหัสผ่าน ============== -->
+    <div class="modal-overlay" id="adminPasswordModalOverlay">
+        <form class="adm-dialog adm-dialog-narrow" id="pwdForm" novalidate role="dialog" aria-modal="true" aria-labelledby="pwdTitle">
+            <div class="adm-dialog-head">
+                <h2 id="pwdTitle" data-i18n="pwd-title">เปลี่ยนรหัสผ่าน</h2>
+                <button type="button" class="adm-icon-btn" id="adminPwdCloseBtn" aria-label="ปิด"><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></button>
             </div>
-
-            <div class="member-detail-section">
-                <h3 data-i18n="member-detail-bmr">ประวัติ BMI</h3>
-                <div class="member-detail-list" id="memberDetailBmr"></div>
+            <div class="adm-dialog-body">
+                <label class="adm-field"><span data-i18n="pwd-current">รหัสผ่านปัจจุบัน</span><input type="password" class="adm-input" id="adminPwdCurrent" autocomplete="current-password"></label>
+                <label class="adm-field"><span data-i18n="pwd-new">รหัสผ่านใหม่</span><input type="password" class="adm-input" id="adminPwdNew" autocomplete="new-password"></label>
+                <label class="adm-field"><span data-i18n="pwd-confirm">ยืนยันรหัสผ่านใหม่</span><input type="password" class="adm-input" id="adminPwdConfirmNew" autocomplete="new-password"></label>
+                <div class="adm-inline-error" id="adminPwdError" hidden></div>
             </div>
-
-            <div class="sheet-actions">
-                <button type="button" class="form-link-btn" id="memberDetailCloseBtn" data-i18n="btn-cancel">ปิด</button>
+            <div class="adm-dialog-foot">
+                <button type="button" class="adm-btn adm-btn-ghost" id="adminPwdCancelBtn" data-i18n="btn-cancel">ยกเลิก</button>
+                <button type="submit" class="adm-btn adm-btn-primary" id="adminPwdSaveBtn" data-i18n="pwd-save">บันทึกรหัสผ่านใหม่</button>
             </div>
-        </div>
+        </form>
     </div>
 
     <script src="/assets/js/shared/i18n.js"></script>
+    <script src="/assets/js/shared/icons.js"></script>
     <script src="/assets/js/shared/activity-categories.js"></script>
     <script src="/assets/js/shared/app.js"></script>
-    <script src="/assets/js/pages/admin.js"></script>
+    <script src="/assets/js/pages/admin/i18n.js"></script>
+    <script src="/assets/js/pages/admin/core.js"></script>
+    <script src="/assets/js/pages/admin/master.js"></script>
+    <script src="/assets/js/pages/admin/members.js"></script>
+    <script src="/assets/js/pages/admin/overview.js"></script>
+    <script src="/assets/js/pages/admin/reports.js"></script>
+    <script src="/assets/js/pages/admin/account.js"></script>
+    <script src="/assets/js/pages/admin/main.js"></script>
 </body>
 </html>

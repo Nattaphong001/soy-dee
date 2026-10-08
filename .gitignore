@@ -11,5 +11,4 @@ uploads/food-images/*
 *.exe
 .vscode/
 *.code-workspace
-postman/
 /bin/

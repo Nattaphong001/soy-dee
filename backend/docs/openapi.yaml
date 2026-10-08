@@ -1,0 +1,547 @@
+openapi: 3.0.3
+info:
+  title: Soy-Dee API
+  version: 1.0.0
+  description: |
+    Route inventory generated from internal/routes/router.go. Per-endpoint request/response
+    body schemas are not yet specified (see uploads/API_SPEC.md and internal/dto) — fill them
+    in per operation as the contract is formalised.
+    Auth: `bearer` = JWT access token. `owner` = caller's mb_id must equal {id}, or caller is admin.
+servers:
+  - url: http://localhost:8080/api/v1
+security:
+  - bearer: []
+tags: []
+components:
+  securitySchemes:
+    bearer: { type: http, scheme: bearer, bearerFormat: JWT }
+  schemas:
+    Success:
+      type: object
+      properties:
+        success: { type: boolean, example: true }
+        data: {}
+        message: { type: string }
+    Error:
+      type: object
+      properties:
+        success: { type: boolean, example: false }
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              enum: [VALIDATION_ERROR, INVALID_CREDENTIALS, TOKEN_EXPIRED, TOKEN_INVALID, UNAUTHORIZED, FORBIDDEN, NOT_FOUND, DUPLICATE_USERNAME, CONFLICT, DUPLICATE_NAME, UNPROCESSABLE_ENTITY, INTERNAL_ERROR, RATE_LIMITED]
+            message: { type: string }
+  responses:
+    Ok:
+      description: Success envelope
+      content: { application/json: { schema: { $ref: '#/components/schemas/Success' } } }
+    Err:
+      description: Error envelope (400/401/403/404/409/422/429/500)
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+paths:
+  /healthz:
+    get:
+      summary: Liveness + DB ping (served outside /api/v1)
+      security: []
+      servers: [{ url: http://localhost:8080 }]
+      responses: { '200': { description: ok }, '503': { description: db unavailable } }
+  /auth/login/member:
+    post:
+      tags: [Auth]
+      summary: Member login
+      security: []
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /auth/login/admin:
+    post:
+      tags: [Auth]
+      summary: Admin login
+      security: []
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Refresh access token
+      security: []
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register member
+      security: []
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Logout
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /food-categories:
+    get:
+      tags: [Master data]
+      summary: List food categories
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /activities:
+    get:
+      tags: [Master data]
+      summary: List activities
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /admin/food-categories:
+    get:
+      tags: [Admin master data]
+      summary: List food categories with usage
+      description: Requires role admin.
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+    post:
+      tags: [Admin master data]
+      summary: Create food category
+      description: Requires role admin.
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /admin/food-categories/image:
+    post:
+      tags: [Admin master data]
+      summary: Upload food category image
+      description: Requires role admin.
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /admin/food-categories/{id}:
+    get:
+      tags: [Admin master data]
+      summary: Get food category
+      description: Requires role admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+    put:
+      tags: [Admin master data]
+      summary: Update food category
+      description: Requires role admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+    delete:
+      tags: [Admin master data]
+      summary: Delete food category
+      description: Requires role admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /admin/activities:
+    get:
+      tags: [Admin master data]
+      summary: List activities with usage
+      description: Requires role admin.
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+    post:
+      tags: [Admin master data]
+      summary: Create activity
+      description: Requires role admin.
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /admin/activities/image:
+    post:
+      tags: [Admin master data]
+      summary: Upload activity image
+      description: Requires role admin.
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /admin/activities/{id}:
+    get:
+      tags: [Admin master data]
+      summary: Get activity
+      description: Requires role admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+    put:
+      tags: [Admin master data]
+      summary: Update activity
+      description: Requires role admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+    delete:
+      tags: [Admin master data]
+      summary: Delete activity
+      description: Requires role admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /admin/reports:
+    get:
+      tags: [Admin]
+      summary: Aggregated reports
+      description: Requires role admin.
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /admin/stats:
+    get:
+      tags: [Admin]
+      summary: Overview stats
+      description: Requires role admin.
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /admin/profile:
+    get:
+      tags: [Admin]
+      summary: Get admin profile
+      description: Requires role admin.
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+    put:
+      tags: [Admin]
+      summary: Update admin profile
+      description: Requires role admin.
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /admin/avatar:
+    post:
+      tags: [Admin]
+      summary: Upload admin avatar
+      description: Requires role admin.
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /admin/password:
+    put:
+      tags: [Admin]
+      summary: Change admin password
+      description: Requires role admin.
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /admin/members:
+    get:
+      tags: [Admin]
+      summary: List members
+      description: Requires role admin.
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /admin/members/{id}:
+    get:
+      tags: [Admin]
+      summary: Member detail
+      description: Requires role admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /members/{id}/profile:
+    get:
+      tags: [Member]
+      summary: Get profile
+      description: Owner or admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+    put:
+      tags: [Member]
+      summary: Update profile
+      description: Owner or admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /members/{id}/password:
+    patch:
+      tags: [Member]
+      summary: Change password
+      description: Owner or admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /members/{id}/avatar:
+    post:
+      tags: [Member]
+      summary: Upload avatar
+      description: Owner or admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /members/{id}/bmr/calculate:
+    post:
+      tags: [BMR]
+      summary: Calculate and store BMR
+      description: Owner or admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /members/{id}/bmr/history:
+    get:
+      tags: [BMR]
+      summary: BMR history (paginated)
+      description: Owner or admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /members/{id}/bmr/latest:
+    get:
+      tags: [BMR]
+      summary: Latest BMR
+      description: Owner or admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /members/{id}/body-stats:
+    get:
+      tags: [Body stats]
+      summary: List body stats
+      description: Owner or admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+    post:
+      tags: [Body stats]
+      summary: Record body stats (also computes BMR)
+      description: Owner or admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /members/{id}/body-stats/latest:
+    get:
+      tags: [Body stats]
+      summary: Latest body stats
+      description: Owner or admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /members/{id}/food-images:
+    post:
+      tags: [Food records]
+      summary: Upload food photo
+      description: Owner or admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /members/{id}/food-records:
+    get:
+      tags: [Food records]
+      summary: List food records for a date
+      description: Owner or admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+    post:
+      tags: [Food records]
+      summary: Create food record
+      description: Owner or admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /members/{id}/food-records/{dfd_id}:
+    get:
+      tags: [Food records]
+      summary: Get food record
+      description: Owner or admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+        - { name: dfd_id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+    put:
+      tags: [Food records]
+      summary: Update food record
+      description: Owner or admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+        - { name: dfd_id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+    delete:
+      tags: [Food records]
+      summary: Delete food record
+      description: Owner or admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+        - { name: dfd_id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /members/{id}/activity-records:
+    get:
+      tags: [Activity records]
+      summary: List activity records for a date
+      description: Owner or admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+    post:
+      tags: [Activity records]
+      summary: Create activity record
+      description: Owner or admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /members/{id}/activity-records/{dact_id}:
+    get:
+      tags: [Activity records]
+      summary: Get activity record
+      description: Owner or admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+        - { name: dact_id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+    put:
+      tags: [Activity records]
+      summary: Update activity record
+      description: Owner or admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+        - { name: dact_id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+    delete:
+      tags: [Activity records]
+      summary: Delete activity record
+      description: Owner or admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+        - { name: dact_id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /members/{id}/sleep-records:
+    get:
+      tags: [Sleep records]
+      summary: List sleep records for a date
+      description: Owner or admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+    post:
+      tags: [Sleep records]
+      summary: Create sleep record
+      description: Owner or admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /members/{id}/sleep-records/{dslp_id}:
+    get:
+      tags: [Sleep records]
+      summary: Get sleep record
+      description: Owner or admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+        - { name: dslp_id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+    put:
+      tags: [Sleep records]
+      summary: Update sleep record
+      description: Owner or admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+        - { name: dslp_id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+    delete:
+      tags: [Sleep records]
+      summary: Delete sleep record
+      description: Owner or admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+        - { name: dslp_id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /members/{id}/dashboard:
+    get:
+      tags: [Reports]
+      summary: Member dashboard
+      description: Owner or admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }
+  /members/{id}/report:
+    get:
+      tags: [Reports]
+      summary: Member report for a date range
+      description: Owner or admin.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        default: { $ref: '#/components/responses/Err' }

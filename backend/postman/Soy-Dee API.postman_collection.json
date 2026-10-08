@@ -1,0 +1,892 @@
+{
+  "info": {
+    "_postman_id": "d3c1a9a0-1e4a-4f2e-9c3a-soydee-api-collection",
+    "name": "Soy-Dee API",
+    "description": "RESTful JSON API for the Health Tracking Web App (Go + MySQL). Import together with the \"Soy-Dee API - Local\" environment. Run requests inside a folder top-to-bottom on first use: login requests auto-save tokens/ids, and POST (create) requests auto-save the new record id into environment variables used by later requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Auth",
+      "item": [
+        {
+          "name": "Login - Member",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    pm.environment.set('member_token', json.data.token);",
+                  "    pm.environment.set('member_refresh_token', json.data.refresh_token);",
+                  "    pm.environment.set('member_id', json.data.member.mb_id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{member_username}}\",\n  \"password\": \"{{member_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login/member",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login", "member"]
+            }
+          }
+        },
+        {
+          "name": "Login - Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    pm.environment.set('admin_token', json.data.token);",
+                  "    pm.environment.set('admin_refresh_token', json.data.refresh_token);",
+                  "    pm.environment.set('admin_id', json.data.admin.sys_id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sys_username\": \"{{admin_username}}\",\n  \"sys_password\": \"{{admin_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login/admin",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login", "admin"]
+            }
+          }
+        },
+        {
+          "name": "Register (Member)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mb_user_name\": \"{{member_username}}\",\n  \"mb_password\": \"{{member_password}}\",\n  \"mb_full_name\": \"สมชาย ใจดี\",\n  \"mb_gender\": 1,\n  \"mb_birth_date\": \"1998-08-08\",\n  \"body_stats\": {\n    \"mbs_weight\": 68.5,\n    \"mbs_height\": 172.0,\n    \"mbs_activity_level\": 1.55,\n    \"mbs_target\": 1\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Refresh Token (Member)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    pm.environment.set('member_token', json.data.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{member_refresh_token}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/refresh",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "refresh"]
+            }
+          }
+        },
+        {
+          "name": "Logout (Member)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{member_token}}", "type": "string" }]
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Member Profile",
+      "auth": {
+        "type": "bearer",
+        "bearer": [{ "key": "token", "value": "{{member_token}}", "type": "string" }]
+      },
+      "item": [
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/members/{{member_id}}/profile",
+              "host": ["{{base_url}}"],
+              "path": ["members", "{{member_id}}", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mb_full_name\": \"สมชาย ใจดี\",\n  \"mb_user_name\": \"{{member_username}}\",\n  \"mb_gender\": 1,\n  \"mb_birth_date\": \"1998-08-08\",\n  \"mb_profile_pic\": null\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/members/{{member_id}}/profile",
+              "host": ["{{base_url}}"],
+              "path": ["members", "{{member_id}}", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_password\": \"{{member_password}}\",\n  \"new_password\": \"{{new_password}}\",\n  \"confirm_password\": \"{{new_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/members/{{member_id}}/password",
+              "host": ["{{base_url}}"],
+              "path": ["members", "{{member_id}}", "password"]
+            }
+          }
+        },
+        {
+          "name": "Upload Avatar",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "avatar", "type": "file", "src": [] }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/members/{{member_id}}/avatar",
+              "host": ["{{base_url}}"],
+              "path": ["members", "{{member_id}}", "avatar"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Dropdown Data (any authed role)",
+      "auth": {
+        "type": "bearer",
+        "bearer": [{ "key": "token", "value": "{{member_token}}", "type": "string" }]
+      },
+      "item": [
+        {
+          "name": "List Food Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/food-categories",
+              "host": ["{{base_url}}"],
+              "path": ["food-categories"]
+            }
+          }
+        },
+        {
+          "name": "List Activities",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/activities",
+              "host": ["{{base_url}}"],
+              "path": ["activities"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Admin - Food Categories",
+      "auth": {
+        "type": "bearer",
+        "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }]
+      },
+      "item": [
+        {
+          "name": "List",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/food-categories?traffic_light=1",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "food-categories"],
+              "query": [{ "key": "traffic_light", "value": "1", "disabled": true }]
+            }
+          }
+        },
+        {
+          "name": "Get By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/food-categories/{{fd_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "food-categories", "{{fd_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Create",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    pm.environment.set('fd_id', pm.response.json().data.fd_id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fd_name\": \"ผักและผลไม้\",\n  \"fd_traffic_light\": 1,\n  \"fd_images\": \"/uploads/food-category/veggie.png\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/food-categories",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "food-categories"]
+            }
+          }
+        },
+        {
+          "name": "Update",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fd_name\": \"ผักและผลไม้ (แก้ไข)\",\n  \"fd_traffic_light\": 1,\n  \"fd_images\": \"/uploads/food-category/veggie.png\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/food-categories/{{fd_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "food-categories", "{{fd_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/food-categories/{{fd_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "food-categories", "{{fd_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Admin - Activities",
+      "auth": {
+        "type": "bearer",
+        "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }]
+      },
+      "item": [
+        {
+          "name": "List",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/activities",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "activities"]
+            }
+          }
+        },
+        {
+          "name": "Get By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/activities/{{act_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "activities", "{{act_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Create",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    pm.environment.set('act_id', pm.response.json().data.act_id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"act_name\": \"วิ่งจ๊อกกิ้ง\",\n  \"act_images\": \"/uploads/activity/jogging.png\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/activities",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "activities"]
+            }
+          }
+        },
+        {
+          "name": "Update",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"act_name\": \"วิ่งจ๊อกกิ้ง (แก้ไข)\",\n  \"act_images\": \"/uploads/activity/jogging.png\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/activities/{{act_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "activities", "{{act_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/activities/{{act_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "activities", "{{act_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Body Stats & BMR",
+      "auth": {
+        "type": "bearer",
+        "bearer": [{ "key": "token", "value": "{{member_token}}", "type": "string" }]
+      },
+      "item": [
+        {
+          "name": "List Body Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/members/{{member_id}}/body-stats",
+              "host": ["{{base_url}}"],
+              "path": ["members", "{{member_id}}", "body-stats"]
+            }
+          }
+        },
+        {
+          "name": "Add Body Stats",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const data = pm.response.json().data;",
+                  "    if (data && data.mbs_id) { pm.environment.set('mbs_id', data.mbs_id); }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mbs_weight\": 68.5,\n  \"mbs_height\": 172.0,\n  \"mbs_activity_level\": 1.55,\n  \"mbs_target\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/members/{{member_id}}/body-stats",
+              "host": ["{{base_url}}"],
+              "path": ["members", "{{member_id}}", "body-stats"]
+            }
+          }
+        },
+        {
+          "name": "Latest Body Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/members/{{member_id}}/body-stats/latest",
+              "host": ["{{base_url}}"],
+              "path": ["members", "{{member_id}}", "body-stats", "latest"]
+            }
+          }
+        },
+        {
+          "name": "Calculate BMR",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mbs_id\": {{mbs_id}},\n  \"mbh_record_date\": \"2026-08-09\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/members/{{member_id}}/bmr/calculate",
+              "host": ["{{base_url}}"],
+              "path": ["members", "{{member_id}}", "bmr", "calculate"]
+            }
+          }
+        },
+        {
+          "name": "BMR History",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/members/{{member_id}}/bmr/history?from=2026-08-01&to=2026-08-09&page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["members", "{{member_id}}", "bmr", "history"],
+              "query": [
+                { "key": "from", "value": "2026-08-01" },
+                { "key": "to", "value": "2026-08-09" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "BMR Latest",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/members/{{member_id}}/bmr/latest",
+              "host": ["{{base_url}}"],
+              "path": ["members", "{{member_id}}", "bmr", "latest"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Food Records",
+      "auth": {
+        "type": "bearer",
+        "bearer": [{ "key": "token", "value": "{{member_token}}", "type": "string" }]
+      },
+      "item": [
+        {
+          "name": "List (by date)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/members/{{member_id}}/food-records?date=2026-08-09",
+              "host": ["{{base_url}}"],
+              "path": ["members", "{{member_id}}", "food-records"],
+              "query": [{ "key": "date", "value": "2026-08-09" }]
+            }
+          }
+        },
+        {
+          "name": "Create",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    pm.environment.set('dfd_id', pm.response.json().data.dfd_id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dfd_date\": \"2026-08-09\",\n  \"dfd_time\": \"12:30:00\",\n  \"dfd_meal_type\": 2,\n  \"dfd_food_name\": \"ข้าวผัดกะเพราไก่ไข่ดาว\",\n  \"dfd_image\": \"/uploads/food/2026-08-09-001.jpg\",\n  \"fd_id\": {{fd_id}}\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/members/{{member_id}}/food-records",
+              "host": ["{{base_url}}"],
+              "path": ["members", "{{member_id}}", "food-records"]
+            }
+          }
+        },
+        {
+          "name": "Get By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/members/{{member_id}}/food-records/{{dfd_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["members", "{{member_id}}", "food-records", "{{dfd_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dfd_date\": \"2026-08-09\",\n  \"dfd_time\": \"12:45:00\",\n  \"dfd_meal_type\": 2,\n  \"dfd_food_name\": \"ข้าวผัดกะเพราไก่ไข่ดาว (แก้ไข)\",\n  \"dfd_image\": \"/uploads/food/2026-08-09-001.jpg\",\n  \"fd_id\": {{fd_id}}\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/members/{{member_id}}/food-records/{{dfd_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["members", "{{member_id}}", "food-records", "{{dfd_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/members/{{member_id}}/food-records/{{dfd_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["members", "{{member_id}}", "food-records", "{{dfd_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Activity Records",
+      "auth": {
+        "type": "bearer",
+        "bearer": [{ "key": "token", "value": "{{member_token}}", "type": "string" }]
+      },
+      "item": [
+        {
+          "name": "List (by date)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/members/{{member_id}}/activity-records?date=2026-08-09",
+              "host": ["{{base_url}}"],
+              "path": ["members", "{{member_id}}", "activity-records"],
+              "query": [{ "key": "date", "value": "2026-08-09" }]
+            }
+          }
+        },
+        {
+          "name": "Create",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    pm.environment.set('dact_id', pm.response.json().data.dact_id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dact_date\": \"2026-08-09\",\n  \"dact_duration_min\": \"00:45:00\",\n  \"act_id\": {{act_id}}\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/members/{{member_id}}/activity-records",
+              "host": ["{{base_url}}"],
+              "path": ["members", "{{member_id}}", "activity-records"]
+            }
+          }
+        },
+        {
+          "name": "Get By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/members/{{member_id}}/activity-records/{{dact_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["members", "{{member_id}}", "activity-records", "{{dact_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dact_date\": \"2026-08-09\",\n  \"dact_duration_min\": \"01:00:00\",\n  \"act_id\": {{act_id}}\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/members/{{member_id}}/activity-records/{{dact_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["members", "{{member_id}}", "activity-records", "{{dact_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/members/{{member_id}}/activity-records/{{dact_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["members", "{{member_id}}", "activity-records", "{{dact_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Sleep Records",
+      "auth": {
+        "type": "bearer",
+        "bearer": [{ "key": "token", "value": "{{member_token}}", "type": "string" }]
+      },
+      "item": [
+        {
+          "name": "List (by date)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/members/{{member_id}}/sleep-records?date=2026-08-09",
+              "host": ["{{base_url}}"],
+              "path": ["members", "{{member_id}}", "sleep-records"],
+              "query": [{ "key": "date", "value": "2026-08-09" }]
+            }
+          }
+        },
+        {
+          "name": "Create",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    pm.environment.set('dslp_id', pm.response.json().data.dslp_id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dslp_date\": \"2026-08-09\",\n  \"dslp_start_time\": \"2026-08-08T23:30:00Z\",\n  \"dslp_end_time\": \"2026-08-09T06:45:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/members/{{member_id}}/sleep-records",
+              "host": ["{{base_url}}"],
+              "path": ["members", "{{member_id}}", "sleep-records"]
+            }
+          }
+        },
+        {
+          "name": "Get By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/members/{{member_id}}/sleep-records/{{dslp_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["members", "{{member_id}}", "sleep-records", "{{dslp_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dslp_date\": \"2026-08-09\",\n  \"dslp_start_time\": \"2026-08-08T23:00:00Z\",\n  \"dslp_end_time\": \"2026-08-09T06:30:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/members/{{member_id}}/sleep-records/{{dslp_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["members", "{{member_id}}", "sleep-records", "{{dslp_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/members/{{member_id}}/sleep-records/{{dslp_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["members", "{{member_id}}", "sleep-records", "{{dslp_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. Dashboard & Reports",
+      "item": [
+        {
+          "name": "Member Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{member_token}}", "type": "string" }]
+            },
+            "url": {
+              "raw": "{{base_url}}/members/{{member_id}}/dashboard",
+              "host": ["{{base_url}}"],
+              "path": ["members", "{{member_id}}", "dashboard"]
+            }
+          }
+        },
+        {
+          "name": "Admin Reports",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }]
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/reports?type=bmi&from=2026-08-01&to=2026-08-09&page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "reports"],
+              "query": [
+                { "key": "type", "value": "bmi" },
+                { "key": "from", "value": "2026-08-01" },
+                { "key": "to", "value": "2026-08-09" },
+                { "key": "mb_id", "value": "", "disabled": true },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin - List Members",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }]
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/members?search=&page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "members"],
+              "query": [
+                { "key": "search", "value": "" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin - Member Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }]
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/members/{{member_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "members", "{{member_id}}"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

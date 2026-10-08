@@ -16,3 +16,4 @@ CLAUDE.md
 .claude/
 
 frontend/package-lock.json
+frontend/testsprite_tests/tmp/

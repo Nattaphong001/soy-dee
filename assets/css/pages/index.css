@@ -34,12 +34,19 @@
     height: 48px;
     border-color: color-mix(in srgb, var(--surface) 90%, transparent);
 }
-/* กระดิ่ง: กระจกฝ้าเหมือนปุ่มวันที่ในหน้าบันทึก */
+/* กระดิ่ง: กระจกบนรูป (ชั้น 0) เหมือนปุ่มวันที่ในหน้าบันทึก */
 .home-hero .notification-btn {
-    background-color: color-mix(in srgb, var(--surface) 90%, transparent);
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
+    background: var(--glass-photo-bg);
+    -webkit-backdrop-filter: blur(18px) saturate(180%);
+    backdrop-filter: blur(18px) saturate(180%);
+    border: 1px solid var(--glass-photo-edge);
+    box-shadow: var(--glass-photo-shadow);
+    color: #FFFFFF;
 }
+.home-hero .notification-btn:hover { background: var(--glass-photo-bg); }
+
+/* สีพื้นหลังหน้าไล่ตามสี hero (ดู glass.css) */
+:root { --page-tint: #0e5a78; }
 
 /* ---------- ลิงก์แก้ไขข้อมูลร่างกาย: ชิปเดียวกับ .count-badge ของหน้าบันทึก แต่กดได้ ---------- */
 .section-link {

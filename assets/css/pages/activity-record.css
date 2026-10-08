@@ -20,30 +20,10 @@
     background: linear-gradient(180deg, rgba(4, 8, 30, 0.34) 0%, rgba(4, 8, 30, 0.46) 60%, rgba(4, 8, 30, 0.64) 100%);
 }
 
-/* ชิปวันที่ + ปุ่มวันนี้: กระจกใสสไตล์ iOS (ฝ้า + ไฮไลต์ขอบบน) ลอยบนท้องฟ้ายามเช้า — แบบเดียวกับหน้านอนหลับ */
-.activity-hero .date-picker-pill,
-.activity-hero .today-btn {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.30), rgba(255, 255, 255, 0.10));
-    -webkit-backdrop-filter: blur(18px) saturate(180%);
-    backdrop-filter: blur(18px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.38);
-    box-shadow: 0 8px 24px rgba(10, 16, 56, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 -1px 0 rgba(255, 255, 255, 0.08);
-    color: #FFFFFF;
-}
-.activity-hero .date-picker-pill:hover,
-.activity-hero .date-picker-pill.is-active,
-.activity-hero .today-btn:hover {
-    box-shadow: 0 10px 28px rgba(10, 16, 56, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.55), inset 0 -1px 0 rgba(255, 255, 255, 0.1);
-}
-.activity-hero .today-btn.is-away { border-color: rgba(255, 255, 255, 0.7); }
-.activity-hero .date-picker-pill .icon-calendar,
-.activity-hero .today-btn .icon-inline { color: #FFFFFF; }
-.activity-hero .date-picker-pill .icon-chevron { color: rgba(255, 255, 255, 0.75); }
-.activity-hero .date-picker-pill .date-text,
-.activity-hero .today-btn span:last-child {
-    font-weight: 600;
-    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
-}
+/* ชิปวันที่ + ปุ่มวันนี้บน hero: กระจกใสอยู่ที่ glass.css (.record-hero) ใช้ร่วมกันทุกหน้าบันทึก */
+
+/* สีพื้นหลังหน้าไล่ตามสี hero (ดู glass.css) */
+:root { --page-tint: #2a3f9f; }
 
 /* ---------- สีประจำกิจกรรมตามระดับการใช้แรง (JS ใส่ class .ac-1 … .ac-4 จาก act_intensity):
    เบา = เขียว · ปานกลาง = เหลือง · หนัก = ส้ม · หนักมาก = แดง ---------- */

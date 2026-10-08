@@ -1,7 +1,7 @@
 /**
  * report.js — หน้ารายงานของสมาชิก
  * ดึงข้อมูลชุดเดียวจาก GET /members/:id/report?from&to (Go เป็นผู้รวมสถิติทั้งหมด)
- * แล้ววาด: ภาพรวม (KPI) + แท็บแยกย่อย ร่างกาย/อาหาร/กิจกรรม/การนอน
+ * แล้ววาด: ภาพรวม 4 ตัวเลข + ข้อสังเกตสั้นๆ + แท็บแยกย่อย ร่างกาย/อาหาร/กิจกรรม/การนอน (แท็บละไม่กี่กราฟ)
  * กราฟเป็น CSS/SVG ล้วน (ไม่พึ่งไลบรารี) — ตัวเลขรหัส enum จาก API ถูกแปลเป็นข้อความที่นี่ (i18n)
  * ช่วงยาวเกิน 31 วัน กราฟรายวันจะถูกรวมเป็นรายสัปดาห์ (ทีละ 7 วัน) ให้แท่งไม่เล็กเกินอ่าน
  * หมายเหตุ: ระบบภาษาใช้ window.I18N จาก assets/js/shared/i18n.js
@@ -22,50 +22,39 @@ const REPORT_I18N = {
         'load-error': 'โหลดรายงานไม่สำเร็จ',
         'loading': 'กำลังโหลดรายงาน…',
         'overview-title': 'ภาพรวม',
-        'tab-body': 'ร่างกาย', 'tab-food': 'อาหาร', 'tab-activity': 'กิจกรรม', 'tab-sleep': 'การนอน', 'tab-daily': 'รายวัน',
-        'day-unit': 'วัน', 'days-count': '{n} วัน',
+        'tab-body': 'ร่างกาย', 'tab-food': 'อาหาร', 'tab-activity': 'กิจกรรม', 'tab-sleep': 'การนอน',
+        'days-count': '{n} วัน',
         'kpi-bmi': 'BMI ล่าสุด', 'kpi-bmi-sub': 'น้ำหนัก {w} กก.',
-        'kpi-tdee': 'พลังงานเป้าหมาย/วัน', 'kpi-tdee-sub': 'TDEE {t} kcal',
-        'kpi-consistency': 'ความสม่ำเสมอ', 'kpi-consistency-sub': 'บันทึก {l}/{r} วัน · ต่อเนื่อง {s} วัน',
         'kpi-food': 'อาหาร', 'kpi-food-unit': 'มื้อ',
         'kpi-activity': 'ออกกำลังกาย', 'kpi-activity-sub': '{c} ครั้ง · {d} วัน',
         'kpi-sleep': 'นอนเฉลี่ย', 'kpi-sleep-unit': 'ชม./คืน', 'kpi-sleep-sub': 'บันทึก {n} คืน',
-        'unit-hr': 'ชม.', 'unit-min': 'น.', 'unit-minutes': 'นาที', 'unit-kg': 'กก.', 'unit-cm': 'ซม.', 'unit-km': 'กม.',
-        'unit-times': 'ครั้ง', 'unit-meals': 'มื้อ', 'unit-nights': 'คืน', 'unit-kcal': 'kcal',
+        'unit-hr': 'ชม.', 'unit-min': 'น.', 'unit-minutes': 'นาที', 'unit-kg': 'กก.',
+        'unit-times': 'ครั้ง', 'unit-meals': 'มื้อ', 'unit-nights': 'คืน',
         'light-1': 'ดีต่อสุขภาพ', 'light-2': 'ทานพอดี', 'light-3': 'ควรระวัง',
-        'meal-1': 'มื้อเช้า', 'meal-2': 'มื้อกลางวัน', 'meal-3': 'มื้อเย็น', 'meal-4': 'มื้อว่าง',
         'bmi-1': 'ผอม', 'bmi-2': 'ปกติ', 'bmi-3': 'ท้วม', 'bmi-4': 'อ้วน',
         'target-1': 'ลดน้ำหนัก', 'target-2': 'เพิ่มกล้ามเนื้อ', 'target-3': 'รักษาน้ำหนัก',
         'eval-1': 'นอนน้อยไป', 'eval-2': 'นอนพอดี', 'eval-3': 'นอนมากไป',
-        'quality-1': 'แย่', 'quality-2': 'ปานกลาง', 'quality-3': 'ดี',
         'week-range': 'สัปดาห์ {a} – {b}',
-        'show-more': 'ดูเพิ่มอีก', 'items-cap': 'แสดง {n} รายการล่าสุดจากทั้งหมด {t} รายการ',
         'empty-title': 'ยังไม่มีข้อมูลในช่วงนี้', 'empty-desc': 'ลองเลือกช่วงเวลาที่กว้างขึ้น หรือเริ่มบันทึกได้เลย',
         'empty-body-title': 'ยังไม่มีข้อมูลร่างกาย', 'empty-body-desc': 'กรอกน้ำหนักและส่วนสูงที่หน้าโปรไฟล์ เพื่อดู BMI และพลังงานที่ควรได้รับ',
         'cta-body': 'ไปกรอกข้อมูลร่างกาย', 'cta-food': 'ไปบันทึกอาหาร', 'cta-activity': 'ไปบันทึกกิจกรรม', 'cta-sleep': 'ไปบันทึกการนอน',
         /* ร่างกาย */
-        'body-weight': 'น้ำหนักล่าสุด', 'body-height': 'ส่วนสูง', 'body-target': 'เป้าหมาย', 'body-change': 'น้ำหนักเปลี่ยน',
-        'body-weight-chart': 'น้ำหนักตามเวลา', 'body-bmi-chart': 'BMI ตามเวลา',
-        'body-bmi-note': 'เส้นประ = เกณฑ์ BMI (18.5 / 23 / 25)',
+        'body-weight': 'น้ำหนักล่าสุด', 'body-target': 'เป้าหมาย', 'body-change': 'น้ำหนักเปลี่ยน',
+        'body-weight-chart': 'น้ำหนักตามเวลา',
         'body-need-more': 'มีบันทึกร่างกายเพียง 1 ครั้งในช่วงนี้ ยังไม่เห็นแนวโน้ม',
-        'body-history': 'ประวัติร่างกาย', 'body-history-meta': 'BMR {bmr} · TDEE {tdee} · เป้าหมาย {tt} kcal',
-        'body-tip-weight': 'น้ำหนัก {v} กก.', 'body-tip-bmi': 'BMI {v}',
+        'body-tip-weight': 'น้ำหนัก {v} กก.',
         /* อาหาร */
-        'food-meals': 'มื้อทั้งหมด', 'food-days': 'วันที่บันทึก', 'food-avg': 'เฉลี่ย/วัน (มื้อ)',
-        'food-share': 'สัดส่วนสีอาหาร', 'food-share-center': 'มื้อ', 'food-trend': 'แนวโน้มสีอาหาร',
-        'food-top': 'ประเภทอาหารที่กินบ่อย', 'food-by-meal': 'แยกตามมื้อ', 'food-list': 'รายการอาหาร',
-        'food-tip-total': 'รวม {n} มื้อ',
+        'food-share': 'สัดส่วนสีอาหาร', 'food-share-center': 'มื้อ',
+        'food-top': 'ประเภทอาหารที่กินบ่อย',
         /* กิจกรรม */
-        'act-count': 'จำนวนครั้ง', 'act-total': 'เวลารวม', 'act-days': 'วันที่ออกกำลังกาย', 'act-avg': 'เฉลี่ย/วันที่ทำ', 'act-distance': 'ระยะทางรวม',
         'act-goal': 'เฉลี่ยต่อสัปดาห์', 'act-goal-note': 'เกณฑ์แนะนำ 150 นาที/สัปดาห์ (ระดับปานกลาง)', 'act-goal-of': 'ของ 150 นาที',
-        'act-chart': 'เวลาออกกำลังกาย', 'act-chart-week': 'เวลาออกกำลังกายรายสัปดาห์', 'act-category': 'สัดส่วนตามประเภท',
-        'act-top': 'กิจกรรมที่ทำบ่อย', 'act-list': 'รายการกิจกรรม', 'act-center': 'ครั้ง',
+        'act-chart': 'เวลาออกกำลังกาย', 'act-chart-week': 'เวลาออกกำลังกายรายสัปดาห์',
+        'act-top': 'กิจกรรมที่ทำบ่อย',
         'act-tip-min': '{v} นาที', 'act-tip-km': '{v} กม.',
         /* การนอน */
-        'sl-avg': 'นอนเฉลี่ย', 'sl-range': 'สั้นสุด – นานสุด', 'sl-nights': 'คืนที่บันทึก',
         'sl-bed': 'เข้านอนเฉลี่ย', 'sl-wake': 'ตื่นเฉลี่ย',
         'sl-chart': 'ชั่วโมงการนอน', 'sl-chart-week': 'ชั่วโมงนอนเฉลี่ยรายสัปดาห์', 'sl-band-note': 'แถบเขียว = ช่วงแนะนำ 7–9 ชม.',
-        'sl-eval': 'ผลประเมินการนอน', 'sl-quality': 'คุณภาพการนอน (ประเมินเอง)', 'sl-list': 'รายการการนอน',
+        'sl-eval': 'ผลประเมินการนอน',
         'sl-tip-hr': 'เฉลี่ย {v} ชม.', 'sl-tip-none': 'ไม่ได้บันทึก',
         /* ข้อสังเกต */
         'insight-title': 'ข้อสังเกตจากบันทึกของคุณ',
@@ -73,27 +62,16 @@ const REPORT_I18N = {
         'insight-none': 'ข้อมูลในช่วงนี้ยังไม่พอสำหรับข้อสังเกต ลองบันทึกต่อเนื่องอีกสักระยะ หรือเลือกช่วงเวลาที่กว้างขึ้น',
         'ins-sleep-low': 'นอนน้อยกว่า 7 ชม. {n} จาก {t} คืนที่บันทึก',
         'ins-sleep-ok': 'นอนอยู่ในช่วงแนะนำ 7–9 ชม. ทุกคืนที่บันทึก ({t} คืน)',
-        'ins-sleep-high': 'นอนเกิน 9 ชม. {n} จาก {t} คืนที่บันทึก',
         'ins-food-red': 'อาหารสีแดง ({l}) คิดเป็น {p}% ของมื้อที่ประเมินสีได้',
         'ins-food-green': 'อาหารดีต่อสุขภาพคิดเป็น {p}% ของมื้อที่ประเมินสีได้',
         'ins-act-goal': 'ออกกำลังกายเฉลี่ย {m} นาที/สัปดาห์ ถึงเกณฑ์แนะนำ 150 นาที',
         'ins-act-under': 'ออกกำลังกายเฉลี่ย {m} นาที/สัปดาห์ ยังต่ำกว่าเกณฑ์แนะนำ 150 นาที',
         'ins-act-none': 'ไม่มีบันทึกการออกกำลังกายในช่วงนี้',
-        'ins-cross-good': 'วันที่ออกกำลังกาย มีอาหารสีแดง {a}% เทียบกับ {b}% ในวันที่ไม่ได้ออกกำลังกาย',
-        'ins-cross-info': 'วันที่ออกกำลังกาย มีอาหารสีแดง {a}% สูงกว่า {b}% ในวันที่ไม่ได้ออกกำลังกาย',
-        'ins-streak': 'บันทึกต่อเนื่องมาแล้ว {s} วัน',
-        'ins-consistency-good': 'บันทึกข้อมูล {l} จาก {r} วัน ({p}%) สม่ำเสมอดี',
         'ins-consistency-low': 'บันทึกข้อมูลเพียง {l} จาก {r} วัน ยิ่งบันทึกครบ ภาพรวมยิ่งแม่นยำ',
         'ins-weight-ok': 'น้ำหนัก{d} {v} กก. สอดคล้องกับเป้าหมาย "{g}"',
         'ins-weight-off': 'น้ำหนัก{d} {v} กก. ต่างจากเป้าหมาย "{g}"',
         'ins-weight-steady': 'น้ำหนักคงที่ (เปลี่ยนไม่เกิน 1 กก.) สอดคล้องกับเป้าหมาย "{g}"',
         'dir-down': 'ลดลง', 'dir-up': 'เพิ่มขึ้น',
-        /* รายวัน */
-        'daily-title': 'สรุปรายวัน', 'daily-sub': 'ดูอาหาร กิจกรรม และการนอนของแต่ละวันในที่เดียว',
-        'daily-col-date': 'วัน', 'daily-col-food': 'อาหาร', 'daily-col-act': 'ออกกำลังกาย', 'daily-col-sleep': 'นอน', 'daily-col-quality': 'คุณภาพนอน',
-        'daily-legend': 'จุดสี = สีที่พบมากที่สุดของวัน (เท่ากันแสดงสีที่ควรระวังกว่า)',
-        'daily-tip-food': 'อาหาร {n} มื้อ', 'daily-tip-none': 'ไม่มีบันทึก',
-        'cta-start': 'เริ่มบันทึก'
     },
     en: {
         'page-title': 'My Report',
@@ -106,72 +84,51 @@ const REPORT_I18N = {
         'load-error': 'Could not load the report',
         'loading': 'Loading report…',
         'overview-title': 'Overview',
-        'tab-body': 'Body', 'tab-food': 'Food', 'tab-activity': 'Activity', 'tab-sleep': 'Sleep', 'tab-daily': 'Daily',
-        'day-unit': 'days', 'days-count': '{n} days',
+        'tab-body': 'Body', 'tab-food': 'Food', 'tab-activity': 'Activity', 'tab-sleep': 'Sleep',
+        'days-count': '{n} days',
         'kpi-bmi': 'Latest BMI', 'kpi-bmi-sub': 'Weight {w} kg',
-        'kpi-tdee': 'Daily energy target', 'kpi-tdee-sub': 'TDEE {t} kcal',
-        'kpi-consistency': 'Consistency', 'kpi-consistency-sub': 'Logged {l}/{r} days · {s}-day streak',
         'kpi-food': 'Food', 'kpi-food-unit': 'meals',
         'kpi-activity': 'Exercise', 'kpi-activity-sub': '{c} sessions · {d} days',
         'kpi-sleep': 'Avg sleep', 'kpi-sleep-unit': 'h/night', 'kpi-sleep-sub': '{n} nights logged',
-        'unit-hr': 'h', 'unit-min': 'm', 'unit-minutes': 'min', 'unit-kg': 'kg', 'unit-cm': 'cm', 'unit-km': 'km',
-        'unit-times': 'times', 'unit-meals': 'meals', 'unit-nights': 'nights', 'unit-kcal': 'kcal',
+        'unit-hr': 'h', 'unit-min': 'm', 'unit-minutes': 'min', 'unit-kg': 'kg',
+        'unit-times': 'times', 'unit-meals': 'meals', 'unit-nights': 'nights',
         'light-1': 'Healthy', 'light-2': 'In moderation', 'light-3': 'Watch out',
-        'meal-1': 'Breakfast', 'meal-2': 'Lunch', 'meal-3': 'Dinner', 'meal-4': 'Snack',
         'bmi-1': 'Underweight', 'bmi-2': 'Normal', 'bmi-3': 'Overweight', 'bmi-4': 'Obese',
         'target-1': 'Lose weight', 'target-2': 'Build muscle', 'target-3': 'Maintain weight',
         'eval-1': 'Too little', 'eval-2': 'Just right', 'eval-3': 'Too much',
-        'quality-1': 'Poor', 'quality-2': 'Fair', 'quality-3': 'Good',
         'week-range': 'Week {a} – {b}',
-        'show-more': 'Show more', 'items-cap': 'Showing the latest {n} of {t} entries',
         'empty-title': 'No data in this period', 'empty-desc': 'Try a longer period, or start logging now',
         'empty-body-title': 'No body data yet', 'empty-body-desc': 'Enter your weight and height on the profile page to see BMI and your energy needs',
         'cta-body': 'Enter body stats', 'cta-food': 'Log food', 'cta-activity': 'Log activity', 'cta-sleep': 'Log sleep',
-        'body-weight': 'Latest weight', 'body-height': 'Height', 'body-target': 'Goal', 'body-change': 'Weight change',
-        'body-weight-chart': 'Weight over time', 'body-bmi-chart': 'BMI over time',
-        'body-bmi-note': 'Dashed lines = BMI cut-offs (18.5 / 23 / 25)',
+        'body-weight': 'Latest weight', 'body-target': 'Goal', 'body-change': 'Weight change',
+        'body-weight-chart': 'Weight over time',
         'body-need-more': 'Only one body record in this period, so no trend yet',
-        'body-history': 'Body history', 'body-history-meta': 'BMR {bmr} · TDEE {tdee} · target {tt} kcal',
-        'body-tip-weight': 'Weight {v} kg', 'body-tip-bmi': 'BMI {v}',
-        'food-meals': 'Total meals', 'food-days': 'Days logged', 'food-avg': 'Avg/day (meals)',
-        'food-share': 'Food color share', 'food-share-center': 'meals', 'food-trend': 'Food color trend',
-        'food-top': 'Most eaten categories', 'food-by-meal': 'By meal', 'food-list': 'Food entries',
-        'food-tip-total': '{n} meals in total',
-        'act-count': 'Sessions', 'act-total': 'Total time', 'act-days': 'Active days', 'act-avg': 'Avg/active day', 'act-distance': 'Total distance',
+        'body-tip-weight': 'Weight {v} kg',
+        'food-share': 'Food color share', 'food-share-center': 'meals',
+        'food-top': 'Most eaten categories',
         'act-goal': 'Weekly average', 'act-goal-note': 'Recommended: 150 min/week (moderate intensity)', 'act-goal-of': 'of 150 min',
-        'act-chart': 'Exercise time', 'act-chart-week': 'Weekly exercise time', 'act-category': 'Share by type',
-        'act-top': 'Most frequent activities', 'act-list': 'Activity entries', 'act-center': 'sessions',
+        'act-chart': 'Exercise time', 'act-chart-week': 'Weekly exercise time',
+        'act-top': 'Most frequent activities',
         'act-tip-min': '{v} min', 'act-tip-km': '{v} km',
-        'sl-avg': 'Avg sleep', 'sl-range': 'Shortest – longest', 'sl-nights': 'Nights logged',
         'sl-bed': 'Avg bedtime', 'sl-wake': 'Avg wake-up',
         'sl-chart': 'Sleep hours', 'sl-chart-week': 'Weekly average sleep hours', 'sl-band-note': 'Green band = recommended 7–9 h',
-        'sl-eval': 'Sleep evaluation', 'sl-quality': 'Sleep quality (self-rated)', 'sl-list': 'Sleep entries',
+        'sl-eval': 'Sleep evaluation',
         'sl-tip-hr': 'Avg {v} h', 'sl-tip-none': 'Not logged',
         'insight-title': 'Observations from your logs',
         'insight-note': 'Based only on your own logs in the selected period, not medical advice',
         'insight-none': 'Not enough data in this period for observations. Keep logging for a while, or pick a longer period',
         'ins-sleep-low': 'Slept under 7 h on {n} of {t} logged nights',
         'ins-sleep-ok': 'Slept within the recommended 7–9 h on every logged night ({t} nights)',
-        'ins-sleep-high': 'Slept over 9 h on {n} of {t} logged nights',
         'ins-food-red': 'Red foods ({l}) make up {p}% of meals that have a color',
         'ins-food-green': 'Healthy foods make up {p}% of meals that have a color',
         'ins-act-goal': 'Averaging {m} min/week of exercise, meeting the recommended 150 min',
         'ins-act-under': 'Averaging {m} min/week of exercise, below the recommended 150 min',
         'ins-act-none': 'No exercise logged in this period',
-        'ins-cross-good': 'On exercise days, red foods were {a}% vs {b}% on days without exercise',
-        'ins-cross-info': 'On exercise days, red foods were {a}%, higher than {b}% on days without exercise',
-        'ins-streak': 'Logging streak: {s} days in a row',
-        'ins-consistency-good': 'Logged {l} of {r} days ({p}%), nicely consistent',
         'ins-consistency-low': 'Logged only {l} of {r} days. The more complete your logs, the more accurate the picture',
         'ins-weight-ok': 'Weight {d} {v} kg, in line with your goal "{g}"',
         'ins-weight-off': 'Weight {d} {v} kg, different from your goal "{g}"',
         'ins-weight-steady': 'Weight is steady (within 1 kg), in line with your goal "{g}"',
         'dir-down': 'down', 'dir-up': 'up',
-        'daily-title': 'Daily summary', 'daily-sub': 'Food, activity and sleep for each day in one place',
-        'daily-col-date': 'Day', 'daily-col-food': 'Food', 'daily-col-act': 'Exercise', 'daily-col-sleep': 'Sleep', 'daily-col-quality': 'Sleep quality',
-        'daily-legend': 'Dot = most common color of the day (ties show the more cautionary color)',
-        'daily-tip-food': '{n} meals', 'daily-tip-none': 'No entries',
-        'cta-start': 'Start logging'
     }
 };
 
@@ -179,15 +136,12 @@ const THAI_MONTHS_SHORT = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.',
 const ENGLISH_MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 const WEEKLY_BUCKET_ABOVE_DAYS = 31; // ช่วงยาวกว่านี้ กราฟรายวันรวมเป็นรายสัปดาห์
-const LIST_PAGE_SIZE = 10;
 const WHO_WEEKLY_MIN = 150;
-const CATEGORY_COLORS = { 1: 'var(--rp-s1)', 2: 'var(--rp-s2)', 3: 'var(--rp-s3)', 4: 'var(--rp-s4)', 5: 'var(--rp-s5)' };
 const LIGHT_KEY = { 1: 'green', 2: 'yellow', 3: 'red' };
 const LIGHT_VAR = { 1: 'var(--color-green)', 2: 'var(--color-yellow)', 3: 'var(--color-red)' };
 const BMI_CLASS = { 1: 'lc-blue', 2: 'lc-green', 3: 'lc-orange', 4: 'lc-red' };
 const SLEEP_EVAL_CLASS = { 1: 'lc-red', 2: 'lc-green', 3: 'lc-yellow' };
 const SLEEP_EVAL_VAR = { 1: 'var(--color-red)', 2: 'var(--color-green)', 3: 'var(--color-yellow)' };
-const QUALITY_VAR = { 1: '#86b6ef', 2: '#3987e5', 3: '#1c5cab' }; // ordinal: ยิ่งดียิ่งเข้ม
 
 /* ==============================================================================
    1. ตัวช่วยทั่วไป
@@ -196,9 +150,7 @@ let mbId = null;
 let report = null;
 let rangeMode = '30';
 let activeTab = 'body';
-const TABS = ['body', 'food', 'activity', 'sleep', 'daily'];
-const DAILY_PAGE_SIZE = 14;
-const listShown = { body: LIST_PAGE_SIZE, food: LIST_PAGE_SIZE, activity: LIST_PAGE_SIZE, sleep: LIST_PAGE_SIZE, daily: DAILY_PAGE_SIZE };
+const TABS = ['body', 'food', 'activity', 'sleep'];
 let loadSeq = 0;
 
 function t(key, vars) {
@@ -419,25 +371,6 @@ function pill(cls, text) {
     return `<span class="cat-pill ${cls}"><span class="badge-dot" style="background:var(--lc)"></span>${escapeHtml(text)}</span>`;
 }
 
-function dateBlock(dateStr) {
-    const d = parseYmd(dateStr);
-    return `<div class="rp-date"><strong class="numeric">${d.getDate()}</strong><span>${months()[d.getMonth()]}</span></div>`;
-}
-
-/** ลิสต์รายการ + ปุ่มดูเพิ่ม (client-side) — rows = html ของ .rp-row ทั้งหมด */
-function listCard(tabKey, title, rows, total) {
-    const shown = Math.min(listShown[tabKey], rows.length);
-    const more = rows.length - shown;
-    const cap = total > rows.length ? `<div class="rp-cap-note">${t('items-cap', { n: rows.length, t: total })}</div>` : '';
-    return `
-        <section class="summary-card">
-            <div class="chart-head"><div class="chart-title">${escapeHtml(title)}</div><span class="count-badge numeric">${fmtNum(total)}</span></div>
-            <div class="rp-list">${rows.slice(0, shown).join('')}</div>
-            <button type="button" class="rp-more" data-more="${tabKey}" ${more > 0 ? '' : 'hidden'} style="width:100%">${t('show-more')} (${Math.min(LIST_PAGE_SIZE, more)})</button>
-            ${cap}
-        </section>`;
-}
-
 /* ==============================================================================
    3. ภาพรวม (KPI)
    ============================================================================== */
@@ -458,16 +391,6 @@ function renderOverview() {
             <span class="kpi-value numeric">${o.bmi != null ? fmtNum(o.bmi, 1) : '–'}</span>
             ${bmiPill}
             ${latest && latest.weight != null ? `<span class="kpi-sub">${t('kpi-bmi-sub', { w: fmtNum(latest.weight, 1) })}</span>` : ''}
-        </div>`,
-        `<div class="kpi">
-            <span class="kpi-label">${t('kpi-tdee')}</span>
-            <span class="kpi-value numeric">${o.tdee_target != null ? fmtNum(o.tdee_target) : '–'}<span class="kpi-unit">${t('unit-kcal')}</span></span>
-            ${o.tdee != null ? `<span class="kpi-sub">${t('kpi-tdee-sub', { t: fmtNum(o.tdee) })}</span>` : ''}
-        </div>`,
-        `<div class="kpi">
-            <span class="kpi-label">${t('kpi-consistency')}</span>
-            <span class="kpi-value numeric">${o.consistency_pct}<span class="kpi-unit">%</span></span>
-            <span class="kpi-sub">${t('kpi-consistency-sub', { l: o.logged_days, r: rangeDays, s: o.streak_days })}</span>
         </div>`,
         `<div class="kpi">
             <span class="kpi-label">${t('kpi-food')}</span>
@@ -510,7 +433,6 @@ function renderBody() {
 
     let html = chips([
         { value: `${l.weight != null ? fmtNum(l.weight, 1) : '–'}<span class="kpi-unit"> ${t('unit-kg')}</span>`, label: t('body-weight') },
-        { value: `${l.height != null ? fmtNum(l.height, 1) : '–'}<span class="kpi-unit"> ${t('unit-cm')}</span>`, label: t('body-height') },
         { value: l.target ? escapeHtml(t('target-' + l.target)) : '–', label: t('body-target') },
         { value: `${changeText}<span class="kpi-unit"> ${change == null ? '' : t('unit-kg')}</span>`, label: t('body-change') }
     ]);
@@ -519,31 +441,10 @@ function renderBody() {
     const wPts = hist.filter(h => h.weight != null).map(h => ({
         date: h.date, y: h.weight, tip: tipAttr(fmtDateShort(h.date), [t('body-tip-weight', { v: fmtNum(h.weight, 1) })])
     }));
-    const bPts = hist.filter(h => h.bmi != null).map(h => ({
-        date: h.date, y: h.bmi,
-        tip: tipAttr(fmtDateShort(h.date), [t('body-tip-bmi', { v: fmtNum(h.bmi, 1) }) + (h.bmi_eval ? ` · ${t('bmi-' + h.bmi_eval)}` : '')])
-    }));
-
     if (wPts.length) {
         html += card(t('body-weight-chart'), wPts.length < 2 ? t('body-need-more') : '',
             lineChart({ points: wPts, label: t('body-weight-chart') }));
     }
-    if (bPts.length) {
-        html += card(t('body-bmi-chart'), t('body-bmi-note'),
-            lineChart({ points: bPts, refs: [{ y: 18.5 }, { y: 23 }, { y: 25 }], label: t('body-bmi-chart') }));
-    }
-
-    const rows = hist.slice().reverse().map(h => `
-        <div class="rp-row ${h.bmi_eval ? BMI_CLASS[h.bmi_eval] : ''}">
-            ${dateBlock(h.date)}
-            <div class="rp-main">
-                <div class="rp-name numeric">${h.weight != null ? fmtNum(h.weight, 1) + ' ' + t('unit-kg') : '–'} · BMI ${h.bmi != null ? fmtNum(h.bmi, 1) : '–'}</div>
-                <div class="rp-meta numeric">${t('body-history-meta', { bmr: fmtNum(h.bmr), tdee: fmtNum(h.tdee), tt: fmtNum(h.tdee_target) })}</div>
-            </div>
-            <div class="rp-side">${h.bmi_eval ? pill(BMI_CLASS[h.bmi_eval], t('bmi-' + h.bmi_eval)) : ''}</div>
-        </div>`);
-    if (rows.length) html += listCard('body', t('body-history'), rows, rows.length);
-
     el.innerHTML = html;
 }
 
@@ -560,11 +461,7 @@ function renderFood() {
     const tl = f.by_traffic_light;
     const judged = tl.green + tl.yellow + tl.red;
 
-    let html = chips([
-        { value: fmtNum(f.meal_count), label: t('food-meals') },
-        { value: fmtNum(f.days_logged), label: t('food-days') },
-        { value: fmtNum(f.avg_per_day, 1), label: t('food-avg') }
-    ]);
+    let html = '';
 
     // สัดส่วนสี
     const lightRows = [1, 2, 3].map(n => ({ n, value: tl[LIGHT_KEY[n]] }));
@@ -578,25 +475,6 @@ function renderFood() {
             ${legend(lightRows.map(r => ({ color: LIGHT_VAR[r.n], label: t('light-' + r.n), value: r.value, pct: pct(r.value, judged) })))}
         </div>`);
 
-    // แนวโน้มรายวัน/สัปดาห์ (แท่งซ้อน เขียว/เหลือง/แดง)
-    const buckets = bucketize(f.daily);
-    const sums = buckets.map(b => b.rows.reduce((a, r) => ({ g: a.g + r.green, y: a.y + r.yellow, r: a.r + r.red }), { g: 0, y: 0, r: 0 }));
-    const maxTotal = Math.max.apply(null, sums.map(s => s.g + s.y + s.r).concat([1]));
-    const scaleMax = niceCeil(maxTotal);
-    const cols = buckets.map((b, i) => {
-        const s = sums[i], total = s.g + s.y + s.r;
-        const seg = (n, cls) => n > 0 ? `<span class="bar seg-${cls}" style="height:${(n / scaleMax * 100).toFixed(2)}%"></span>` : '';
-        const tip = tipAttr(bucketTitle(b), [
-            t('food-tip-total', { n: total }),
-            `${t('light-1')} ${s.g} · ${t('light-2')} ${s.y} · ${t('light-3')} ${s.r}`
-        ]);
-        return `<div class="bar-col is-stack" data-tip="${tip}">${seg(s.r, 'red')}${seg(s.y, 'yellow')}${seg(s.g, 'green')}</div>`;
-    }).join('');
-    html += card(t('food-trend'), '', barShell(cols, buckets, `${scaleMax} ${t('unit-meals')}`, null, t('food-trend')) + `
-        <div class="seg-legend" style="flex-direction:row;flex-wrap:wrap;gap:12px;margin-top:12px">
-            ${[1, 2, 3].map(n => `<span class="legend-row" style="grid-template-columns:10px auto"><span class="legend-dot" style="background:${LIGHT_VAR[n]}"></span><span>${t('light-' + n)}</span></span>`).join('')}
-        </div>`);
-
     // ประเภทที่กินบ่อย
     if (f.top_categories.length) {
         html += card(t('food-top'), '', hbarList(f.top_categories.map(c => ({
@@ -604,23 +482,6 @@ function renderFood() {
             value: c.count, valueText: fmtNum(c.count), sub: t('unit-times')
         }))));
     }
-
-    // แยกตามมื้อ
-    html += card(t('food-by-meal'), '', hbarList(f.by_meal.map(m => ({
-        label: t('meal-' + m.meal_type), value: m.count, valueText: fmtNum(m.count), sub: t('unit-times')
-    }))));
-
-    // รายการ
-    const rows = f.items.map(i => `
-        <div class="rp-row ${i.traffic_light ? 'lc-' + LIGHT_KEY[i.traffic_light] : ''}">
-            ${dateBlock(i.date)}
-            <div class="rp-main">
-                <div class="rp-name">${escapeHtml(i.food_name || i.category_name || '–')}</div>
-                <div class="rp-meta"><span class="numeric">${escapeHtml(i.time)}</span>${i.meal_type ? ' · ' + escapeHtml(t('meal-' + i.meal_type)) : ''}${i.amount ? ' · ' + escapeHtml(i.amount) : ''}</div>
-            </div>
-            <div class="rp-side">${i.traffic_light ? pill('lc-' + LIGHT_KEY[i.traffic_light], t('light-' + i.traffic_light)) : ''}${i.category_name && i.food_name ? `<span class="rp-meta">${escapeHtml(i.category_name)}</span>` : ''}</div>
-        </div>`);
-    html += listCard('food', t('food-list'), rows, f.items_total);
 
     el.innerHTML = html;
 }
@@ -636,14 +497,7 @@ function renderActivity() {
         return;
     }
 
-    const items = [
-        { value: fmtNum(a.count), label: t('act-count') },
-        { value: fmtDuration(a.total_min), label: t('act-total') },
-        { value: fmtNum(a.days_active), label: t('act-days') },
-        { value: `${fmtNum(a.avg_min_per_day, 1)}<span class="kpi-unit"> ${t('unit-minutes')}</span>`, label: t('act-avg') }
-    ];
-    if (a.distance_count > 0) items.push({ value: `${fmtNum(a.total_distance_km, 1)}<span class="kpi-unit"> ${t('unit-km')}</span>`, label: t('act-distance') });
-    let html = chips(items);
+    let html = '';
 
     // เฉลี่ยต่อสัปดาห์เทียบเกณฑ์แนะนำ
     const days = report.range.days;
@@ -668,39 +522,10 @@ function renderActivity() {
     const weekly = buckets.length && buckets[0].weekly;
     html += card(weekly ? t('act-chart-week') : t('act-chart'), '', barShell(cols, buckets, `${scaleMax} ${t('unit-minutes')}`, null, t('act-chart')));
 
-    // สัดส่วนตามประเภท (สีผูกกับประเภท ไม่ผูกกับอันดับ)
-    const catSegs = a.by_category.map(c => {
-        const cat = SoyDeeActivityCategories.normalize(c.category);
-        return {
-            value: c.count, color: CATEGORY_COLORS[cat], label: SoyDeeActivityCategories.label(cat), pct: pct(c.count, a.count),
-            tip: tipAttr(SoyDeeActivityCategories.label(cat), [`${c.count} ${t('unit-times')}`, t('act-tip-min', { v: fmtNum(c.minutes) })])
-        };
-    });
-    html += card(t('act-category'), '', `
-        <div class="donut-wrap">
-            ${donut(catSegs, a.count, t('act-center'), t('act-category'))}
-            ${legend(catSegs)}
-        </div>`);
-
     // Top กิจกรรม
     html += card(t('act-top'), '', hbarList(a.top_activities.map(x => ({
         label: x.name, value: x.count, valueText: fmtNum(x.count), sub: `${t('unit-times')} · ${fmtNum(x.minutes)} ${t('unit-minutes')}`
     }))));
-
-    // รายการ
-    const rows = a.items.map(i => {
-        const cat = SoyDeeActivityCategories.normalize(i.category);
-        return `
-        <div class="rp-row">
-            ${dateBlock(i.date)}
-            <div class="rp-main">
-                <div class="rp-name">${escapeHtml(i.name)}</div>
-                <div class="rp-meta">${escapeHtml(SoyDeeActivityCategories.label(cat))}${i.detail ? ' · ' + escapeHtml(i.detail) : ''}${i.distance_km != null ? ` · <span class="numeric">${fmtNum(i.distance_km, 1)} ${t('unit-km')}</span>` : ''}</div>
-            </div>
-            <div class="rp-side"><span class="rp-value numeric">${i.duration_min != null ? fmtNum(i.duration_min) : '–'} <small>${t('unit-minutes')}</small></span></div>
-        </div>`;
-    });
-    html += listCard('activity', t('act-list'), rows, a.items_total);
 
     el.innerHTML = html;
 }
@@ -715,11 +540,7 @@ function renderSleep() {
         el.innerHTML = emptyBlock(t('empty-title'), t('empty-desc'), 'sleep-record.html', t('cta-sleep'));
         return;
     }
-    const hrUnit = `<span class="kpi-unit"> ${t('unit-hr')}</span>`;
     let html = chips([
-        { value: `${fmtNum(s.avg_hours, 1)}${hrUnit}`, label: t('sl-avg') },
-        { value: `${fmtNum(s.min_hours, 1)} – ${fmtNum(s.max_hours, 1)}${hrUnit}`, label: t('sl-range') },
-        { value: fmtNum(s.nights), label: t('sl-nights') },
         { value: s.avg_bedtime || '–', label: t('sl-bed') },
         { value: s.avg_wake_time || '–', label: t('sl-wake') }
     ]);
@@ -754,27 +575,6 @@ function renderSleep() {
     }));
     html += card(t('sl-eval'), '', segBar(evalSegs, t('sl-eval')) + `<div class="seg-legend">${legendRows(evalSegs, 'eval-', s.nights)}</div>`);
 
-    const qSegs = [1, 2, 3].map(n => ({
-        n, value: s.by_quality[n - 1], color: QUALITY_VAR[n],
-        tip: tipAttr(t('quality-' + n), [`${s.by_quality[n - 1]} ${t('unit-nights')}`])
-    }));
-    html += card(t('sl-quality'), '', segBar(qSegs, t('sl-quality')) + `<div class="seg-legend">${legendRows(qSegs, 'quality-', s.nights)}</div>`);
-
-    // รายการ (ใหม่ → เก่า)
-    const rows = s.items.slice().reverse().map(i => `
-        <div class="rp-row ${i.eval ? SLEEP_EVAL_CLASS[i.eval] : ''}">
-            ${dateBlock(i.date)}
-            <div class="rp-main">
-                <div class="rp-name numeric">${escapeHtml(i.start.slice(11))} → ${escapeHtml(i.end.slice(11))}</div>
-                <div class="rp-meta">${i.quality ? escapeHtml(t('sl-quality').split(' (')[0]) + ': ' + escapeHtml(t('quality-' + i.quality)) : ''}</div>
-            </div>
-            <div class="rp-side">
-                <span class="rp-value numeric">${i.total_hours != null ? fmtNum(i.total_hours, 1) : '–'} <small>${t('unit-hr')}</small></span>
-                ${i.eval ? pill(SLEEP_EVAL_CLASS[i.eval], t('eval-' + i.eval)) : ''}
-            </div>
-        </div>`);
-    html += listCard('sleep', t('sl-list'), rows, s.nights);
-
     el.innerHTML = html;
 }
 
@@ -791,15 +591,9 @@ function legendRows(segs, keyPrefix, total) {
    7.1 ข้อสังเกตจากบันทึก — กฎง่ายๆ เชิงบรรยายจากข้อมูลช่วงที่เลือก (ไม่ใช่คำแนะนำทางการแพทย์)
    แต่ละกฎมีเกณฑ์ข้อมูลขั้นต่ำ เพื่อไม่สรุปจากข้อมูลน้อยเกินไป; tone: warn > good > info
    ============================================================================== */
-const INSIGHT_MAX = 4;
+const INSIGHT_MAX = 3;
 const INSIGHT_ICON = { warn: 'warning', good: 'check', info: 'info' };
 const INSIGHT_ORDER = { warn: 0, good: 1, info: 2 };
-
-function redShare(days) {
-    let judged = 0, red = 0;
-    days.forEach(d => { judged += d.green + d.yellow + d.red; red += d.red; });
-    return { judged, red, pct: pct(red, judged) };
-}
 
 function buildInsights() {
     const out = [];
@@ -810,10 +604,8 @@ function buildInsights() {
     // การนอน
     if (s.nights >= 3) {
         const low = s.items.filter(i => i.eval === 1).length;
-        const high = s.items.filter(i => i.eval === 3).length;
         if (low / s.nights >= 0.4) add('warn', 'ins-sleep-low', { n: low, t: s.nights });
         else if (s.by_eval[1] === s.nights) add('good', 'ins-sleep-ok', { t: s.nights });
-        if (high / s.nights >= 0.4) add('info', 'ins-sleep-high', { n: high, t: s.nights });
     }
 
     // อาหาร (นับเฉพาะมื้อที่มีสี)
@@ -833,26 +625,8 @@ function buildInsights() {
         }
     }
 
-    // ข้ามส่วน: อาหารสีแดง วันออกกำลังกาย vs ไม่ออก (ต้องมีข้อมูลพอทั้งสองกลุ่ม)
-    const minutesByDate = {};
-    a.daily.forEach(d => { minutesByDate[d.date] = d.minutes; });
-    const foodDays = f.daily.filter(d => d.total > 0);
-    const active = foodDays.filter(d => minutesByDate[d.date] > 0);
-    const inactive = foodDays.filter(d => !(minutesByDate[d.date] > 0));
-    if (active.length >= 3 && inactive.length >= 3) {
-        const ra = redShare(active), ri = redShare(inactive);
-        if (ra.judged >= 6 && ri.judged >= 6 && Math.abs(ra.pct - ri.pct) >= 15) {
-            add(ra.pct < ri.pct ? 'good' : 'info', ra.pct < ri.pct ? 'ins-cross-good' : 'ins-cross-info', { a: ra.pct, b: ri.pct });
-        }
-    }
-
-    // ความสม่ำเสมอ
-    let consistencyGood = false;
-    if (days >= 7 && o.logged_days > 0) {
-        if (o.consistency_pct >= 80) { consistencyGood = true; add('good', 'ins-consistency-good', { l: o.logged_days, r: days, p: o.consistency_pct }); }
-        else if (o.consistency_pct <= 30) add('info', 'ins-consistency-low', { l: o.logged_days, r: days });
-    }
-    if (!consistencyGood && o.streak_days >= 7) add('good', 'ins-streak', { s: o.streak_days });
+    // ความสม่ำเสมอ (เตือนเฉพาะเมื่อบันทึกน้อยมาก)
+    if (days >= 7 && o.logged_days > 0 && o.consistency_pct <= 30) add('info', 'ins-consistency-low', { l: o.logged_days, r: days });
 
     // น้ำหนักเทียบเป้าหมาย
     const target = b.latest && b.latest.target;
@@ -882,76 +656,6 @@ function renderInsights() {
     $('insightList').innerHTML = list.length
         ? list.map(i => `<li class="insight is-${i.tone}"><span class="insight-icon"><i data-icon="${INSIGHT_ICON[i.tone]}"></i></span><span>${escapeHtml(i.text)}</span></li>`).join('')
         : `<li class="insight is-info"><span class="insight-icon"><i data-icon="info"></i></span><span>${escapeHtml(t('insight-none'))}</span></li>`;
-}
-
-/* ==============================================================================
-   7.2 แท็บ: รายวัน — ตารางรวมอาหาร/กิจกรรม/การนอนของแต่ละวัน (ใหม่ → เก่า)
-   ============================================================================== */
-function dominantLight(d) {
-    if (d.total === 0 || d.green + d.yellow + d.red === 0) return 0;
-    // เท่ากัน → เลือกสีที่ควรระวังกว่า (แดง > เหลือง > เขียว)
-    if (d.red >= d.yellow && d.red >= d.green) return 3;
-    if (d.yellow >= d.green) return 2;
-    return 1;
-}
-
-function renderDaily() {
-    const el = $('panel-daily');
-    if (report.overview.logged_days === 0) {
-        el.innerHTML = emptyBlock(t('empty-title'), t('empty-desc'), 'food-record.html', t('cta-start'));
-        return;
-    }
-    const minutesByDate = {}, sleepByDate = {};
-    report.activity.daily.forEach(d => { minutesByDate[d.date] = d.minutes; });
-    report.sleep.items.forEach(i => { sleepByDate[i.date] = i; });
-
-    const days = report.food.daily.slice().reverse();
-    const shown = Math.min(listShown.daily, days.length);
-    const more = days.length - shown;
-
-    const rows = days.slice(0, shown).map(d => {
-        const mins = minutesByDate[d.date] || 0;
-        const sl = sleepByDate[d.date];
-        const light = dominantLight(d);
-        const empty = d.total === 0 && mins === 0 && !sl;
-        const foodCell = d.total > 0
-            ? `<span class="numeric">${d.total}</span>${light ? ` <span class="badge-dot" style="background:${LIGHT_VAR[light]}"></span>` : ''}`
-            : '–';
-        const tip = tipAttr(fmtDateShort(d.date), empty ? [t('daily-tip-none')] : [
-            t('daily-tip-food', { n: d.total }) + (d.total ? ` (${t('light-1')} ${d.green} · ${t('light-2')} ${d.yellow} · ${t('light-3')} ${d.red})` : ''),
-            `${t('kpi-activity')}: ${mins} ${t('unit-minutes')}`,
-            sl ? `${t('tab-sleep')}: ${sl.total_hours != null ? fmtNum(sl.total_hours, 1) : '–'} ${t('unit-hr')}${sl.eval ? ' · ' + t('eval-' + sl.eval) : ''}` : `${t('tab-sleep')}: –`
-        ]);
-        return `<tr class="${empty ? 'is-empty' : ''}" data-tip="${tip}">
-            <th scope="row" class="numeric">${fmtDateShort(d.date)}</th>
-            <td>${foodCell}</td>
-            <td class="numeric">${mins > 0 ? fmtNum(mins) : '–'}</td>
-            <td class="numeric">${sl && sl.total_hours != null ? fmtNum(sl.total_hours, 1) : '–'}</td>
-            <td>${sl && sl.quality ? escapeHtml(t('quality-' + sl.quality)) : '–'}</td>
-        </tr>`;
-    }).join('');
-
-    el.innerHTML = `
-        <section class="summary-card">
-            <div class="chart-head"><div><div class="chart-title">${t('daily-title')}</div><div class="chart-sub">${t('daily-sub')}</div></div><span class="count-badge numeric">${fmtNum(days.length)}</span></div>
-            <div class="daily-scroll">
-                <table class="daily-table">
-                    <thead><tr>
-                        <th scope="col">${t('daily-col-date')}</th>
-                        <th scope="col">${t('daily-col-food')}<small>${t('unit-meals')}</small></th>
-                        <th scope="col">${t('daily-col-act')}<small>${t('unit-minutes')}</small></th>
-                        <th scope="col">${t('daily-col-sleep')}<small>${t('unit-hr')}</small></th>
-                        <th scope="col">${t('daily-col-quality')}</th>
-                    </tr></thead>
-                    <tbody>${rows}</tbody>
-                </table>
-            </div>
-            <div class="daily-legend">
-                ${[1, 2, 3].map(n => `<span><i class="badge-dot" style="background:${LIGHT_VAR[n]}"></i>${t('light-' + n)}</span>`).join('')}
-            </div>
-            <p class="summary-insight">${t('daily-legend')}</p>
-            <button type="button" class="rp-more" data-more="daily" ${more > 0 ? '' : 'hidden'} style="width:100%">${t('show-more')} (${Math.min(DAILY_PAGE_SIZE, more)})</button>
-        </section>`;
 }
 
 /* ==============================================================================
@@ -996,7 +700,6 @@ async function loadReport() {
         const data = await SoyDeeAPI.request(`/members/${mbId}/report`, { query: { from: range.from, to: range.to } });
         if (seq !== loadSeq) return; // มีคำขอใหม่กว่าแล้ว — ทิ้งผลเก่า
         report = data;
-        Object.keys(listShown).forEach(k => { listShown[k] = k === 'daily' ? DAILY_PAGE_SIZE : LIST_PAGE_SIZE; });
         renderAll();
     } catch (err) {
         if (seq !== loadSeq) return;
@@ -1013,7 +716,6 @@ function renderAll() {
     renderActivity();
     renderSleep();
     renderInsights();
-    renderDaily();
 }
 
 /* ==============================================================================
@@ -1095,15 +797,6 @@ document.addEventListener('DOMContentLoaded', () => {
     $('rangeApply').addEventListener('click', loadReport);
     $('reportRetry').addEventListener('click', loadReport);
     document.querySelectorAll('.report-tab').forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
-
-    // ปุ่ม "ดูเพิ่ม" ของรายการในแต่ละแท็บ — เรนเดอร์เฉพาะแท็บนั้นใหม่
-    document.addEventListener('click', (e) => {
-        const btn = e.target.closest('[data-more]');
-        if (!btn || !report) return;
-        const key = btn.dataset.more;
-        listShown[key] += key === 'daily' ? DAILY_PAGE_SIZE : LIST_PAGE_SIZE;
-        ({ body: renderBody, food: renderFood, activity: renderActivity, sleep: renderSleep, daily: renderDaily })[key]();
-    });
 
     initTooltip();
     // #food / #activity / #sleep / #body — เปิดแท็บตรงๆ ได้จากลิงก์

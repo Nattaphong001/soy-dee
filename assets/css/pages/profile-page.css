@@ -31,6 +31,15 @@
     background: linear-gradient(180deg, rgba(8, 4, 24, 0.52) 0%, rgba(8, 4, 24, 0.38) 55%, rgba(8, 4, 24, 0.52) 100%);
 }
 
+/* สีพื้นหลังหน้าไล่ตามสี hero (ดู glass.css) — สลับตามแท็บเหมือนภาพ hero
+   ลงทะเบียนเป็น <color> เพื่อให้เฟดสีต่อเนื่อง (เบราว์เซอร์ที่ไม่รองรับ @property จะเปลี่ยนทันที) */
+@property --page-tint { syntax: '<color>'; inherits: true; initial-value: #6a44b8; }
+:root {
+    --page-tint: #6a44b8;
+    transition: --page-tint 0.45s ease;
+}
+:root:has(.profile-tab[data-tab="body"].active) { --page-tint: #d0642a; }
+
 /* ไม่มีปุ่มย้อนกลับ (กลับผ่านแถบเมนูล่าง) — ชื่อหน้าอยู่กลาง */
 .profile-hero .app-header { padding-bottom: 16px; justify-content: center; }
 .profile-hero .page-title { font-size: 18px; }

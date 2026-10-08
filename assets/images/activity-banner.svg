@@ -50,21 +50,79 @@
 <path d="M0 312 C180 296 340 292 480 276 S 700 256 800 250 L800 274 C700 282 560 302 440 316 S 180 336 0 340Z" fill="url(#track)"/>
 <path d="M0 327 C180 316 340 305 470 292 S 690 268 800 261" fill="none" stroke="#fff" stroke-opacity="0.65" stroke-width="2" stroke-dasharray="14 12"/>
 
-<!-- นักวิ่ง (ซิลูเอตต์เส้นกลม) + เงา + เส้นความเร็ว — ขยับไปซ้าย ให้พ้นชิปวันที่ที่ลอยมุมขวาล่าง -->
-<g transform="translate(-130 10)">
-<ellipse cx="462" cy="292" rx="28" ry="4" fill="#000" opacity="0.2"/>
-<g fill="none" stroke="#0f1d4d" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
-  <path d="M478 224 L462 254" stroke-width="11"/>
-  <path d="M476 228 L494 240 L504 226"/>
-  <path d="M476 228 L460 236 L448 248"/>
-  <path d="M462 254 L484 266 L478 288"/>
-  <path d="M462 254 L444 272 L424 266"/>
+<!-- กิ้งก่า mascot วิ่งแบบยืน 2 ขา ใส่ชุดวิ่ง/รองเท้า/ที่รัดศีรษะ — ขยับไปซ้าย ให้พ้นชิปวันที่ที่ลอยมุมขวาล่าง -->
+<g transform="translate(330 270)">
+<ellipse cx="12" cy="39" rx="17" ry="4.2" fill="#000" opacity="0.18"/>
+
+<!-- หางม้วนปลาย โผล่จากหลังส่วนบน พ้นขา -->
+<path d="M-6 -12 C-16 -12 -24 -6 -25 2 C-26 8 -21 11 -16 8 C-13 6 -15 2 -18 3" fill="none" stroke="#55A344" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="-16.5" cy="7.5" r="3" fill="#7BC968"/>
+
+<!-- ขาหลัง เหยียดยาวไปด้านหลัง ลอยพ้นพื้น + รองเท้า -->
+<path d="M0 0 L-13 13 L-27 19" fill="none" stroke="#55A344" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+<g transform="translate(-27 19) rotate(160)">
+  <ellipse rx="8.5" ry="4.2" fill="#fff"/>
+  <ellipse cx="0" cy="2.4" rx="8.5" ry="1.7" fill="#e0432b"/>
 </g>
-<circle cx="486" cy="211" r="9.5" fill="#0f1d4d"/>
+
+<!-- ขาหน้า เหยียดลงพื้น + รองเท้า -->
+<path d="M0 0 L14 16 L11 36" fill="none" stroke="#7BC968" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+<g transform="translate(11 36) rotate(8)">
+  <ellipse rx="9" ry="4.4" fill="#fff"/>
+  <ellipse cx="0" cy="2.5" rx="9" ry="1.7" fill="#e0432b"/>
+</g>
+
+<!-- ลำตัว (โผล่เป็นคอ/ต้นแขนต้นขา) -->
+<ellipse cx="1" cy="-20" rx="13" ry="21" fill="#6FBF5B" transform="rotate(-8 1 -20)"/>
+
+<!-- กางเกงวิ่ง -->
+<path d="M-13 -6 C-14 3 -9 9 1 10 C11 9 15 3 14 -8 C14 -15 -12 -15 -13 -6Z" fill="#1d3557"/>
+
+<!-- เสื้อกล้ามนักวิ่ง -->
+<path d="M-11 -38 C-13 -26 -12 -10 -6 -1 L10 -1 C14 -10 14 -27 11 -39 C6 -43 -6 -43 -11 -38Z" fill="#fff"/>
+
+<!-- แขนไกล (สลับข้างกับขาหน้า) งอกำหมัดขึ้นใกล้คาง -->
+<path d="M7 -37 L19 -28 L14 -42" fill="none" stroke="#55A344" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="14" cy="-43.5" r="4.6" fill="#55A344"/>
+
+<!-- แขนใกล้ (สลับข้างกับขาหลัง) เหยียดแกว่งไปด้านหลัง -->
+<path d="M0 -36 L-13 -28 L-22 -16" fill="none" stroke="#7BC968" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="-22" cy="-14" r="4.6" fill="#7BC968"/>
+
+<!-- จุดลายบนขา/หาง -->
+<g fill="#55A344" opacity="0.35">
+  <circle cx="13" cy="18" r="1.8"/>
+  <circle cx="-7" cy="7" r="1.7"/>
+  <circle cx="-20" cy="4" r="1.5"/>
+</g>
+
+<!-- หัว + ปาก -->
+<ellipse cx="7" cy="-50" rx="11" ry="9.5" fill="#6FBF5B" transform="rotate(-4 7 -50)"/>
+<ellipse cx="19" cy="-48.5" rx="6.5" ry="5.2" fill="#6FBF5B"/>
+<circle cx="23.5" cy="-49" r="0.9" fill="#2f6f25"/>
+<path d="M15 -44 Q19 -42 22.5 -44.3" fill="none" stroke="#3f5c33" stroke-width="1.3" stroke-linecap="round"/>
+<circle cx="9" cy="-43.5" r="1.7" fill="#f6a8a0" opacity="0.5"/>
+
+<!-- ตาโปนคู่สไตล์กิ้งก่า -->
+<circle cx="18" cy="-62" r="8.4" fill="#6FBF5B"/>
+<circle cx="7" cy="-59.5" r="7.2" fill="#6FBF5B"/>
+
+<!-- ที่รัดศีรษะเหนือคิ้ว -->
+<path d="M0 -68 C6 -76 16 -78 24 -71 L20 -68 C14 -74 6 -73 3 -66Z" fill="#fb923c"/>
+<ellipse cx="0" cy="-66" rx="2.6" ry="4" fill="#fb923c" transform="rotate(-25 0 -66)"/>
+
+<circle cx="18" cy="-62" r="6.4" fill="#fff"/>
+<circle cx="7" cy="-59.5" r="5.4" fill="#fff"/>
+<circle cx="20.2" cy="-61" r="3.5" fill="#1e293b"/>
+<circle cx="9" cy="-58.6" r="3" fill="#1e293b"/>
+<circle cx="18.6" cy="-64.2" r="1.2" fill="#fff"/>
+<circle cx="7.6" cy="-61.5" r="1" fill="#fff"/>
+
+<!-- เส้นความเร็วด้านหลัง -->
 <g stroke="#fff" stroke-opacity="0.5" stroke-width="3" stroke-linecap="round">
-  <path d="M396 234 L422 234"/>
-  <path d="M384 248 L414 248"/>
-  <path d="M400 262 L418 262"/>
+  <path d="M-48 -22 L-26 -20"/>
+  <path d="M-54 -10 L-30 -9"/>
+  <path d="M-46 2 L-28 2"/>
 </g>
 </g>
 </svg>

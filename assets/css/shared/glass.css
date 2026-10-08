@@ -1,0 +1,252 @@
+/* ==============================================================================
+   GLASS LAYER — สไตล์กระจกฝ้าแบบ iOS ของฝั่งผู้ใช้ (โหลดเป็นไฟล์สุดท้ายของทุกหน้า)
+   ------------------------------------------------------------------------------
+   4 ชั้น (ตามลำดับความลอย):
+     0 บนรูป (--glass-photo-*)  ปุ่มบน hero: ขาวโปร่ง ตัวอักษรขาว
+     1 ลอย   (--glass-1)        เมนูล่าง, popover, sheet, toast — มี blur
+     2 การ์ด (--glass-2)        การ์ดเนื้อหา — โปร่งแสง ขอบสว่าง ไม่ใส่ blur
+                                (หลังการ์ดเป็นพื้น gradient นุ่มๆ blur ไม่เห็นผล แต่กินแรงเครื่อง)
+     3 ในการ์ด (--glass-inner)  ชิ้นส่วนย่อย: ไม่ทำกระจกซ้อนกระจก
+   ทุกสีคำนวณด้วย color-mix จาก --surface / --card-bg เดิม โหมดมืดจึงตามมาเอง
+   ต้องเปลี่ยนแค่ขอบ/ไฮไลต์/เงา (ดู .dark-theme ด้านล่าง)
+   หน้าที่ยังไม่ได้ย้ายมาใช้แบบกระจก ไม่ต้องลิงก์ไฟล์นี้
+   ============================================================================== */
+:root {
+    --glass-1: color-mix(in srgb, var(--surface) 84%, transparent);
+    --glass-2: color-mix(in srgb, var(--card-bg) 80%, transparent);
+    --glass-inner: color-mix(in srgb, var(--text-main) 4.5%, transparent);
+    --glass-chip: color-mix(in srgb, var(--surface) 68%, transparent);
+    --glass-sheet: color-mix(in srgb, var(--surface) 90%, transparent);
+    /* กระจกโปร่งทำให้พื้นหลังหลังตัวอักษรเข้มขึ้นเล็กน้อย — เข้มขึ้นให้ตัวอักษรรองยังผ่าน AA 4.5:1 (โหมดมืดใช้ค่าเดิม) */
+    --text-muted: #5C6474;
+    --glass-blur: 22px;
+    --glass-sat: 170%;
+    --glass-edge: rgba(255, 255, 255, 0.78);
+    --glass-hi: inset 0 1px 0 rgba(255, 255, 255, 0.95);
+    --glass-shadow: 0 8px 28px rgba(23, 27, 38, 0.07), 0 1px 2px rgba(23, 27, 38, 0.04);
+    --glass-shadow-hover: 0 12px 32px rgba(23, 27, 38, 0.11), 0 1px 2px rgba(23, 27, 38, 0.05);
+    --glass-shadow-sm: 0 4px 14px rgba(23, 27, 38, 0.06), 0 1px 2px rgba(23, 27, 38, 0.04);
+
+    /* ชั้น 0: กระจกบนรูป hero (ตัวอักษร/ไอคอนต้องเป็นสีขาว) */
+    --glass-photo-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.30), rgba(255, 255, 255, 0.10));
+    --glass-photo-edge: rgba(255, 255, 255, 0.38);
+    --glass-photo-shadow: 0 8px 24px rgba(10, 16, 40, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+    --glass-photo-shadow-hover: 0 10px 28px rgba(10, 16, 40, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.55), inset 0 -1px 0 rgba(255, 255, 255, 0.1);
+
+    /* พื้นหลังตามสี hero: แต่ละหน้าตั้ง --page-tint ให้ตรงกับ background-color ของ hero ตัวเอง
+       (ห้ามประกาศค่าตั้งต้นที่นี่ — ไฟล์นี้โหลดทีหลังจะทับค่าของหน้า; ใช้ fallback ตอนเรียกแทน) */
+    --tint-top: 32%;
+    --tint-mid: 12%;
+    --tint-glow: 15%;
+
+    /* ชั้นพื้นหลังทั้งชุด — ใช้ทั้งที่ body::before และหน้าเต็มจอที่ทึบเอง (เช่น ประวัติการนอน) */
+    --glass-backdrop:
+        radial-gradient(90% 38% at 100% 46%, color-mix(in srgb, var(--accent-2) var(--tint-glow), transparent), transparent 72%),
+        radial-gradient(85% 34% at 0% 88%, color-mix(in srgb, var(--page-tint, var(--accent-1)) var(--tint-glow), transparent), transparent 72%),
+        linear-gradient(180deg,
+            color-mix(in srgb, var(--page-tint, var(--accent-1)) var(--tint-top), transparent) 0,
+            color-mix(in srgb, var(--page-tint, var(--accent-1)) var(--tint-mid), transparent) 240px,
+            transparent 560px);
+}
+
+.dark-theme,
+[data-theme="dark"] {
+    --text-muted: #8A93A8;
+    --glass-1: color-mix(in srgb, var(--surface) 78%, transparent);
+    --glass-2: color-mix(in srgb, var(--card-bg) 70%, transparent);
+    --glass-inner: color-mix(in srgb, var(--text-main) 6.5%, transparent);
+    --glass-chip: color-mix(in srgb, var(--surface) 62%, transparent);
+    --glass-sheet: color-mix(in srgb, var(--surface) 88%, transparent);
+    --glass-edge: rgba(255, 255, 255, 0.11);
+    --glass-hi: inset 0 1px 0 rgba(255, 255, 255, 0.09);
+    --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.36);
+    --glass-shadow-hover: 0 14px 36px rgba(0, 0, 0, 0.46);
+    --glass-shadow-sm: 0 4px 14px rgba(0, 0, 0, 0.28);
+    --tint-top: 44%;
+    --tint-mid: 22%;
+    --tint-glow: 22%;
+}
+
+/* ---------- พื้นหลังไล่สีตามสี hero (fixed: การ์ดที่เลื่อนผ่านมีสีให้กระจกเห็นเสมอ) ---------- */
+body.mobile-body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: var(--glass-backdrop);
+}
+
+/* ---------- ชั้น 2: การ์ดเนื้อหา ---------- */
+.stat-card,
+.summary-card,
+.form-card,
+.report-tabs {
+    background: var(--glass-2);
+    border-color: var(--glass-edge);
+    box-shadow: var(--glass-shadow), var(--glass-hi);
+}
+.stat-card:hover {
+    box-shadow: var(--glass-shadow-hover), var(--glass-hi);
+}
+
+/* หน้ารายงาน: การ์ดมีกราฟ/ตัวเลขหนาแน่น — ทึบขึ้นให้สีกราฟและตัวอักษรเล็กอ่านชัด */
+#reportContent {
+    --glass-2: color-mix(in srgb, var(--card-bg) 90%, transparent);
+}
+
+/* รายการบันทึก: มีได้หลายใบ — เงาเบา ไม่ blur */
+.log-item {
+    background: var(--glass-2);
+    border-color: var(--glass-edge);
+    box-shadow: var(--glass-shadow-sm), var(--glass-hi);
+}
+.log-item:hover {
+    box-shadow: var(--glass-shadow), var(--glass-hi);
+}
+
+/* ---------- ชั้น 3: ชิ้นส่วนในการ์ด (ไม่ blur) ---------- */
+.comparison-box,
+.tdee-target-card,
+.stat-chip,
+.light-chip,
+.detail-tile,
+.summary-bar,
+.sleep-meter-track,
+.kpi {
+    background: var(--glass-inner);
+}
+
+/* ชิปบนพื้นหน้า (ลิงก์แก้ไข, จำนวนรายการ) */
+.section-link,
+.count-badge {
+    background: var(--glass-chip);
+    box-shadow: inset 0 0 0 1px var(--glass-edge);
+}
+
+/* หน้าประวัติการนอน (เต็มจอ ทับหน้าหลัก): ใส่พื้นหลังไล่สีซ้ำ เพราะตัวมันทึบบัง body::before */
+.history-overlay { background: var(--glass-backdrop), var(--bg-page); }
+.history-back,
+.history-more {
+    background: var(--glass-chip);
+    border-color: var(--glass-edge);
+    box-shadow: var(--glass-shadow-sm), var(--glass-hi);
+}
+
+/* ---------- ชั้น 1: ลอย (มี blur) ---------- */
+.nav-pill-container {
+    background-color: var(--glass-1);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+    border-color: var(--glass-edge);
+    box-shadow: var(--glass-shadow-hover), var(--glass-hi);
+}
+.dark-theme .nav-pill-container,
+[data-theme="dark"] .nav-pill-container {
+    box-shadow: var(--glass-shadow-hover), var(--glass-hi);
+}
+/* iPhone: เว้นให้พ้นแถบ home indicator (หน้าตั้ง viewport-fit=cover ไว้แล้ว) */
+.nav-pill-wrapper {
+    bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+}
+
+.info-popover {
+    background-color: var(--glass-1);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+    border-color: var(--glass-edge);
+    box-shadow: var(--glass-shadow-hover), var(--glass-hi);
+}
+
+/* ---------- ชั้น 0: ปุ่มบน hero ของหน้าบันทึก (วันที่ / วันนี้) — ใช้ร่วมทุกหน้าบันทึก ---------- */
+.record-hero .date-picker-pill,
+.record-hero .today-btn {
+    background: var(--glass-photo-bg);
+    -webkit-backdrop-filter: blur(18px) saturate(180%);
+    backdrop-filter: blur(18px) saturate(180%);
+    border: 1px solid var(--glass-photo-edge);
+    box-shadow: var(--glass-photo-shadow);
+    color: #FFFFFF;
+}
+.record-hero .date-picker-pill:hover,
+.record-hero .date-picker-pill.is-active,
+.record-hero .today-btn:hover {
+    box-shadow: var(--glass-photo-shadow-hover);
+}
+.record-hero .today-btn.is-away { border-color: rgba(255, 255, 255, 0.7); }
+.record-hero .date-picker-pill .icon-calendar,
+.record-hero .today-btn .icon-inline { color: #FFFFFF; }
+.record-hero .date-picker-pill .icon-chevron { color: rgba(255, 255, 255, 0.75); }
+.record-hero .date-picker-pill .date-text,
+.record-hero .today-btn span:last-child {
+    font-weight: 600;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
+}
+
+/* ---------- ปุ่มลอย (FAB): ทึบ (สี accent) แต่วงแหวนรอบเป็นกระจกแทนวงสีพื้นหลังเดิม ---------- */
+.fab-wrapper { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); }
+.fab-add-btn {
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--surface) 55%, transparent), 0 12px 26px rgba(79, 99, 232, 0.34);
+}
+.fab-add-btn:hover {
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--surface) 55%, transparent), 0 16px 34px rgba(79, 99, 232, 0.44);
+}
+
+/* ---------- Modal / sheet: ฉากหลังเบลอทั้งจอ (blur ที่ overlay ชั้นเดียว)
+   การ์ดข้างในเป็นพื้นเกือบทึบ ไม่ใส่ blur ซ้อน — backdrop-filter ซ้อนกันแล้วชั้นในจะไม่เห็นหน้าเพจ ---------- */
+.modal-overlay {
+    background: rgba(10, 12, 20, 0.34);
+    -webkit-backdrop-filter: blur(8px) saturate(120%);
+    backdrop-filter: blur(8px) saturate(120%);
+}
+.detail-card,
+.sheet-card,
+.confirm-card,
+.password-sheet-card {
+    background: var(--glass-sheet);
+    border: 1px solid var(--glass-edge);
+    box-shadow: var(--glass-shadow-hover), var(--glass-hi);
+}
+
+/* ---------- ปฏิทิน + toast ---------- */
+.calendar-dropdown {
+    background: var(--glass-1);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+    border-color: var(--glass-edge);
+    box-shadow: var(--glass-shadow-hover), var(--glass-hi);
+}
+.app-toast {
+    background: rgba(28, 30, 38, 0.80);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    backdrop-filter: blur(16px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+}
+.app-toast.app-toast-success { background: rgba(16, 60, 40, 0.82); }
+.app-toast.app-toast-error { background: rgba(66, 22, 22, 0.82); }
+
+/* ---------- Fallback ---------- */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    :root { --glass-1: var(--surface); }
+}
+/* ผู้ใช้ปิดความโปร่งใส (เช่น "Transparency effects" ของ Windows): เกือบทึบ + ไม่ blur
+   แต่ยังคงขอบ/เงา/พื้นสีไว้ ให้หน้าตายังเป็นสไตล์เดียวกัน */
+@media (prefers-reduced-transparency: reduce) {
+    :root {
+        --glass-sheet: color-mix(in srgb, var(--surface) 97%, transparent);
+        --glass-1: color-mix(in srgb, var(--surface) 96%, transparent);
+        --glass-2: color-mix(in srgb, var(--card-bg) 94%, transparent);
+        --glass-inner: color-mix(in srgb, var(--text-main) 5%, var(--card-bg));
+        --glass-chip: color-mix(in srgb, var(--surface) 92%, transparent);
+    }
+    .nav-pill-container,
+    .info-popover,
+    .calendar-dropdown,
+    .app-toast,
+    .modal-overlay,
+    .record-hero .date-picker-pill,
+    .record-hero .today-btn {
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
+}

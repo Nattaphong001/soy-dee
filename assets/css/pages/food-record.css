@@ -19,30 +19,10 @@
     background: linear-gradient(180deg, rgba(3, 10, 6, 0.24) 0%, rgba(3, 10, 6, 0.38) 60%, rgba(3, 10, 6, 0.58) 100%);
 }
 
-/* ชิปวันที่ + ปุ่มวันนี้: กระจกใสสไตล์ iOS (ฝ้า + ไฮไลต์ขอบบน) ลอยบนโต๊ะอาหาร — สไตล์เดียวกับหน้านอนหลับ */
-.food-hero .date-picker-pill,
-.food-hero .today-btn {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.30), rgba(255, 255, 255, 0.10));
-    -webkit-backdrop-filter: blur(18px) saturate(180%);
-    backdrop-filter: blur(18px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.38);
-    box-shadow: 0 8px 24px rgba(4, 18, 10, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 -1px 0 rgba(255, 255, 255, 0.08);
-    color: #FFFFFF;
-}
-.food-hero .date-picker-pill:hover,
-.food-hero .date-picker-pill.is-active,
-.food-hero .today-btn:hover {
-    box-shadow: 0 10px 28px rgba(4, 18, 10, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.55), inset 0 -1px 0 rgba(255, 255, 255, 0.1);
-}
-.food-hero .today-btn.is-away { border-color: rgba(255, 255, 255, 0.7); }
-.food-hero .date-picker-pill .icon-calendar,
-.food-hero .today-btn .icon-inline { color: #FFFFFF; }
-.food-hero .date-picker-pill .icon-chevron { color: rgba(255, 255, 255, 0.75); }
-.food-hero .date-picker-pill .date-text,
-.food-hero .today-btn span:last-child {
-    font-weight: 600;
-    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
-}
+/* ชิปวันที่ + ปุ่มวันนี้บน hero: กระจกใสอยู่ที่ glass.css (.record-hero) ใช้ร่วมกันทุกหน้าบันทึก */
+
+/* สีพื้นหลังหน้าไล่ตามสี hero (ดู glass.css) */
+:root { --page-tint: #2f7d3a; }
 
 /* ---------- สีไฟจราจรของแถบสรุปและชิป ---------- */
 .seg-green  { background: var(--color-green); }

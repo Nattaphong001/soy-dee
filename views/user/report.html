@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="/assets/css/shared/nav.css">
     <link rel="stylesheet" href="/assets/css/shared/record-ui.css">
     <link rel="stylesheet" href="/assets/css/pages/report.css">
+    <!-- glass.css: ชั้นกระจกแบบ iOS — ต้องโหลดหลังสุด -->
+    <link rel="stylesheet" href="/assets/css/shared/glass.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Theme init: เหมือนหน้าอื่นๆ เป๊ะ ป้องกันหน้าจอกระพริบตอนโหลด -->
     <script>
@@ -100,14 +102,12 @@
                 <button type="button" class="report-tab" role="tab" data-tab="food" aria-selected="false"><i data-icon="food"></i><span data-i18n="tab-food">อาหาร</span></button>
                 <button type="button" class="report-tab" role="tab" data-tab="activity" aria-selected="false"><i data-icon="activity"></i><span data-i18n="tab-activity">กิจกรรม</span></button>
                 <button type="button" class="report-tab" role="tab" data-tab="sleep" aria-selected="false"><i data-icon="sleep"></i><span data-i18n="tab-sleep">การนอน</span></button>
-                <button type="button" class="report-tab" role="tab" data-tab="daily" aria-selected="false"><i data-icon="clipboard"></i><span data-i18n="tab-daily">รายวัน</span></button>
             </div>
 
             <div class="report-panel" id="panel-body" role="tabpanel"></div>
             <div class="report-panel" id="panel-food" role="tabpanel" hidden></div>
             <div class="report-panel" id="panel-activity" role="tabpanel" hidden></div>
             <div class="report-panel" id="panel-sleep" role="tabpanel" hidden></div>
-            <div class="report-panel" id="panel-daily" role="tabpanel" hidden></div>
 
             <!-- เว้นระยะให้พ้น bottom nav -->
             <div class="nav-spacer" aria-hidden="true"></div>
@@ -131,7 +131,6 @@
     <script src="/assets/js/shared/i18n.js"></script>
     <script src="/assets/js/shared/nav.js"></script>
     <script src="/assets/js/shared/app.js"></script>
-    <script src="/assets/js/shared/activity-categories.js"></script>
     <script src="/assets/js/pages/report.js"></script>
 </body>
 </html>

@@ -1,0 +1,13 @@
+{
+  "name": "soy-dee-web",
+  "private": true,
+  "scripts": {
+    "lint": "eslint assets/js",
+    "format": "prettier --write \"assets/**/*.{js,css}\" \"views/**/*.html\"",
+    "format:check": "prettier --check \"assets/**/*.{js,css}\" \"views/**/*.html\""
+  },
+  "devDependencies": {
+    "eslint": "^9.0.0",
+    "prettier": "^3.0.0"
+  }
+}

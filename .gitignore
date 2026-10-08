@@ -19,3 +19,8 @@ frontend/package-lock.json
 frontend/testsprite_tests/tmp/
 frontend/testsprite_tests/
 frontend/_archive/
+backend/docs/API_SPEC.md
+backend/docs/soydee.sql
+backend/postman/
+backend/uploads/API_SPEC.md
+backend/uploads/soydee.sql

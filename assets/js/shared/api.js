@@ -7,7 +7,7 @@
 (function (global) {
     'use strict';
 
-    var API_BASE_URL = 'http://' + window.location.hostname + ':8080/api/v1';
+    var API_BASE_URL = (global.SOYDEE_CONFIG && global.SOYDEE_CONFIG.apiBaseUrl) || ('http://' + window.location.hostname + ':8080/api/v1');
     var API_ORIGIN = API_BASE_URL.replace(/\/api\/v1\/?$/, '');
 
     /** ต่อ path ที่ backend คืนมา (เช่น "/uploads/avatars/12.jpg") ให้เป็น URL เต็มไปยัง API server */

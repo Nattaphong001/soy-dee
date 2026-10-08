@@ -9,16 +9,17 @@ import (
 	"soydee-api/internal/dto"
 	"soydee-api/internal/models"
 	"soydee-api/internal/repositories"
+	"soydee-api/internal/services"
 	"soydee-api/pkg/utils"
 )
 
 type FoodCategoryHandler struct {
-	repo   *repositories.FoodRepository
+	svc    *services.FoodCategoryService
 	images *MasterImageStore
 }
 
-func NewFoodCategoryHandler(repo *repositories.FoodRepository, images *MasterImageStore) *FoodCategoryHandler {
-	return &FoodCategoryHandler{repo: repo, images: images}
+func NewFoodCategoryHandler(svc *services.FoodCategoryService, images *MasterImageStore) *FoodCategoryHandler {
+	return &FoodCategoryHandler{svc: svc, images: images}
 }
 
 // UploadImage backs POST /admin/food-categories/image.
@@ -38,7 +39,7 @@ func (h *FoodCategoryHandler) prepare(w http.ResponseWriter, r *http.Request, re
 		utils.Error(w, http.StatusBadRequest, utils.CodeValidationError, v.Message())
 		return false
 	}
-	dup, err := h.repo.NameExists(r.Context(), req.FdName, excludeID)
+	dup, err := h.svc.NameExists(r.Context(), req.FdName, excludeID)
 	if err != nil {
 		utils.Error(w, http.StatusInternalServerError, utils.CodeInternalError, "failed to check food category name")
 		return false
@@ -63,7 +64,7 @@ func (h *FoodCategoryHandler) List(w http.ResponseWriter, r *http.Request) {
 		trafficLight = &v
 	}
 
-	items, err := h.repo.List(r.Context(), trafficLight)
+	items, err := h.svc.List(r.Context(), trafficLight)
 	if err != nil {
 		utils.Error(w, http.StatusInternalServerError, utils.CodeInternalError, "failed to list food categories")
 		return
@@ -79,7 +80,7 @@ func (h *FoodCategoryHandler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	item, err := h.repo.FindByID(r.Context(), id)
+	item, err := h.svc.FindByID(r.Context(), id)
 	if errors.Is(err, repositories.ErrNotFound) {
 		utils.Error(w, http.StatusNotFound, utils.CodeNotFound, "food category not found")
 		return
@@ -103,7 +104,7 @@ func (h *FoodCategoryHandler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	f := &models.FoodCategory{FdName: req.FdName, FdTrafficLight: req.FdTrafficLight, FdImages: req.FdImages}
-	id, err := h.repo.Create(r.Context(), f)
+	id, err := h.svc.Create(r.Context(), f)
 	if err != nil {
 		utils.Error(w, http.StatusInternalServerError, utils.CodeInternalError, "failed to create food category")
 		return
@@ -128,7 +129,7 @@ func (h *FoodCategoryHandler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	current, err := h.repo.FindByID(r.Context(), id)
+	current, err := h.svc.FindByID(r.Context(), id)
 	if errors.Is(err, repositories.ErrNotFound) {
 		utils.Error(w, http.StatusNotFound, utils.CodeNotFound, "food category not found")
 		return
@@ -139,7 +140,7 @@ func (h *FoodCategoryHandler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	f := &models.FoodCategory{FdID: id, FdName: req.FdName, FdTrafficLight: req.FdTrafficLight, FdImages: req.FdImages}
-	if err := h.repo.Update(r.Context(), f); errors.Is(err, repositories.ErrNotFound) {
+	if err := h.svc.Update(r.Context(), f); errors.Is(err, repositories.ErrNotFound) {
 		utils.Error(w, http.StatusNotFound, utils.CodeNotFound, "food category not found")
 		return
 	} else if err != nil {
@@ -160,8 +161,8 @@ func (h *FoodCategoryHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	current, _ := h.repo.FindByID(r.Context(), id)
-	err = h.repo.Delete(r.Context(), id)
+	current, _ := h.svc.FindByID(r.Context(), id)
+	err = h.svc.Delete(r.Context(), id)
 	switch {
 	case errors.Is(err, repositories.ErrNotFound):
 		utils.Error(w, http.StatusNotFound, utils.CodeNotFound, "food category not found")

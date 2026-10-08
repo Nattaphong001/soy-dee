@@ -13,16 +13,17 @@ import (
 	"soydee-api/internal/dto"
 	"soydee-api/internal/models"
 	"soydee-api/internal/repositories"
+	"soydee-api/internal/services"
 	"soydee-api/pkg/utils"
 )
 
 type FoodRecordHandler struct {
-	repo     *repositories.FoodRecordRepository
+	svc      *services.FoodRecordService
 	imageDir string // filesystem dir, e.g. "uploads/food-images"
 }
 
-func NewFoodRecordHandler(repo *repositories.FoodRecordRepository, imageDir string) *FoodRecordHandler {
-	return &FoodRecordHandler{repo: repo, imageDir: imageDir}
+func NewFoodRecordHandler(svc *services.FoodRecordService, imageDir string) *FoodRecordHandler {
+	return &FoodRecordHandler{svc: svc, imageDir: imageDir}
 }
 
 // foodImageURLPrefix is the only path prefix accepted for dfd_image
@@ -122,7 +123,7 @@ func (h *FoodRecordHandler) List(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	items, err := h.repo.ListByMemberAndDate(r.Context(), mbID, date)
+	items, err := h.svc.ListByMemberAndDate(r.Context(), mbID, date)
 	if err != nil {
 		utils.Error(w, http.StatusInternalServerError, utils.CodeInternalError, "failed to list food records")
 		return
@@ -143,7 +144,7 @@ func (h *FoodRecordHandler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	record, err := h.repo.FindByID(r.Context(), dfdID)
+	record, err := h.svc.FindByID(r.Context(), dfdID)
 	if errors.Is(err, repositories.ErrNotFound) || (err == nil && record.MbID != mbID) {
 		utils.Error(w, http.StatusNotFound, utils.CodeNotFound, "food record not found")
 		return
@@ -186,7 +187,7 @@ func (h *FoodRecordHandler) Create(w http.ResponseWriter, r *http.Request) {
 		FdID:        req.FdID,
 	}
 
-	id, err := h.repo.Create(r.Context(), record)
+	id, err := h.svc.Create(r.Context(), record)
 	if err != nil {
 		utils.Error(w, http.StatusInternalServerError, utils.CodeInternalError, "failed to save food record")
 		return
@@ -207,7 +208,7 @@ func (h *FoodRecordHandler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	existing, err := h.repo.FindByID(r.Context(), dfdID)
+	existing, err := h.svc.FindByID(r.Context(), dfdID)
 	if errors.Is(err, repositories.ErrNotFound) || (err == nil && existing.MbID != mbID) {
 		utils.Error(w, http.StatusNotFound, utils.CodeNotFound, "food record not found")
 		return
@@ -237,7 +238,7 @@ func (h *FoodRecordHandler) Update(w http.ResponseWriter, r *http.Request) {
 	existing.DfdImage = req.DfdImage
 	existing.FdID = req.FdID
 
-	if err := h.repo.Update(r.Context(), existing); err != nil {
+	if err := h.svc.Update(r.Context(), existing); err != nil {
 		utils.Error(w, http.StatusInternalServerError, utils.CodeInternalError, "failed to update food record")
 		return
 	}
@@ -260,9 +261,9 @@ func (h *FoodRecordHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	existing, findErr := h.repo.FindByID(r.Context(), dfdID)
+	existing, findErr := h.svc.FindByID(r.Context(), dfdID)
 
-	if err := h.repo.Delete(r.Context(), dfdID, mbID); errors.Is(err, repositories.ErrNotFound) {
+	if err := h.svc.Delete(r.Context(), dfdID, mbID); errors.Is(err, repositories.ErrNotFound) {
 		utils.Error(w, http.StatusNotFound, utils.CodeNotFound, "food record not found")
 		return
 	} else if err != nil {

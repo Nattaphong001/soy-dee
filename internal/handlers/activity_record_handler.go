@@ -7,23 +7,23 @@ import (
 	"soydee-api/internal/dto"
 	"soydee-api/internal/models"
 	"soydee-api/internal/repositories"
+	"soydee-api/internal/services"
 	"soydee-api/pkg/utils"
 )
 
 type ActivityRecordHandler struct {
-	repo       *repositories.ActivityRecordRepository
-	activities *repositories.ActivityRepository
+	svc *services.ActivityRecordService
 }
 
-func NewActivityRecordHandler(repo *repositories.ActivityRecordRepository, activities *repositories.ActivityRepository) *ActivityRecordHandler {
-	return &ActivityRecordHandler{repo: repo, activities: activities}
+func NewActivityRecordHandler(svc *services.ActivityRecordService) *ActivityRecordHandler {
+	return &ActivityRecordHandler{svc: svc}
 }
 
 // checkActivity confirms act_id exists and that a distance is only sent for an
 // activity flagged act_has_distance. It writes the error response itself and
 // reports whether the request may continue.
 func (h *ActivityRecordHandler) checkActivity(w http.ResponseWriter, r *http.Request, req dto.ActivityRecordRequest) bool {
-	act, err := h.activities.FindByID(r.Context(), req.ActID)
+	act, err := h.svc.FindActivity(r.Context(), req.ActID)
 	if errors.Is(err, repositories.ErrNotFound) {
 		utils.Error(w, http.StatusBadRequest, utils.CodeValidationError, "act_id does not exist")
 		return false
@@ -55,7 +55,7 @@ func (h *ActivityRecordHandler) List(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	items, err := h.repo.ListByMemberAndDate(r.Context(), mbID, date)
+	items, err := h.svc.ListByMemberAndDate(r.Context(), mbID, date)
 	if err != nil {
 		utils.Error(w, http.StatusInternalServerError, utils.CodeInternalError, "failed to list activity records")
 		return
@@ -81,7 +81,7 @@ func (h *ActivityRecordHandler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	record, err := h.repo.FindByID(r.Context(), dactID)
+	record, err := h.svc.FindByID(r.Context(), dactID)
 	if errors.Is(err, repositories.ErrNotFound) || (err == nil && record.MbID != mbID) {
 		utils.Error(w, http.StatusNotFound, utils.CodeNotFound, "activity record not found")
 		return
@@ -127,7 +127,7 @@ func (h *ActivityRecordHandler) Create(w http.ResponseWriter, r *http.Request) {
 		ActID:           req.ActID,
 	}
 
-	id, err := h.repo.Create(r.Context(), record)
+	id, err := h.svc.Create(r.Context(), record)
 	if err != nil {
 		utils.Error(w, http.StatusInternalServerError, utils.CodeInternalError, "failed to save activity record")
 		return
@@ -148,7 +148,7 @@ func (h *ActivityRecordHandler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	existing, err := h.repo.FindByID(r.Context(), dactID)
+	existing, err := h.svc.FindByID(r.Context(), dactID)
 	if errors.Is(err, repositories.ErrNotFound) || (err == nil && existing.MbID != mbID) {
 		utils.Error(w, http.StatusNotFound, utils.CodeNotFound, "activity record not found")
 		return
@@ -180,7 +180,7 @@ func (h *ActivityRecordHandler) Update(w http.ResponseWriter, r *http.Request) {
 	existing.DactDetail = req.DactDetail
 	existing.ActID = req.ActID
 
-	if err := h.repo.Update(r.Context(), existing); err != nil {
+	if err := h.svc.Update(r.Context(), existing); err != nil {
 		utils.Error(w, http.StatusInternalServerError, utils.CodeInternalError, "failed to update activity record")
 		return
 	}
@@ -200,7 +200,7 @@ func (h *ActivityRecordHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.repo.Delete(r.Context(), dactID, mbID); errors.Is(err, repositories.ErrNotFound) {
+	if err := h.svc.Delete(r.Context(), dactID, mbID); errors.Is(err, repositories.ErrNotFound) {
 		utils.Error(w, http.StatusNotFound, utils.CodeNotFound, "activity record not found")
 		return
 	} else if err != nil {

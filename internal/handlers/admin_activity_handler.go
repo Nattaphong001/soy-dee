@@ -8,16 +8,17 @@ import (
 	"soydee-api/internal/dto"
 	"soydee-api/internal/models"
 	"soydee-api/internal/repositories"
+	"soydee-api/internal/services"
 	"soydee-api/pkg/utils"
 )
 
 type ActivityHandler struct {
-	repo   *repositories.ActivityRepository
+	svc    *services.ActivityMasterService
 	images *MasterImageStore
 }
 
-func NewActivityHandler(repo *repositories.ActivityRepository, images *MasterImageStore) *ActivityHandler {
-	return &ActivityHandler{repo: repo, images: images}
+func NewActivityHandler(svc *services.ActivityMasterService, images *MasterImageStore) *ActivityHandler {
+	return &ActivityHandler{svc: svc, images: images}
 }
 
 // UploadImage backs POST /admin/activities/image.
@@ -35,7 +36,7 @@ func (h *ActivityHandler) prepare(w http.ResponseWriter, r *http.Request, req *d
 		utils.Error(w, http.StatusBadRequest, utils.CodeValidationError, v.Message())
 		return false
 	}
-	dup, err := h.repo.NameExists(r.Context(), req.ActName, excludeID)
+	dup, err := h.svc.NameExists(r.Context(), req.ActName, excludeID)
 	if err != nil {
 		utils.Error(w, http.StatusInternalServerError, utils.CodeInternalError, "failed to check activity name")
 		return false
@@ -50,7 +51,7 @@ func (h *ActivityHandler) prepare(w http.ResponseWriter, r *http.Request, req *d
 // List backs both GET /admin/activities and the public GET /activities
 // (API_SPEC.md §5.2, §8).
 func (h *ActivityHandler) List(w http.ResponseWriter, r *http.Request) {
-	items, err := h.repo.List(r.Context())
+	items, err := h.svc.List(r.Context())
 	if err != nil {
 		utils.Error(w, http.StatusInternalServerError, utils.CodeInternalError, "failed to list activities")
 		return
@@ -66,7 +67,7 @@ func (h *ActivityHandler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	item, err := h.repo.FindByID(r.Context(), id)
+	item, err := h.svc.FindByID(r.Context(), id)
 	if errors.Is(err, repositories.ErrNotFound) {
 		utils.Error(w, http.StatusNotFound, utils.CodeNotFound, "activity not found")
 		return
@@ -100,7 +101,7 @@ func (h *ActivityHandler) Create(w http.ResponseWriter, r *http.Request) {
 	if req.ActHasDistance != nil {
 		a.ActHasDistance = *req.ActHasDistance
 	}
-	id, err := h.repo.Create(r.Context(), a)
+	id, err := h.svc.Create(r.Context(), a)
 	if err != nil {
 		utils.Error(w, http.StatusInternalServerError, utils.CodeInternalError, "failed to create activity")
 		return
@@ -126,7 +127,7 @@ func (h *ActivityHandler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// act_category / act_has_distance / act_intensity omitted -> keep what is stored
-	current, err := h.repo.FindByID(r.Context(), id)
+	current, err := h.svc.FindByID(r.Context(), id)
 	if errors.Is(err, repositories.ErrNotFound) {
 		utils.Error(w, http.StatusNotFound, utils.CodeNotFound, "activity not found")
 		return
@@ -146,7 +147,7 @@ func (h *ActivityHandler) Update(w http.ResponseWriter, r *http.Request) {
 	if req.ActHasDistance != nil {
 		a.ActHasDistance = *req.ActHasDistance
 	}
-	if err := h.repo.Update(r.Context(), a); errors.Is(err, repositories.ErrNotFound) {
+	if err := h.svc.Update(r.Context(), a); errors.Is(err, repositories.ErrNotFound) {
 		utils.Error(w, http.StatusNotFound, utils.CodeNotFound, "activity not found")
 		return
 	} else if err != nil {
@@ -167,8 +168,8 @@ func (h *ActivityHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	current, _ := h.repo.FindByID(r.Context(), id)
-	err = h.repo.Delete(r.Context(), id)
+	current, _ := h.svc.FindByID(r.Context(), id)
+	err = h.svc.Delete(r.Context(), id)
 	switch {
 	case errors.Is(err, repositories.ErrNotFound):
 		utils.Error(w, http.StatusNotFound, utils.CodeNotFound, "activity not found")

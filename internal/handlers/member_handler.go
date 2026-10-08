@@ -12,6 +12,7 @@ import (
 	"soydee-api/internal/dto"
 	"soydee-api/internal/models"
 	"soydee-api/internal/repositories"
+	"soydee-api/internal/services"
 	"soydee-api/pkg/utils"
 )
 
@@ -29,13 +30,12 @@ var allowedAvatarMimes = map[string]bool{
 }
 
 type MemberHandler struct {
-	repo       *repositories.MemberRepository
-	systemRepo *repositories.SystemRepository
-	avatarDir  string // filesystem dir, e.g. "uploads/avatars"
+	svc       *services.MemberService
+	avatarDir string // filesystem dir, e.g. "uploads/avatars"
 }
 
-func NewMemberHandler(repo *repositories.MemberRepository, systemRepo *repositories.SystemRepository, avatarDir string) *MemberHandler {
-	return &MemberHandler{repo: repo, systemRepo: systemRepo, avatarDir: avatarDir}
+func NewMemberHandler(svc *services.MemberService, avatarDir string) *MemberHandler {
+	return &MemberHandler{svc: svc, avatarDir: avatarDir}
 }
 
 func (h *MemberHandler) Register(w http.ResponseWriter, r *http.Request) {
@@ -49,17 +49,10 @@ func (h *MemberHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	exists, err := h.repo.UsernameExists(r.Context(), req.MbUserName)
+	exists, err := h.svc.UsernameTaken(r.Context(), req.MbUserName)
 	if err != nil {
 		utils.Error(w, http.StatusInternalServerError, utils.CodeInternalError, "failed to check username")
 		return
-	}
-	if !exists {
-		exists, err = h.systemRepo.UsernameExists(r.Context(), req.MbUserName)
-		if err != nil {
-			utils.Error(w, http.StatusInternalServerError, utils.CodeInternalError, "failed to check username")
-			return
-		}
 	}
 	if exists {
 		utils.Error(w, http.StatusConflict, utils.CodeDuplicateUsername, "username is already taken")
@@ -90,7 +83,7 @@ func (h *MemberHandler) Register(w http.ResponseWriter, r *http.Request) {
 		MbsTarget:        req.BodyStats.MbsTarget,
 	}
 
-	mbID, err := h.repo.CreateWithBodyStats(r.Context(), member, bodyStats)
+	mbID, err := h.svc.CreateWithBodyStats(r.Context(), member, bodyStats)
 	if err != nil {
 		utils.Error(w, http.StatusInternalServerError, utils.CodeInternalError, "failed to register")
 		return
@@ -106,7 +99,7 @@ func (h *MemberHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	member, err := h.repo.FindByID(r.Context(), id)
+	member, err := h.svc.FindByID(r.Context(), id)
 	if errors.Is(err, repositories.ErrNotFound) {
 		utils.Error(w, http.StatusNotFound, utils.CodeNotFound, "member not found")
 		return
@@ -136,7 +129,7 @@ func (h *MemberHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	existing, err := h.repo.FindByID(r.Context(), id)
+	existing, err := h.svc.FindByID(r.Context(), id)
 	if errors.Is(err, repositories.ErrNotFound) {
 		utils.Error(w, http.StatusNotFound, utils.CodeNotFound, "member not found")
 		return
@@ -160,7 +153,7 @@ func (h *MemberHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		existing.MbProfilePic = req.MbProfilePic
 	}
 
-	if err := h.repo.UpdateProfile(r.Context(), existing); err != nil {
+	if err := h.svc.UpdateProfile(r.Context(), existing); err != nil {
 		utils.Error(w, http.StatusInternalServerError, utils.CodeInternalError, "failed to update profile")
 		return
 	}
@@ -185,7 +178,7 @@ func (h *MemberHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	member, err := h.repo.FindByID(r.Context(), id)
+	member, err := h.svc.FindByID(r.Context(), id)
 	if errors.Is(err, repositories.ErrNotFound) {
 		utils.Error(w, http.StatusNotFound, utils.CodeNotFound, "member not found")
 		return
@@ -206,7 +199,7 @@ func (h *MemberHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.repo.UpdatePassword(r.Context(), id, hash); err != nil {
+	if err := h.svc.UpdatePassword(r.Context(), id, hash); err != nil {
 		utils.Error(w, http.StatusInternalServerError, utils.CodeInternalError, "failed to update password")
 		return
 	}
@@ -274,7 +267,7 @@ func (h *MemberHandler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 	}
 
 	urlPath := "/uploads/avatars/" + filename
-	if err := h.repo.UpdateAvatar(r.Context(), id, urlPath); errors.Is(err, repositories.ErrNotFound) {
+	if err := h.svc.UpdateAvatar(r.Context(), id, urlPath); errors.Is(err, repositories.ErrNotFound) {
 		utils.Error(w, http.StatusNotFound, utils.CodeNotFound, "member not found")
 		return
 	} else if err != nil {

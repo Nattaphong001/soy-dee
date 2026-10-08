@@ -14,12 +14,12 @@ import (
 )
 
 type SleepRecordHandler struct {
-	repo *repositories.SleepRepository
+	svc  *services.SleepRecordService
 	eval *services.SleepEvalService
 }
 
-func NewSleepRecordHandler(repo *repositories.SleepRepository, eval *services.SleepEvalService) *SleepRecordHandler {
-	return &SleepRecordHandler{repo: repo, eval: eval}
+func NewSleepRecordHandler(svc *services.SleepRecordService, eval *services.SleepEvalService) *SleepRecordHandler {
+	return &SleepRecordHandler{svc: svc, eval: eval}
 }
 
 func (h *SleepRecordHandler) List(w http.ResponseWriter, r *http.Request) {
@@ -38,7 +38,7 @@ func (h *SleepRecordHandler) List(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	items, err := h.repo.ListByMemberAndDate(r.Context(), mbID, date)
+	items, err := h.svc.ListByMemberAndDate(r.Context(), mbID, date)
 	if err != nil {
 		utils.Error(w, http.StatusInternalServerError, utils.CodeInternalError, "failed to list sleep records")
 		return
@@ -64,7 +64,7 @@ func (h *SleepRecordHandler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	record, err := h.repo.FindByID(r.Context(), dslpID)
+	record, err := h.svc.FindByID(r.Context(), dslpID)
 	if errors.Is(err, repositories.ErrNotFound) || (err == nil && record.MbID != mbID) {
 		utils.Error(w, http.StatusNotFound, utils.CodeNotFound, "sleep record not found")
 		return
@@ -111,7 +111,7 @@ func (h *SleepRecordHandler) Create(w http.ResponseWriter, r *http.Request) {
 		MbID:             mbID,
 	}
 
-	id, err := h.repo.Create(r.Context(), record)
+	id, err := h.svc.Create(r.Context(), record)
 	if err != nil {
 		utils.Error(w, http.StatusInternalServerError, utils.CodeInternalError, "failed to save sleep record")
 		return
@@ -133,7 +133,7 @@ func (h *SleepRecordHandler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	existing, err := h.repo.FindByID(r.Context(), dslpID)
+	existing, err := h.svc.FindByID(r.Context(), dslpID)
 	if errors.Is(err, repositories.ErrNotFound) || (err == nil && existing.MbID != mbID) {
 		utils.Error(w, http.StatusNotFound, utils.CodeNotFound, "sleep record not found")
 		return
@@ -167,7 +167,7 @@ func (h *SleepRecordHandler) Update(w http.ResponseWriter, r *http.Request) {
 	existing.DslpEvalResult = &evalResultStr
 	existing.DslpQualityScore = req.DslpQualityScore
 
-	if err := h.repo.Update(r.Context(), existing); err != nil {
+	if err := h.svc.Update(r.Context(), existing); err != nil {
 		utils.Error(w, http.StatusInternalServerError, utils.CodeInternalError, "failed to update sleep record")
 		return
 	}
@@ -187,7 +187,7 @@ func (h *SleepRecordHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.repo.Delete(r.Context(), dslpID, mbID); errors.Is(err, repositories.ErrNotFound) {
+	if err := h.svc.Delete(r.Context(), dslpID, mbID); errors.Is(err, repositories.ErrNotFound) {
 		utils.Error(w, http.StatusNotFound, utils.CodeNotFound, "sleep record not found")
 		return
 	} else if err != nil {

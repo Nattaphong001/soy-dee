@@ -83,3 +83,11 @@ func (s *BMRService) Calculate(ctx context.Context, mbID int, mbsID *int, record
 
 	return history, nil
 }
+
+func (s *BMRService) ListByMember(ctx context.Context, mbID int, from, to *time.Time, limit, offset int) ([]models.MemberBmrHistory, int, error) {
+	return s.bmrRepo.ListByMember(ctx, mbID, from, to, limit, offset)
+}
+
+func (s *BMRService) LatestByMember(ctx context.Context, mbID int) (*models.MemberBmrHistory, error) {
+	return s.bmrRepo.LatestByMember(ctx, mbID)
+}

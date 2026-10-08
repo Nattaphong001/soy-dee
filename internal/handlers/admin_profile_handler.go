@@ -12,6 +12,7 @@ import (
 	"soydee-api/internal/dto"
 	"soydee-api/internal/middleware"
 	"soydee-api/internal/repositories"
+	"soydee-api/internal/services"
 	"soydee-api/pkg/utils"
 )
 
@@ -21,13 +22,12 @@ import (
 // claims set by RequireAuth (see middleware.ClaimsFromContext), same way
 // RequireRole(admin) already gates the whole /admin group in router.go.
 type AdminProfileHandler struct {
-	repo       *repositories.SystemRepository
-	memberRepo *repositories.MemberRepository
-	avatarDir  string
+	svc       *services.AdminProfileService
+	avatarDir string
 }
 
-func NewAdminProfileHandler(repo *repositories.SystemRepository, memberRepo *repositories.MemberRepository, avatarDir string) *AdminProfileHandler {
-	return &AdminProfileHandler{repo: repo, memberRepo: memberRepo, avatarDir: avatarDir}
+func NewAdminProfileHandler(svc *services.AdminProfileService, avatarDir string) *AdminProfileHandler {
+	return &AdminProfileHandler{svc: svc, avatarDir: avatarDir}
 }
 
 func adminSysID(r *http.Request) (int, bool) {
@@ -45,7 +45,7 @@ func (h *AdminProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	admin, err := h.repo.FindByID(r.Context(), sysID)
+	admin, err := h.svc.FindByID(r.Context(), sysID)
 	if errors.Is(err, repositories.ErrNotFound) {
 		utils.Error(w, http.StatusNotFound, utils.CodeNotFound, "admin not found")
 		return
@@ -75,7 +75,7 @@ func (h *AdminProfileHandler) UpdateProfile(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	existing, err := h.repo.FindByID(r.Context(), sysID)
+	existing, err := h.svc.FindByID(r.Context(), sysID)
 	if errors.Is(err, repositories.ErrNotFound) {
 		utils.Error(w, http.StatusNotFound, utils.CodeNotFound, "admin not found")
 		return
@@ -87,7 +87,7 @@ func (h *AdminProfileHandler) UpdateProfile(w http.ResponseWriter, r *http.Reque
 
 	// Username is immutable after account creation — req.SysUsername is ignored
 	// here even if the client sends a different value.
-	if err := h.repo.UpdateProfile(r.Context(), sysID, req.SysFullName, existing.SysUsername); err != nil {
+	if err := h.svc.UpdateProfile(r.Context(), sysID, req.SysFullName, existing.SysUsername); err != nil {
 		utils.Error(w, http.StatusInternalServerError, utils.CodeInternalError, "failed to update profile")
 		return
 	}
@@ -113,7 +113,7 @@ func (h *AdminProfileHandler) ChangePassword(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	admin, err := h.repo.FindByID(r.Context(), sysID)
+	admin, err := h.svc.FindByID(r.Context(), sysID)
 	if errors.Is(err, repositories.ErrNotFound) {
 		utils.Error(w, http.StatusNotFound, utils.CodeNotFound, "admin not found")
 		return
@@ -134,7 +134,7 @@ func (h *AdminProfileHandler) ChangePassword(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	if err := h.repo.UpdatePassword(r.Context(), sysID, hash); err != nil {
+	if err := h.svc.UpdatePassword(r.Context(), sysID, hash); err != nil {
 		utils.Error(w, http.StatusInternalServerError, utils.CodeInternalError, "failed to update password")
 		return
 	}
@@ -205,7 +205,7 @@ func (h *AdminProfileHandler) UploadAvatar(w http.ResponseWriter, r *http.Reques
 	}
 
 	urlPath := "/uploads/avatars/" + filename
-	if err := h.repo.UpdateAvatar(r.Context(), sysID, urlPath); errors.Is(err, repositories.ErrNotFound) {
+	if err := h.svc.UpdateAvatar(r.Context(), sysID, urlPath); errors.Is(err, repositories.ErrNotFound) {
 		utils.Error(w, http.StatusNotFound, utils.CodeNotFound, "admin not found")
 		return
 	} else if err != nil {

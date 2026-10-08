@@ -12,11 +12,10 @@ import (
 
 type BMRHandler struct {
 	service *services.BMRService
-	repo    *repositories.BmrRepository
 }
 
-func NewBMRHandler(service *services.BMRService, repo *repositories.BmrRepository) *BMRHandler {
-	return &BMRHandler{service: service, repo: repo}
+func NewBMRHandler(service *services.BMRService) *BMRHandler {
+	return &BMRHandler{service: service}
 }
 
 func (h *BMRHandler) Calculate(w http.ResponseWriter, r *http.Request) {
@@ -68,7 +67,7 @@ func (h *BMRHandler) History(w http.ResponseWriter, r *http.Request) {
 	}
 	limit, offset, page := parsePagination(r)
 
-	items, total, err := h.repo.ListByMember(r.Context(), mbID, from, to, limit, offset)
+	items, total, err := h.service.ListByMember(r.Context(), mbID, from, to, limit, offset)
 	if err != nil {
 		utils.Error(w, http.StatusInternalServerError, utils.CodeInternalError, "failed to list BMR history")
 		return
@@ -89,7 +88,7 @@ func (h *BMRHandler) Latest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	latest, err := h.repo.LatestByMember(r.Context(), mbID)
+	latest, err := h.service.LatestByMember(r.Context(), mbID)
 	if errors.Is(err, repositories.ErrNotFound) {
 		utils.Error(w, http.StatusNotFound, utils.CodeNotFound, "no BMR history found")
 		return

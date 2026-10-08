@@ -54,17 +54,17 @@ func main() {
 
 	h := routes.Handlers{
 		Auth:           handlers.NewAuthHandler(authService),
-		FoodCategory:   handlers.NewFoodCategoryHandler(foodRepo, masterImages),
-		Activity:       handlers.NewActivityHandler(activityRepo, masterImages),
-		Member:         handlers.NewMemberHandler(memberRepo, systemRepo, "uploads/avatars"),
-		BMR:            handlers.NewBMRHandler(bmrService, bmrRepo),
-		BodyStats:      handlers.NewBodyStatsHandler(bodyStatsRepo, memberRepo),
-		FoodRecord:     handlers.NewFoodRecordHandler(foodRecordRepo, "uploads/food-images"),
-		ActivityRecord: handlers.NewActivityRecordHandler(activityRecordRepo, activityRepo),
-		SleepRecord:    handlers.NewSleepRecordHandler(sleepRepo, sleepEvalService),
+		FoodCategory:   handlers.NewFoodCategoryHandler(services.NewFoodCategoryService(foodRepo), masterImages),
+		Activity:       handlers.NewActivityHandler(services.NewActivityMasterService(activityRepo), masterImages),
+		Member:         handlers.NewMemberHandler(services.NewMemberService(memberRepo, systemRepo), "uploads/avatars"),
+		BMR:            handlers.NewBMRHandler(bmrService),
+		BodyStats:      handlers.NewBodyStatsHandler(services.NewBodyStatsService(bodyStatsRepo, memberRepo)),
+		FoodRecord:     handlers.NewFoodRecordHandler(services.NewFoodRecordService(foodRecordRepo), "uploads/food-images"),
+		ActivityRecord: handlers.NewActivityRecordHandler(services.NewActivityRecordService(activityRecordRepo, activityRepo)),
+		SleepRecord:    handlers.NewSleepRecordHandler(services.NewSleepRecordService(sleepRepo), sleepEvalService),
 		Dashboard:      handlers.NewDashboardHandler(reportService),
 		AdminReport:    handlers.NewAdminReportHandler(reportService),
-		AdminProfile:   handlers.NewAdminProfileHandler(systemRepo, memberRepo, "uploads/avatars"),
+		AdminProfile:   handlers.NewAdminProfileHandler(services.NewAdminProfileService(systemRepo), "uploads/avatars"),
 	}
 
 	router := routes.NewRouter(cfg, authService, h)

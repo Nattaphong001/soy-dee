@@ -8,16 +8,16 @@ import (
 	"soydee-api/internal/dto"
 	"soydee-api/internal/models"
 	"soydee-api/internal/repositories"
+	"soydee-api/internal/services"
 	"soydee-api/pkg/utils"
 )
 
 type BodyStatsHandler struct {
-	repo       *repositories.BodyStatsRepository
-	memberRepo *repositories.MemberRepository
+	svc *services.BodyStatsService
 }
 
-func NewBodyStatsHandler(repo *repositories.BodyStatsRepository, memberRepo *repositories.MemberRepository) *BodyStatsHandler {
-	return &BodyStatsHandler{repo: repo, memberRepo: memberRepo}
+func NewBodyStatsHandler(svc *services.BodyStatsService) *BodyStatsHandler {
+	return &BodyStatsHandler{svc: svc}
 }
 
 func (h *BodyStatsHandler) List(w http.ResponseWriter, r *http.Request) {
@@ -27,7 +27,7 @@ func (h *BodyStatsHandler) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	items, err := h.repo.ListByMember(r.Context(), mbID)
+	items, err := h.svc.ListByMember(r.Context(), mbID)
 	if err != nil {
 		utils.Error(w, http.StatusInternalServerError, utils.CodeInternalError, "failed to list body stats")
 		return
@@ -53,7 +53,7 @@ func (h *BodyStatsHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	member, err := h.memberRepo.FindByID(r.Context(), mbID)
+	member, err := h.svc.FindMember(r.Context(), mbID)
 	if errors.Is(err, repositories.ErrNotFound) {
 		utils.Error(w, http.StatusNotFound, utils.CodeNotFound, "member not found")
 		return
@@ -70,7 +70,7 @@ func (h *BodyStatsHandler) Create(w http.ResponseWriter, r *http.Request) {
 	// §7.4: a Save click that didn't actually change weight/height/activity
 	// level/target skips the insert — no fresh history row for identical
 	// data (SOYDEE_AI_TASK.md §7.4).
-	if latest, err := h.repo.LatestByMember(r.Context(), mbID); err == nil && bodyStatsUnchanged(latest, &req) {
+	if latest, err := h.svc.LatestByMember(r.Context(), mbID); err == nil && bodyStatsUnchanged(latest, &req) {
 		utils.Success(w, http.StatusOK, map[string]int64{"mbs_id": int64(latest.MbsID)}, "ไม่มีการเปลี่ยนแปลงข้อมูล")
 		return
 	} else if err != nil && !errors.Is(err, repositories.ErrNotFound) {
@@ -86,7 +86,7 @@ func (h *BodyStatsHandler) Create(w http.ResponseWriter, r *http.Request) {
 		MbID:             mbID,
 	}
 
-	mbsID, _, err := h.repo.CreateWithBmr(r.Context(), bs, *member.MbGender, *member.MbBirthDate)
+	mbsID, _, err := h.svc.CreateWithBmr(r.Context(), bs, *member.MbGender, *member.MbBirthDate)
 	if err != nil {
 		utils.Error(w, http.StatusInternalServerError, utils.CodeInternalError, "failed to save body stats")
 		return
@@ -125,7 +125,7 @@ func (h *BodyStatsHandler) Latest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	latest, err := h.repo.LatestByMember(r.Context(), mbID)
+	latest, err := h.svc.LatestByMember(r.Context(), mbID)
 	if errors.Is(err, repositories.ErrNotFound) {
 		utils.Error(w, http.StatusNotFound, utils.CodeNotFound, "no body stats found")
 		return

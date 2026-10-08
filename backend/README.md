@@ -34,8 +34,4 @@ implements.
 
 ## Frontend
 
-Web client: https://github.com/Nattaphong001/soy-dee
-
-## License
-
-MIT — see [LICENSE](LICENSE).
+Web client lives in [`../frontend`](../frontend).

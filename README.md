@@ -2,17 +2,17 @@
 
 ระบบติดตามและประเมินพฤติกรรมสุขภาพส่วนบุคคล — mobile web app ให้ผู้ใช้บันทึกอาหาร กิจกรรม และการนอน แล้วดูสรุปผลผ่านแดชบอร์ดที่มี "กิ้งก่า" (gecko) เป็น mascot เดินไปมาตามการ์ดสถิติต่างๆ
 
-> โปรเจคนี้เป็นฝั่ง **Frontend** เท่านั้น พัฒนาเป็น Vanilla HTML/CSS/JS ล้วน ไม่ใช้ framework คู่กับ Backend REST API แยกคนละ repository ([soy-dee-api](https://github.com/Nattaphong001/soy-dee-api), Go + MySQL)
+> Monorepo: [`frontend/`](frontend) เป็น Vanilla HTML/CSS/JS ล้วน ไม่ใช้ framework และ [`backend/`](backend) เป็น REST API (Go + MySQL) — รายละเอียด API ดู [backend/README.md](backend/README.md)
 
 ## Tech Stack
 
 **Frontend**
 - HTML5, CSS3, Vanilla JavaScript (ES6+) — ไม่ใช้ framework/build tool
-- Fetch API wrapper กลาง (`assets/js/shared/api.js`) จัดการ JWT session, auto refresh token, error handling
+- Fetch API wrapper กลาง (`frontend/assets/js/shared/api.js`) จัดการ JWT session, auto refresh token, error handling
 - Multi-language (ไทย/อังกฤษ) ด้วย i18n engine ที่เขียนเอง
 - Dark/Light theme switch
 
-**Backend** (แยก repository)
+**Backend** (`backend/`)
 - Go (Golang) + [chi router](https://github.com/go-chi/chi)
 - MySQL
 - JWT authentication (access + refresh token)
@@ -47,25 +47,38 @@ MySQL
 - **Gecko mascot เดินตามการ์ด** — ตำแหน่งกิ้งก่าคำนวณใหม่ทุกครั้งที่ความกว้างการ์ดเปลี่ยนจากข้อมูลจริง (เช่น ความยาวชื่อ/ตัวเลขไม่เท่ากัน) ให้เดินตามขอบการ์ดได้แม่นยำโดยไม่ hardcode ตำแหน่ง
 - **i18n โดยไม่ใช้ library** — เขียนเอนจินแปลภาษากลางที่ scan `data-i18n` ให้ใช้ร่วมกันได้ทุกหน้า โดยยังคงหน่วย/คำย่อเฉพาะทาง (BMI, BMR, kcal ฯลฯ) ไว้ไม่ให้ถูกแปลผิดความหมาย
 
-## วิธีรันโปรเจค
 
-**1) Backend** (repo แยก — [Nattaphong001/soy-dee-api](https://github.com/Nattaphong001/soy-dee-api))
+## โครงสร้าง repo
 
-```bash
-go run ./cmd/api
+```
+soy-dee/
+├─ frontend/   หน้าเว็บ (HTML/CSS/JS)
+├─ backend/    Go REST API + migrations
+├─ docs/       spec และเอกสารโปรเจค
+└─ .github/    CI (backend: fmt, vet, test, build)
 ```
 
-ค่า default ของ API รันที่ `http://localhost:8080`
+## วิธีรันโปรเจค
+
+**1) Backend**
+
+```bash
+cd backend
+cp .env.example .env   # ใส่ค่า DB และ JWT_SECRET
+make migrate-up
+make run               # http://localhost:8080
+```
 
 **2) Frontend**
 
-เปิด `views/auth/welcome.html` ด้วย Live Server (VSCode extension) หรือ static server ใดก็ได้ เช่น:
+เปิด `frontend/views/auth/welcome.html` ด้วย Live Server (VSCode extension) หรือ static server ใดก็ได้ เช่น:
 
 ```bash
+cd frontend
 npx serve .
 ```
 
-> ต้องรัน backend ให้ทำงานอยู่ก่อน เพราะหน้าเว็บเรียก API ที่ `http://localhost:8080/api/v1` ตรงตามที่ตั้งไว้ใน `assets/js/shared/api.js`
+> ต้องรัน backend ให้ทำงานอยู่ก่อน เพราะหน้าเว็บเรียก API ที่ `http://localhost:8080/api/v1` ตามที่ตั้งไว้ใน `frontend/assets/js/shared/config.js`
 
 ## License
 
